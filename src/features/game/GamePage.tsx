@@ -1,20 +1,31 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
 import { ChoiceVisual } from '../../components/ChoiceVisual';
 import { MetricStrip } from '../../components/MetricStrip';
 import { SceneAnimation } from '../../components/SceneAnimation';
+import { StarRating } from '../../components/StarRating';
 import { useAppConfig } from '../../context/AppConfigContext';
 import type { DecisionChoice } from '../../types/config';
 import type { GameResult, GameRun, LedgerEntry } from '../../types/game';
 import { formatCurrency } from '../../utils/format';
 import { readJson, storageKeys, writeJson } from '../../utils/storage';
-import { applyChoice, calculateResult, choiceAvailability, createRun, equipmentCost, resolveAnimation } from './gameEngine';
+import {
+  applyChoice,
+  calculateResult,
+  calculateScoreFromMetrics,
+  calculateStepStarGain,
+  choiceAvailability,
+  createRun,
+  equipmentCost,
+  resolveAnimation,
+  scoreToStars,
+} from './gameEngine';
 import {
   describeChoiceImpact,
   describeFeedback,
   explainResultCard,
   getMetricLabel,
-  personalizeChoice,
   personalizeDecision,
+  summarizeConsequence,
 } from './narrative';
 import styles from './GamePage.module.css';
 
@@ -76,6 +87,7 @@ export function GamePage() {
   }
 
   const completed = run.currentDecisionIndex >= config.scenario.decisions.length;
+  const awaitingPhaseTwo = !completed && run.currentDecisionIndex === STRATEGY_STEPS && !run.phase2Unlocked;
   const result: GameResult | null = completed ? calculateResult(run, config) : null;
 
   if (completed && result) {
@@ -94,9 +106,12 @@ export function GamePage() {
             <span className={styles.kicker}>Resultado final</span>
             <h1>{band.title}</h1>
             <p>{band.summary}</p>
-            <div className={styles.scoreRing} style={{ '--score': `${result.score}%` } as CSSProperties}>
-              <span>{result.score}</span>
-              <small>pontos</small>
+            <div className={styles.ratingShowcase}>
+              <StarRating value={result.stars} size="xl" animated label="Classificação do jogador" />
+              <div className={styles.ratingNote}>
+                <strong>{result.stars.toFixed(1)} / 5.0 estrelas</strong>
+                <span>Seu desempenho final combina caixa, reputação, qualidade, capacidade, risco e carga operacional.</span>
+              </div>
             </div>
             <div className={styles.resultGrid}>
               <article className={`${styles.resultCard} panel`}>
@@ -105,7 +120,7 @@ export function GamePage() {
                 <ul className={styles.insightList}>
                   {result.strengths.map((item) => <li key={item} className={styles.positive}>{item}</li>)}
                 </ul>
-                {openInsight === 'strengths' ? <InsightPopover title="Escolhas que ajudaram neste resultado" lines={insightData.strengths} /> : null}
+                {openInsight === 'strengths' ? <InsightPopover title="Escolhas que fortaleceram este resultado" lines={insightData.strengths} /> : null}
               </article>
               <article className={`${styles.resultCard} panel`}>
                 <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'alerts' ? null : 'alerts')}>!</button>
@@ -113,7 +128,7 @@ export function GamePage() {
                 <ul className={styles.insightList}>
                   {result.alerts.map((item) => <li key={item} className={styles.negative}>{item}</li>)}
                 </ul>
-                {openInsight === 'alerts' ? <InsightPopover title="Escolhas que puxaram este indicador" lines={insightData.alerts} /> : null}
+                {openInsight === 'alerts' ? <InsightPopover title="Escolhas que puxaram o resultado para baixo" lines={insightData.alerts} /> : null}
               </article>
               <article className={`${styles.resultCard} panel`}>
                 <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'method' ? null : 'method')}>!</button>
@@ -138,7 +153,7 @@ export function GamePage() {
                 <span>{index + 1}</span>
                 <div>
                   <strong>{entry.title}</strong>
-                  <p>{entry.consequence}</p>
+                  <p>{summarizeConsequence(entry.consequence)}</p>
                 </div>
                 <small>
                   {describeFeedback(entry.delta)
@@ -148,6 +163,49 @@ export function GamePage() {
                 </small>
               </article>
             ))}
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (awaitingPhaseTwo) {
+    return (
+      <main className={styles.page}>
+        <section className={styles.hudSection}>
+          <div className={styles.phaseRail}>
+            <article className={`${styles.phaseCard} ${styles.phaseActive}`}>
+              <small>Fase 1</small>
+              <strong>Estratégia concluída</strong>
+              <span>Base do negócio definida</span>
+            </article>
+            <article className={styles.phaseCard}>
+              <small>Fase 2</small>
+              <strong>Situações-problema</strong>
+              <span>5 desafios práticos</span>
+            </article>
+          </div>
+          <MetricStrip values={run.metrics} currency={config.scenario.currency} />
+        </section>
+
+        <section className={styles.phaseBreakHero}>
+          <SceneAnimation scene="growth" />
+          <div className={styles.phaseBreakContent}>
+            <span className={styles.kicker}>Transição de fase</span>
+            <h1>Estratégia montada. Hora de ir para o campo.</h1>
+            <p>Você concluiu as 3 escolhas-base do negócio. Na próxima fase, o jogo testa sua operação diante de preço, agenda, reclamação e crescimento.</p>
+            <div className={styles.phaseBreakSummary}>
+              <StarRating value={scoreToStars(calculateScoreFromMetrics(run.metrics, config))} size="md" label="Projeção atual" />
+              <span>Clientes <strong>{Math.round(run.metrics.customers)}</strong></span>
+              <span>Carga <strong>{Math.round(run.metrics.fatigue)}</strong></span>
+            </div>
+            <button
+              className="primaryButton"
+              type="button"
+              onClick={() => setRun({ ...run, phase2Unlocked: true })}
+            >
+              Seguir para fase 2 -&gt;
+            </button>
           </div>
         </section>
       </main>
@@ -197,6 +255,7 @@ export function GamePage() {
         <div className={styles.minorStats}>
           <span>Clientes <strong>{Math.round(run.metrics.customers)}</strong></span>
           <span>Carga <strong>{Math.round(run.metrics.fatigue)}</strong></span>
+          <span>Classificação <strong>{scoreToStars(calculateScoreFromMetrics(run.metrics, config)).toFixed(1)}★</strong></span>
         </div>
       </section>
 
@@ -253,7 +312,7 @@ export function GamePage() {
                         </span>
                       ))}
                     </div>
-                    <small className={styles.choiceHint}>{availability.available ? choice.consequence : availability.reason}</small>
+                    <small className={styles.choiceHint}>{availability.available ? summarizeConsequence(choice.consequence) : availability.reason}</small>
                   </div>
                 </button>
               );
@@ -267,7 +326,7 @@ export function GamePage() {
           <section className={styles.modal} role="dialog" aria-modal="true" onMouseDown={(event) => event.stopPropagation()}>
             <span className={styles.kicker}>Confirmar decisão</span>
             <h2>{selectedChoice.label}</h2>
-            <p>{selectedChoice.consequence}</p>
+            <p>{summarizeConsequence(selectedChoice.consequence)}</p>
             <div className={styles.modalEconomy}>
               <span>Caixa atual <strong>{formatCurrency(run.metrics.cash)}</strong></span>
               <span>Impacto <strong>{formatCurrency(choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, config).effectiveCashDelta)}</strong></span>
@@ -282,33 +341,68 @@ export function GamePage() {
       )}
 
       {feedback && (
-        <div className={styles.modalBackdrop} role="presentation">
-          <section className={`${styles.modal} ${styles.feedbackModal}`} role="dialog" aria-modal="true">
-            <span className={styles.kicker}>Consequência da escolha</span>
-            <h2>{feedback.entry.title}</h2>
-            <p>{feedback.entry.consequence}</p>
-            <div className={styles.feedbackGrid}>
-              {describeFeedback(feedback.entry.delta).map((item) => (
-                <article key={item.key} className={`${styles.feedbackStat} ${item.positive ? styles.goodFeedback : styles.badFeedback}`}>
-                  <small>{item.positive ? '↑' : '↓'} {getMetricLabel(item.key)}</small>
-                  <strong>{item.title}</strong>
-                  <span>{item.description}</span>
-                </article>
-              ))}
-            </div>
-            <div className={styles.feedbackNote}>
-              <strong>Leitura do método</strong>
-              <span>{feedback.mentorTip}</span>
-            </div>
-            <div className={styles.modalActions}>
-              <button className="primaryButton" type="button" onClick={() => setFeedback(null)}>
-                {run.currentDecisionIndex >= config.scenario.decisions.length ? 'Ver resultado' : 'Continuar'}
-              </button>
-            </div>
-          </section>
-        </div>
+        <FeedbackModal
+          feedback={feedback}
+          config={config}
+          onClose={() => setFeedback(null)}
+          willShowPhaseTwo={run.currentDecisionIndex === STRATEGY_STEPS && !run.phase2Unlocked}
+          completed={run.currentDecisionIndex >= config.scenario.decisions.length}
+        />
       )}
     </main>
+  );
+}
+
+function FeedbackModal({
+  feedback,
+  config,
+  onClose,
+  willShowPhaseTwo,
+  completed,
+}: {
+  feedback: { entry: LedgerEntry; mentorTip: string };
+  config: ReturnType<typeof useAppConfig>['config'];
+  onClose: () => void;
+  willShowPhaseTwo: boolean;
+  completed: boolean;
+}) {
+  const stageStars = calculateStepStarGain(feedback.entry.before, feedback.entry.after, config);
+  const projectedStars = scoreToStars(calculateScoreFromMetrics(feedback.entry.after, config));
+
+  return (
+    <div className={styles.modalBackdrop} role="presentation">
+      <section className={`${styles.modal} ${styles.feedbackModal}`} role="dialog" aria-modal="true">
+        <span className={styles.kicker}>Consequência da escolha</span>
+        <h2>{feedback.entry.title}</h2>
+        <p>{summarizeConsequence(feedback.entry.consequence)}</p>
+        <div className={styles.rewardPanel}>
+          <div className={styles.rewardCopy}>
+            <small>Mini estrelas da etapa</small>
+            <strong>+{stageStars.toFixed(1)}★</strong>
+            <span>Projeção atual: {projectedStars.toFixed(1)} / 5.0 estrelas</span>
+          </div>
+          <StarRating value={projectedStars} size="md" animated showValue={false} />
+        </div>
+        <div className={styles.feedbackGrid}>
+          {describeFeedback(feedback.entry.delta).map((item) => (
+            <article key={item.key} className={`${styles.feedbackStat} ${item.positive ? styles.goodFeedback : styles.badFeedback}`}>
+              <small>{item.positive ? '↑' : '↓'} {getMetricLabel(item.key)}</small>
+              <strong>{item.title}</strong>
+              <span>{item.description}</span>
+            </article>
+          ))}
+        </div>
+        <div className={styles.feedbackNote}>
+          <strong>Leitura do método</strong>
+          <span>{feedback.mentorTip}</span>
+        </div>
+        <div className={styles.modalActions}>
+          <button className="primaryButton" type="button" onClick={onClose}>
+            {completed ? 'Ver resultado' : willShowPhaseTwo ? 'Ir para a transição da fase 2' : 'Continuar'}
+          </button>
+        </div>
+      </section>
+    </div>
   );
 }
 

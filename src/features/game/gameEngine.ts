@@ -13,6 +13,7 @@ export function createRun(config: AppConfig): GameRun {
     flags: [],
     choices: {},
     ledger: [],
+    phase2Unlocked: false,
   };
 }
 
@@ -117,20 +118,36 @@ export function applyChoice(
   };
 }
 
-export function calculateResult(run: GameRun, config: AppConfig): GameResult {
+export function calculateScoreFromMetrics(metrics: NumericMetrics, config: AppConfig): number {
   const initial = config.scenario.initialMetrics;
   const weights = config.scenario.scoreWeights;
-  const cashScore = clamp(((run.metrics.cash - initial.cash + 3000) / 6000) * 100, 0, 100);
-  const capacityScore = clamp((run.metrics.capacity / 14) * 100, 0, 100);
+  const cashScore = clamp(((metrics.cash - initial.cash + 3000) / 6000) * 100, 0, 100);
+  const capacityScore = clamp((metrics.capacity / 14) * 100, 0, 100);
 
-  const score = Math.round(
+  return Math.round(
     cashScore * weights.cash +
-      run.metrics.reputation * weights.reputation +
-      run.metrics.quality * weights.quality +
+      metrics.reputation * weights.reputation +
+      metrics.quality * weights.quality +
       capacityScore * weights.capacity +
-      (100 - run.metrics.risk) * weights.risk +
-      (100 - run.metrics.fatigue) * weights.fatigue,
+      (100 - metrics.risk) * weights.risk +
+      (100 - metrics.fatigue) * weights.fatigue,
   );
+}
+
+export function scoreToStars(score: number): number {
+  return Math.round(clamp((score / 100) * 5, 0, 5) * 10) / 10;
+}
+
+export function calculateStepStarGain(before: NumericMetrics, after: NumericMetrics, config: AppConfig): number {
+  const beforeStars = scoreToStars(calculateScoreFromMetrics(before, config));
+  const afterStars = scoreToStars(calculateScoreFromMetrics(after, config));
+  return Math.max(0, Math.round((afterStars - beforeStars) * 10) / 10);
+}
+
+export function calculateResult(run: GameRun, config: AppConfig): GameResult {
+  const initial = config.scenario.initialMetrics;
+  const score = calculateScoreFromMetrics(run.metrics, config);
+  const stars = scoreToStars(score);
 
   const band =
     config.scenario.resultBands.find((item) => score >= item.minScore && score <= item.maxScore) ??
@@ -138,18 +155,18 @@ export function calculateResult(run: GameRun, config: AppConfig): GameResult {
 
   const strengths: string[] = [];
   const alerts: string[] = [];
-  if (run.metrics.cash >= initial.cash * 0.65) strengths.push('Você preservou uma reserva relevante de caixa.');
-  else alerts.push('O caixa final ficou baixo para absorver imprevistos e sazonalidade.');
-  if (run.metrics.reputation >= 55) strengths.push('Sua postura gerou confiança e reputação.');
-  else alerts.push('A reputação ainda depende de processos mais consistentes.');
-  if (run.metrics.quality >= 60) strengths.push('O padrão de entrega terminou acima do nível inicial.');
-  else alerts.push('A qualidade sofreu com pressão, variedade ou decisões de curto prazo.');
-  if (run.metrics.risk <= 35) strengths.push('O risco operacional ficou sob controle.');
-  else alerts.push('Há exposição elevada a retrabalho, custo fixo ou promessas difíceis de cumprir.');
-  if (run.metrics.fatigue <= 40) strengths.push('A carga de trabalho permaneceu sustentável.');
-  else alerts.push('A operação depende demais do esforço pessoal do proprietário.');
+  if (run.metrics.cash >= initial.cash * 0.65) strengths.push('Boa reserva de caixa para seguir operando.');
+  else alerts.push('Caixa final apertado para lidar com imprevistos.');
+  if (run.metrics.reputation >= 55) strengths.push('Sua reputação terminou em bom nível.');
+  else alerts.push('A reputação ainda precisa de mais consistência.');
+  if (run.metrics.quality >= 60) strengths.push('O padrão da entrega ficou acima do ponto de partida.');
+  else alerts.push('A qualidade foi pressionada em escolhas-chave.');
+  if (run.metrics.risk <= 35) strengths.push('O risco operacional ficou bem controlado.');
+  else alerts.push('O risco operacional terminou acima do ideal.');
+  if (run.metrics.fatigue <= 40) strengths.push('A carga de trabalho segue sustentável.');
+  else alerts.push('A operação está muito dependente do seu esforço pessoal.');
 
-  return { score, bandId: band.id, strengths, alerts };
+  return { score, stars, bandId: band.id, strengths, alerts };
 }
 
 export function resolveAnimation(run: GameRun, configured: AppConfig['scenario']['decisions'][number]['animation']) {

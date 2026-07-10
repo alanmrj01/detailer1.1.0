@@ -13,7 +13,8 @@
 
 .introHero,
 .storyStage,
-.resultHero {
+.resultHero,
+.phaseBreakHero {
   position: relative;
   overflow: hidden;
   border: 1px solid var(--border);
@@ -29,7 +30,8 @@
 
 .introContent,
 .storyOverlay,
-.resultContent {
+.resultContent,
+.phaseBreakContent {
   position: relative;
   z-index: 2;
 }
@@ -78,7 +80,8 @@
 
 .introContent h1,
 .storyOverlay h1,
-.resultContent h1 {
+.resultContent h1,
+.phaseBreakContent h1 {
   margin: 0.75rem 0 0.9rem;
   font-size: clamp(2.1rem, 4vw, 4.4rem);
   line-height: 0.98;
@@ -87,7 +90,8 @@
 
 .introContent p,
 .storyOverlay p,
-.resultContent p {
+.resultContent p,
+.phaseBreakContent p {
   color: var(--muted);
   font-size: clamp(1rem, 1.7vw, 1.12rem);
   line-height: 1.62;
@@ -155,13 +159,16 @@
   box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
-.minorStats {
+.minorStats,
+.phaseBreakSummary {
   display: flex;
   gap: 0.8rem;
   flex-wrap: wrap;
+  align-items: center;
 }
 
-.minorStats span {
+.minorStats span,
+.phaseBreakSummary span {
   padding: 0.55rem 0.8rem;
   border-radius: 999px;
   border: 1px solid var(--border);
@@ -170,7 +177,8 @@
   font-size: 0.75rem;
 }
 
-.minorStats strong { color: var(--text); }
+.minorStats strong,
+.phaseBreakSummary strong { color: var(--text); }
 
 .gameArena {
   display: grid;
@@ -179,12 +187,14 @@
   align-items: stretch;
 }
 
-.storyStage {
+.storyStage,
+.phaseBreakHero {
   min-height: 560px;
   border-radius: 30px;
 }
 
-.storyOverlay {
+.storyOverlay,
+.phaseBreakContent {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -349,7 +359,7 @@
   animation: modalIn 220ms ease;
 }
 
-.feedbackModal { width: min(720px, 100%); }
+.feedbackModal { width: min(760px, 100%); }
 .modal h2 { margin: 0.5rem 0; }
 .modal p { color: var(--muted); line-height: 1.6; }
 
@@ -361,7 +371,8 @@
 }
 
 .modalEconomy span,
-.feedbackStat {
+.feedbackStat,
+.rewardPanel {
   padding: 0.8rem;
   border-radius: 16px;
   background: var(--surface-2);
@@ -369,6 +380,37 @@
 
 .modalEconomy span { color: var(--muted); font-size: 0.72rem; }
 .modalEconomy strong { display: block; margin-top: 0.2rem; color: var(--text); font-size: 0.92rem; }
+
+.rewardPanel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface-2));
+}
+
+.rewardCopy {
+  display: grid;
+  gap: 0.14rem;
+}
+.rewardCopy small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.rewardCopy strong {
+  color: var(--text);
+  font-size: 1.34rem;
+  letter-spacing: -0.03em;
+}
+.rewardCopy span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
 
 .feedbackGrid {
   display: grid;
@@ -416,23 +458,32 @@
   flex-direction: column;
   justify-content: center;
   min-height: 470px;
-  width: min(720px, 72%);
+  width: min(760px, 78%);
   padding: clamp(1.6rem, 4vw, 3rem);
   background: linear-gradient(180deg, transparent 10%, color-mix(in srgb, var(--surface) 86%, transparent) 54%, var(--surface) 100%);
 }
 
-.scoreRing {
-  display: grid;
-  place-items: center;
-  width: 116px;
-  height: 116px;
-  margin: 1rem 0 0;
-  border-radius: 50%;
-  background: conic-gradient(var(--accent) var(--score), var(--surface-2) 0);
-  box-shadow: inset 0 0 0 12px var(--surface), 0 16px 38px color-mix(in srgb, var(--accent) 20%, transparent);
+.ratingShowcase {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.2rem;
+  margin: 1rem 0 1.25rem;
 }
-.scoreRing span { font-size: 2rem; font-weight: 900; }
-.scoreRing small { margin-top: -22px; color: var(--muted); }
+
+.ratingNote {
+  display: grid;
+  gap: 0.3rem;
+}
+.ratingNote strong {
+  font-size: 1.2rem;
+  letter-spacing: -0.03em;
+}
+.ratingNote span {
+  max-width: 420px;
+  color: var(--muted);
+  line-height: 1.55;
+}
 
 .resultGrid {
   display: grid;
@@ -508,6 +559,11 @@
 .timelineItem p { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.8rem; }
 .timelineItem small { color: var(--muted); }
 
+.phaseBreakContent {
+  justify-content: center;
+  gap: 1rem;
+}
+
 @keyframes modalIn {
   from { opacity: 0; transform: translateY(12px) scale(.98); }
 }
@@ -516,7 +572,8 @@
   .gameArena { grid-template-columns: 1fr; }
   .storyOverlay,
   .resultContent,
-  .introContent {
+  .introContent,
+  .phaseBreakContent {
     width: 100%;
     background: linear-gradient(180deg, transparent 16%, color-mix(in srgb, var(--surface) 86%, transparent) 56%, var(--surface) 100%);
   }
@@ -532,13 +589,16 @@
   .storyStage,
   .resultHero,
   .decisionPanel,
-  .introHero { border-radius: 24px; }
+  .introHero,
+  .phaseBreakHero { border-radius: 24px; }
   .storyOverlay,
   .resultContent,
   .introContent,
-  .decisionPanel { padding: 1.15rem; }
+  .decisionPanel,
+  .phaseBreakContent { padding: 1.15rem; }
   .timelineItem { grid-template-columns: auto 1fr; }
   .timelineItem small { grid-column: 2; }
+  .rewardPanel { align-items: start; flex-direction: column; }
 }
 
 @media (max-width: 640px) {

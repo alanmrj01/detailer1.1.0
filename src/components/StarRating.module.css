@@ -1,0 +1,68 @@
+.wrap {
+  display: inline-grid;
+  gap: 0.25rem;
+}
+
+.wrap small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.wrap strong {
+  color: var(--text);
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.stars {
+  position: relative;
+  display: inline-grid;
+  width: fit-content;
+  line-height: 1;
+}
+
+.base,
+.fill {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.18em;
+  white-space: nowrap;
+}
+
+.base {
+  color: rgba(148, 163, 184, 0.35);
+}
+
+.fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  width: var(--fill);
+  color: #fbbf24;
+  text-shadow: 0 0 18px rgba(251, 191, 36, 0.28);
+}
+
+.animated .fill {
+  animation: revealStarFill 1s ease both;
+}
+
+.sm .base,
+.sm .fill { font-size: 0.92rem; }
+.md .base,
+.md .fill { font-size: 1.16rem; }
+.xl .base,
+.xl .fill { font-size: 1.85rem; }
+
+.xl strong {
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+@keyframes revealStarFill {
+  from { width: 0; }
+  60% { width: calc(var(--fill) + 8%); }
+  to { width: var(--fill); }
+}

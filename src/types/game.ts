@@ -20,10 +20,12 @@ export interface GameRun {
   flags: string[];
   choices: Record<string, string>;
   ledger: LedgerEntry[];
+  phase2Unlocked?: boolean;
 }
 
 export interface GameResult {
   score: number;
+  stars: number;
   bandId: string;
   strengths: string[];
   alerts: string[];

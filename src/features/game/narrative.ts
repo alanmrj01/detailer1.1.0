@@ -143,28 +143,36 @@ function scoreEntry(entry: LedgerEntry, kind: 'strengths' | 'alerts' | 'method')
 
 function positiveCopy(metric: string): string {
   const map: Record<string, string> = {
-    cash: 'A escolha reforça sua folga financeira para operar com menos pressão.',
-    reputation: 'A percepção do cliente e a confiança na sua entrega aumentam.',
-    quality: 'O padrão do serviço fica mais consistente e alinhado ao método.',
-    capacity: 'Sua operação ganha mais espaço para atender sem colapsar.',
-    risk: 'O risco caiu, deixando a operação mais segura.',
-    customers: 'A decisão ajuda a atrair ou reter mais clientes.',
-    fatigue: 'A carga de esforço cai e a rotina fica mais sustentável.',
+    cash: 'Mais folga financeira.',
+    reputation: 'Mais confiança do cliente.',
+    quality: 'Entrega mais consistente.',
+    capacity: 'Mais fôlego operacional.',
+    risk: 'Menor chance de problema.',
+    customers: 'Mais clientes no radar.',
+    fatigue: 'Rotina mais leve.',
   };
-  return map[metric] ?? 'A decisão melhora este indicador.';
+  return map[metric] ?? 'Este indicador melhorou.';
 }
 
 function negativeCopy(metric: string): string {
   const map: Record<string, string> = {
-    cash: 'O caixa fica mais apertado e exige cuidado maior nas próximas etapas.',
-    reputation: 'A confiança do cliente tende a sofrer com essa decisão.',
-    quality: 'O padrão da entrega perde consistência nesta escolha.',
-    capacity: 'A operação fica mais travada para absorver demanda.',
-    risk: 'O risco sobe e aumenta a chance de retrabalho ou desgaste.',
-    customers: 'A atratividade comercial diminui nesta decisão.',
-    fatigue: 'A carga operacional sobe e pressiona a rotina do negócio.',
+    cash: 'Caixa mais pressionado.',
+    reputation: 'Menos confiança do cliente.',
+    quality: 'Queda no padrão da entrega.',
+    capacity: 'Operação mais travada.',
+    risk: 'Mais chance de problema.',
+    customers: 'Menos tração comercial.',
+    fatigue: 'Rotina mais pesada.',
   };
-  return map[metric] ?? 'A decisão pressiona este indicador.';
+  return map[metric] ?? 'Este indicador piorou.';
+}
+
+
+export function summarizeConsequence(text: string): string {
+  const cleaned = text.trim();
+  const firstChunk = cleaned.split(/(?<=[.!?])\s|,\s|;\s/)[0]?.trim() ?? cleaned;
+  if (firstChunk.length <= 92) return firstChunk;
+  return `${firstChunk.slice(0, 89).trimEnd()}...`;
 }
 
 function capitalize(value: string) {
