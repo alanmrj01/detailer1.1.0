@@ -1,12 +1,11 @@
 .visual {
-  --choice-position: 80% 50%;
   position: relative;
   flex-shrink: 0;
   width: 132px;
   height: 98px;
   overflow: hidden;
   border-radius: 19px;
-  border: 1px solid rgba(102, 208, 255, 0.24);
+  border: 1px solid rgba(102, 208, 255, 0.28);
   background: #071421;
   box-shadow:
     inset 0 1px rgba(255, 255, 255, 0.08),
@@ -16,134 +15,42 @@
 
 .image {
   position: absolute;
-  inset: -4%;
-  width: 108%;
-  height: 108%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  object-position: var(--choice-position);
-  filter: saturate(1.08) contrast(1.06) brightness(0.92);
-  transform: scale(1.04);
-  animation: thumbnailDrift 5.8s ease-in-out infinite alternate;
-  will-change: transform;
+  filter: saturate(1.04) contrast(1.04) brightness(0.98);
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .depthShade {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(3, 9, 16, 0.28), rgba(3, 9, 16, 0) 56%),
-    linear-gradient(180deg, rgba(3, 9, 16, 0) 48%, rgba(3, 9, 16, 0.72) 100%);
-}
-
-.lightSweep {
-  position: absolute;
-  top: -30%;
-  bottom: -30%;
-  left: -38%;
-  width: 32%;
-  background: linear-gradient(90deg, transparent, rgba(190, 241, 255, 0.32), transparent);
-  transform: rotate(14deg);
-  mix-blend-mode: screen;
-  animation: thumbnailSweep 4.8s ease-in-out infinite;
+    linear-gradient(90deg, rgba(3, 9, 16, 0.08), rgba(3, 9, 16, 0) 58%),
+    linear-gradient(180deg, rgba(3, 9, 16, 0) 56%, rgba(3, 9, 16, 0.34) 100%);
 }
 
 .focusRing {
   position: absolute;
-  inset: 8px;
+  inset: 7px;
   border-radius: 14px;
   border: 1px solid rgba(140, 229, 255, 0.14);
   box-shadow: inset 0 0 20px rgba(80, 210, 255, 0.05);
 }
 
-.glyph {
-  position: absolute;
-  right: 8px;
-  top: 8px;
-  display: grid;
-  place-items: center;
-  min-width: 27px;
-  height: 27px;
-  padding: 0 0.36rem;
-  border-radius: 999px;
-  color: #052136;
-  background: #7dd3fc;
-  font-size: 0.7rem;
-  font-weight: 950;
-  box-shadow: 0 0 0 5px rgba(125, 211, 252, 0.12), 0 8px 18px rgba(0, 0, 0, 0.25);
-  animation: glyphPulse 2.6s ease-in-out infinite;
-}
-
-.particles {
-  position: absolute;
-  left: 10px;
-  bottom: 10px;
-  width: 44px;
-  height: 24px;
-}
-
-.particles i {
-  position: absolute;
-  display: block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: rgba(186, 230, 253, 0.9);
-  box-shadow: 0 0 10px rgba(125, 211, 252, 0.55);
-  animation: particleFloat 2.8s ease-in-out infinite;
-}
-
-.particles i:nth-child(1) { left: 2px; bottom: 2px; }
-.particles i:nth-child(2) { left: 18px; top: 2px; animation-delay: -0.9s; }
-.particles i:nth-child(3) { right: 1px; bottom: 6px; animation-delay: -1.8s; }
-
-.blue .glyph { background: #60a5fa; box-shadow: 0 0 0 5px rgba(96, 165, 250, 0.13), 0 8px 18px rgba(0, 0, 0, 0.25); }
-.gold .glyph { background: #facc15; color: #422006; box-shadow: 0 0 0 5px rgba(250, 204, 21, 0.12), 0 8px 18px rgba(0, 0, 0, 0.25); }
-.red .glyph { background: #fb7185; color: #4c0519; box-shadow: 0 0 0 5px rgba(251, 113, 133, 0.13), 0 8px 18px rgba(0, 0, 0, 0.25); }
-.green .glyph { background: #34d399; color: #022c22; box-shadow: 0 0 0 5px rgba(52, 211, 153, 0.13), 0 8px 18px rgba(0, 0, 0, 0.25); }
-
-.visual:hover .image,
-button:hover .visual .image {
-  transform: scale(1.11) translate3d(-1%, -1%, 0);
-}
-
-.visual:hover .lightSweep,
-button:hover .visual .lightSweep {
-  animation-duration: 1.5s;
-}
-
-@keyframes thumbnailDrift {
-  from { transform: scale(1.04) translate3d(0, 0, 0); }
-  to { transform: scale(1.09) translate3d(-1.2%, -0.8%, 0); }
-}
-
-@keyframes thumbnailSweep {
-  0%, 22% { transform: translateX(0) rotate(14deg); opacity: 0; }
-  45% { opacity: 0.62; }
-  72%, 100% { transform: translateX(520%) rotate(14deg); opacity: 0; }
-}
-
-@keyframes glyphPulse {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-3px) scale(1.06); }
-}
-
-@keyframes particleFloat {
-  0%, 100% { transform: translateY(4px) scale(0.75); opacity: 0.28; }
-  50% { transform: translateY(-8px) scale(1.08); opacity: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .image,
-  .lightSweep,
-  .glyph,
-  .particles i {
-    animation: none !important;
-  }
+button:hover .visual {
+  border-color: rgba(126, 230, 255, 0.52);
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.1),
+    0 18px 34px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(102, 208, 255, 0.08);
 }
 
 @media (max-width: 520px) {
   .visual {
     width: 100%;
-    height: 106px;
+    height: 118px;
   }
 }

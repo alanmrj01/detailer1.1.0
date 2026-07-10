@@ -1,0 +1,25 @@
+Detailer Business 1.2.4 — alterações cirúrgicas
+
+Preservado:
+- toda a lógica do jogo
+- regras e consequências
+- fase 1 e fase 2
+- resultados, estrelas, histórico e configurações
+- estrutura React + Vite + TypeScript
+
+Alterado somente na camada visual:
+1. Cenas principais
+- movimento localizado do personagem, ferramenta/ação e veículo
+- loops curtos e suaves no estilo de ilustração 3D animada
+- efeitos existentes de água, polimento, alerta, preços e estrelas preservados
+
+2. Ilustrações das escolhas
+- 27 mini-ilustrações estáticas diferentes
+- mesmo padrão 3D das cenas principais
+- sem animação nas opções
+- fallback visual para evitar cards sem imagem
+
+Validação:
+- npm install: OK
+- npm test: 7 testes aprovados
+- npm run build: OK

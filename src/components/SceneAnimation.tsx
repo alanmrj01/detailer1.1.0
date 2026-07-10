@@ -40,8 +40,8 @@ const sceneMap: Record<AnimationScene, { src: string; alt: string }> = {
     alt: 'Ilustração 3D de polimento automotivo com politriz.',
   },
   interior: {
-    src: washingScene,
-    alt: 'Ilustração 3D de execução cuidadosa de serviço automotivo.',
+    src: equipmentScene,
+    alt: 'Ilustração 3D de higienização interna e equipamentos de limpeza.',
   },
   pricing: {
     src: pricingScene,
@@ -62,20 +62,10 @@ export function SceneAnimation({ scene }: SceneAnimationProps) {
 
   return (
     <div className={`${styles.scene} ${styles[scene] ?? ''}`} aria-hidden="true">
-      <img
-        className={styles.image}
-        src={current.src}
-        alt={current.alt}
-        draggable={false}
-        decoding="async"
-      />
-      <img
-        className={styles.foreground}
-        src={current.src}
-        alt=""
-        draggable={false}
-        decoding="async"
-      />
+      <img className={styles.baseImage} src={current.src} alt={current.alt} draggable={false} decoding="async" />
+      <img className={styles.actorLayer} src={current.src} alt="" draggable={false} decoding="async" />
+      <img className={styles.actionLayer} src={current.src} alt="" draggable={false} decoding="async" />
+      <img className={styles.vehicleLayer} src={current.src} alt="" draggable={false} decoding="async" />
 
       <div className={styles.leftShade} />
       <div className={styles.bottomShade} />
@@ -84,37 +74,12 @@ export function SceneAnimation({ scene }: SceneAnimationProps) {
       <div className={styles.floorGlow} />
       <div className={styles.ambientParticles}><i /><i /><i /><i /></div>
 
-      <div className={styles.strategyPulse}>
-        <i />
-        <i />
-        <i />
-      </div>
-
-      <div className={styles.waterSpray}>
-        <i />
-        <i />
-        <i />
-        <i />
-      </div>
-
-      <div className={styles.polishingGlow}>
-        <i />
-        <i />
-      </div>
-
-      <div className={styles.priceCards}>
-        <i />
-        <i />
-        <i />
-      </div>
-
+      <div className={styles.strategyPulse}><i /><i /><i /></div>
+      <div className={styles.waterSpray}><i /><i /><i /><i /></div>
+      <div className={styles.polishingGlow}><i /><i /></div>
+      <div className={styles.priceCards}><i /><i /><i /></div>
       <div className={styles.alertPulse}>!</div>
-
-      <div className={styles.rewardStars}>
-        <i>★</i>
-        <i>★</i>
-        <i>★</i>
-      </div>
+      <div className={styles.rewardStars}><i>★</i><i>★</i><i>★</i></div>
     </div>
   );
 }
