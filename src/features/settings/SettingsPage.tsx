@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useAppConfig } from '../../context/AppConfigContext';
 import type {
   AppConfig,
@@ -9,21 +9,19 @@ import type {
   ResultBand,
 } from '../../types/config';
 import { formatCurrency } from '../../utils/format';
-import { validateConfig } from '../../utils/configValidation';
 import styles from './SettingsPage.module.css';
 
-type SettingsTab = 'branding' | 'scenario' | 'market' | 'decisions' | 'results' | 'data';
+type SettingsTab = 'branding' | 'scenario' | 'market' | 'decisions' | 'results';
 
 const metricKeys: MetricKey[] = ['cash', 'reputation', 'quality', 'capacity', 'risk', 'customers', 'fatigue'];
 
 export function SettingsPage() {
-  const { config, setConfig, updateConfig, resetConfig } = useAppConfig();
+  const { config, updateConfig } = useAppConfig();
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem('detailer-creator-unlocked') === 'true');
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
   const [tab, setTab] = useState<SettingsTab>('branding');
   const [notice, setNotice] = useState('');
-  const issues = useMemo(() => validateConfig(config), [config]);
 
   const unlock = () => {
     if (pin === config.security.creatorPin) {
@@ -80,12 +78,7 @@ export function SettingsPage() {
           <TabButton id="market" active={tab} onClick={setTab}>Mercado e veículos</TabButton>
           <TabButton id="decisions" active={tab} onClick={setTab}>Decisões</TabButton>
           <TabButton id="results" active={tab} onClick={setTab}>Resultados</TabButton>
-          <TabButton id="data" active={tab} onClick={setTab}>Dados e validação</TabButton>
         </nav>
-        <div className={styles.statusCard}>
-          <strong>{issues.filter((issue) => issue.level === 'error').length}</strong> erros ·{' '}
-          <strong>{issues.filter((issue) => issue.level === 'warning').length}</strong> alertas
-        </div>
       </aside>
 
       <section className={styles.content}>
@@ -94,15 +87,6 @@ export function SettingsPage() {
         {tab === 'market' && <MarketSettings config={config} updateConfig={updateConfig} />}
         {tab === 'decisions' && <DecisionSettings config={config} updateConfig={updateConfig} />}
         {tab === 'results' && <ResultSettings config={config} updateConfig={updateConfig} />}
-        {tab === 'data' && (
-          <DataSettings
-            config={config}
-            setConfig={setConfig}
-            resetConfig={resetConfig}
-            issues={issues}
-            notify={notify}
-          />
-        )}
       </section>
       {notice && <div className={styles.toast}>{notice}</div>}
     </main>
@@ -344,65 +328,6 @@ function ResultSettings({ config, updateConfig }: SharedProps) {
         ))}
       </div>
     </SettingsModule>
-  );
-}
-
-function DataSettings({ config, setConfig, resetConfig, issues, notify }: {
-  config: AppConfig;
-  setConfig: (config: AppConfig) => void;
-  resetConfig: () => void;
-  issues: ReturnType<typeof validateConfig>;
-  notify: (message: string) => void;
-}) {
-  const exportConfig = () => {
-    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'detailer-business-lab-config.json';
-    anchor.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const importConfig = (file?: File) => {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const parsed = JSON.parse(String(reader.result)) as AppConfig;
-        if (!parsed.brand || !parsed.scenario || !parsed.security) throw new Error('Formato inválido');
-        setConfig(parsed);
-        notify('Configuração importada com sucesso.');
-      } catch {
-        notify('Arquivo inválido. Importe um JSON exportado por este aplicativo.');
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  return (
-    <>
-      <SettingsModule title="Validação da configuração" description="Erros podem quebrar a coerência do produto; alertas merecem revisão antes da publicação.">
-        <div className={styles.issueList}>
-          {issues.length === 0 && <div className={styles.okIssue}>✓ Nenhum problema detectado.</div>}
-          {issues.map((issue, index) => <div key={`${issue.message}-${index}`} className={issue.level === 'error' ? styles.errorIssue : styles.warningIssue}>{issue.level === 'error' ? 'Erro' : 'Alerta'} · {issue.message}</div>)}
-        </div>
-      </SettingsModule>
-      <SettingsModule title="Backup e portabilidade" description="Exporte a configuração para adaptar o mesmo núcleo a outro criador sem reconstruir a aplicação.">
-        <div className={styles.dataActions}>
-          <button className="primaryButton" type="button" onClick={exportConfig}>Exportar JSON</button>
-          <button className="secondaryButton" type="button" onClick={() => document.getElementById('config-import-input')?.click()}>Importar JSON</button>
-          <input id="config-import-input" hidden type="file" accept="application/json,.json" onChange={(event) => importConfig(event.target.files?.[0])} />
-          <button className="dangerButton" type="button" onClick={() => {
-            if (window.confirm('Restaurar toda a configuração original da demonstração?')) {
-              resetConfig();
-              notify('Configuração original restaurada.');
-            }
-          }}>Restaurar padrão</button>
-        </div>
-        <p className={styles.productionNote}><strong>Importante:</strong> localStorage e PIN local são adequados apenas para o MVP. Na versão comercial, use autenticação, banco, Storage e permissões por parceiro.</p>
-      </SettingsModule>
-    </>
   );
 }
 

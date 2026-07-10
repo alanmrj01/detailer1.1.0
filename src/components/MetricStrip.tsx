@@ -1,5 +1,5 @@
 import type { MetricKey, NumericMetrics } from '../types/config';
-import { formatCurrency, formatSigned } from '../utils/format';
+import { formatCurrency } from '../utils/format';
 import styles from './MetricStrip.module.css';
 
 const metrics: Array<{ key: keyof NumericMetrics; label: string; icon: string; kind: 'money' | 'score' }> = [
@@ -23,18 +23,11 @@ export function MetricStrip({
     <div className={styles.strip} aria-label="Indicadores atuais">
       {metrics.map((metric) => {
         const deltaValue = delta?.[metric.key];
-        const deltaTone = deltaValue === undefined || deltaValue === 0
-          ? ''
-          : metric.key === 'risk'
-            ? deltaValue > 0
-              ? styles.bad
-              : styles.good
-            : deltaValue > 0
-              ? styles.good
-              : styles.bad;
+        const hasDelta = deltaValue !== undefined && deltaValue !== 0;
+        const positive = metric.key === 'risk' ? (deltaValue ?? 0) < 0 : (deltaValue ?? 0) > 0;
 
         return (
-          <article key={metric.key} className={`${styles.metric} ${deltaValue ? styles.pulse : ''}`}>
+          <article key={metric.key} className={`${styles.metric} ${hasDelta ? styles.pulse : ''}`}>
             <span className={styles.icon}>{metric.icon}</span>
             <div className={styles.metricBody}>
               <small>{metric.label}</small>
@@ -44,7 +37,11 @@ export function MetricStrip({
                     ? formatCurrency(values.cash, currency)
                     : Math.round(values[metric.key])}
                 </strong>
-                {deltaValue ? <span className={`${styles.delta} ${deltaTone}`}>{formatSigned(deltaValue)}</span> : null}
+                {hasDelta ? (
+                  <span className={`${styles.delta} ${positive ? styles.good : styles.bad}`} aria-label={positive ? 'Melhorou' : 'Piorou'}>
+                    {positive ? '↑' : '↓'}
+                  </span>
+                ) : null}
               </div>
             </div>
           </article>

@@ -1,21 +1,33 @@
 import { useEffect, useState, type CSSProperties } from 'react';
+import { ChoiceVisual } from '../../components/ChoiceVisual';
 import { MetricStrip } from '../../components/MetricStrip';
 import { SceneAnimation } from '../../components/SceneAnimation';
 import { useAppConfig } from '../../context/AppConfigContext';
 import type { DecisionChoice } from '../../types/config';
 import type { GameResult, GameRun, LedgerEntry } from '../../types/game';
-import { formatCurrency, formatSigned } from '../../utils/format';
+import { formatCurrency } from '../../utils/format';
 import { readJson, storageKeys, writeJson } from '../../utils/storage';
 import { applyChoice, calculateResult, choiceAvailability, createRun, equipmentCost, resolveAnimation } from './gameEngine';
+import {
+  describeChoiceImpact,
+  describeFeedback,
+  explainResultCard,
+  getMetricLabel,
+  personalizeChoice,
+  personalizeDecision,
+} from './narrative';
 import styles from './GamePage.module.css';
 
 const STRATEGY_STEPS = 3;
+
+type InsightCard = 'strengths' | 'alerts' | 'method' | null;
 
 export function GamePage() {
   const { config, theme, setTheme } = useAppConfig();
   const [run, setRun] = useState<GameRun | null>(() => readJson<GameRun>(storageKeys.RUN_KEY));
   const [selectedChoice, setSelectedChoice] = useState<DecisionChoice | null>(null);
   const [feedback, setFeedback] = useState<{ entry: LedgerEntry; mentorTip: string } | null>(null);
+  const [openInsight, setOpenInsight] = useState<InsightCard>(null);
 
   useEffect(() => {
     if (run) writeJson(storageKeys.RUN_KEY, run);
@@ -25,6 +37,7 @@ export function GamePage() {
   const restartRun = () => {
     setSelectedChoice(null);
     setFeedback(null);
+    setOpenInsight(null);
     setRun(createRun(config));
   };
 
@@ -34,7 +47,7 @@ export function GamePage() {
         <section className={styles.introHero}>
           <SceneAnimation scene="garage" />
           <div className={styles.introContent}>
-            <span className={styles.kicker}>Simulador jogável</span>
+            <span className={styles.kicker}>{config.brand.creatorName}</span>
             {config.brand.logoDataUrl ? (
               <img className={styles.introLogo} src={config.brand.logoDataUrl} alt={`Logo ${config.brand.appName}`} />
             ) : (
@@ -67,6 +80,12 @@ export function GamePage() {
 
   if (completed && result) {
     const band = config.scenario.resultBands.find((item) => item.id === result.bandId)!;
+    const insightData = {
+      strengths: explainResultCard('strengths', run),
+      alerts: explainResultCard('alerts', run),
+      method: explainResultCard('method', run),
+    };
+
     return (
       <main className={styles.page}>
         <section className={styles.resultHero}>
@@ -80,21 +99,27 @@ export function GamePage() {
               <small>pontos</small>
             </div>
             <div className={styles.resultGrid}>
-              <article className="panel">
+              <article className={`${styles.resultCard} panel`}>
+                <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'strengths' ? null : 'strengths')}>!</button>
                 <span className="eyebrow">Fortalezas</span>
                 <ul className={styles.insightList}>
                   {result.strengths.map((item) => <li key={item} className={styles.positive}>{item}</li>)}
                 </ul>
+                {openInsight === 'strengths' ? <InsightPopover title="Escolhas que ajudaram neste resultado" lines={insightData.strengths} /> : null}
               </article>
-              <article className="panel">
+              <article className={`${styles.resultCard} panel`}>
+                <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'alerts' ? null : 'alerts')}>!</button>
                 <span className="eyebrow">Atenções</span>
                 <ul className={styles.insightList}>
                   {result.alerts.map((item) => <li key={item} className={styles.negative}>{item}</li>)}
                 </ul>
+                {openInsight === 'alerts' ? <InsightPopover title="Escolhas que puxaram este indicador" lines={insightData.alerts} /> : null}
               </article>
-              <article className="panel">
+              <article className={`${styles.resultCard} panel`}>
+                <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'method' ? null : 'method')}>!</button>
                 <span className="eyebrow">Método</span>
                 <p>{band.methodFeedback}</p>
+                {openInsight === 'method' ? <InsightPopover title="Resumo das decisões mais influentes" lines={insightData.method} /> : null}
               </article>
             </div>
             <div className={styles.resultActions}>
@@ -115,7 +140,12 @@ export function GamePage() {
                   <strong>{entry.title}</strong>
                   <p>{entry.consequence}</p>
                 </div>
-                <small>{Object.entries(entry.delta).filter(([, value]) => value).slice(0, 3).map(([key, value]) => `${metricLabel(key)} ${formatSigned(value ?? 0)}`).join(' · ')}</small>
+                <small>
+                  {describeFeedback(entry.delta)
+                    .slice(0, 3)
+                    .map((item) => `${item.positive ? '↑' : '↓'} ${item.title.replace(item.positive ? ' em alta' : ' pressionado', '')}`)
+                    .join(' · ')}
+                </small>
               </article>
             ))}
           </div>
@@ -124,7 +154,8 @@ export function GamePage() {
     );
   }
 
-  const currentDecision = config.scenario.decisions[run.currentDecisionIndex];
+  const decisionConfig = config.scenario.decisions[run.currentDecisionIndex];
+  const currentDecision = personalizeDecision(decisionConfig, run, config);
   const animation = resolveAnimation(run, currentDecision.animation);
   const progress = ((run.currentDecisionIndex + 1) / config.scenario.decisions.length) * 100;
   const currentPhase = run.currentDecisionIndex < STRATEGY_STEPS ? 'Definição de estratégia' : 'Situações-problema';
@@ -137,17 +168,15 @@ export function GamePage() {
 
   const confirmChoice = () => {
     if (!selectedChoice) return;
-    const nextRun = applyChoice(run, currentDecision.id, selectedChoice, config);
+    const originalChoice = decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice;
+    const nextRun = applyChoice(run, decisionConfig.id, originalChoice, config);
     const latestEntry = nextRun.ledger[nextRun.ledger.length - 1] ?? null;
     setRun(nextRun);
     setSelectedChoice(null);
     setFeedback(latestEntry ? { entry: latestEntry, mentorTip: currentDecision.mentorTip } : null);
   };
 
-  const sectionTitle =
-    run.currentDecisionIndex < STRATEGY_STEPS
-      ? 'Escolha o rumo da operação'
-      : 'Resolva a situação atual';
+  const sectionTitle = run.currentDecisionIndex < STRATEGY_STEPS ? 'Defina seu plano' : 'Resolva o desafio';
 
   return (
     <main className={styles.page}>
@@ -161,7 +190,7 @@ export function GamePage() {
           <article className={`${styles.phaseCard} ${run.currentDecisionIndex >= STRATEGY_STEPS ? styles.phaseActive : ''}`}>
             <small>Fase 2</small>
             <strong>Situações</strong>
-            <span>5 problemas práticos</span>
+            <span>5 desafios práticos</span>
           </article>
         </div>
         <MetricStrip values={run.metrics} currency={config.scenario.currency} delta={feedback?.entry.delta} />
@@ -193,14 +222,15 @@ export function GamePage() {
           <div className={styles.panelHeader}>
             <span className={styles.commandTag}>Escolha agora</span>
             <h2>{sectionTitle}</h2>
-            <p>Foque na consequência. Depois da confirmação, o impacto aparecerá imediatamente nos indicadores.</p>
+            <p>Observe a cena, compare as opções e escolha a ação com mais coerência para o seu negócio.</p>
           </div>
 
           <div className={styles.choiceGrid}>
             {currentDecision.choices.map((choice) => {
-              const availability = choiceAvailability(choice, run, config);
-              const cost = equipmentCost(choice, config);
-              const impactPreview = Object.entries(choice.effects).filter(([, value]) => value).slice(0, 3);
+              const originalChoice = decisionConfig.choices.find((item) => item.id === choice.id) ?? choice;
+              const availability = choiceAvailability(originalChoice, run, config);
+              const cost = equipmentCost(originalChoice, config);
+              const impactPreview = describeChoiceImpact(choice.effects);
               return (
                 <button
                   key={choice.id}
@@ -209,17 +239,22 @@ export function GamePage() {
                   disabled={!availability.available}
                   onClick={() => setSelectedChoice(choice)}
                 >
-                  <div className={styles.choiceHeader}>
-                    <h3>{choice.label}</h3>
-                    {cost > 0 ? <strong className={styles.choiceCost}>{formatCurrency(cost, config.scenario.currency)}</strong> : null}
+                  <ChoiceVisual decisionId={decisionConfig.id} choiceId={choice.id} />
+                  <div className={styles.choiceBody}>
+                    <div className={styles.choiceHeader}>
+                      <h3>{choice.label}</h3>
+                      {cost > 0 ? <strong className={styles.choiceCost}>{formatCurrency(cost, config.scenario.currency)}</strong> : null}
+                    </div>
+                    <p>{choice.description}</p>
+                    <div className={styles.impactRow}>
+                      {impactPreview.map((item) => (
+                        <span key={item.key} className={item.positive ? styles.goodPill : styles.badPill}>
+                          {item.positive ? '↑' : '↓'} {item.label}
+                        </span>
+                      ))}
+                    </div>
+                    <small className={styles.choiceHint}>{availability.available ? choice.consequence : availability.reason}</small>
                   </div>
-                  <p>{choice.description}</p>
-                  <div className={styles.impactRow}>
-                    {impactPreview.map(([key, value]) => (
-                      <span key={key}>{metricLabel(key)} {formatSigned(value ?? 0)}</span>
-                    ))}
-                  </div>
-                  <small className={styles.choiceHint}>{availability.available ? choice.consequence : availability.reason}</small>
                 </button>
               );
             })}
@@ -235,8 +270,8 @@ export function GamePage() {
             <p>{selectedChoice.consequence}</p>
             <div className={styles.modalEconomy}>
               <span>Caixa atual <strong>{formatCurrency(run.metrics.cash)}</strong></span>
-              <span>Impacto <strong>{formatCurrency(choiceAvailability(selectedChoice, run, config).effectiveCashDelta)}</strong></span>
-              <span>Caixa previsto <strong>{formatCurrency(run.metrics.cash + choiceAvailability(selectedChoice, run, config).effectiveCashDelta)}</strong></span>
+              <span>Impacto <strong>{formatCurrency(choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, config).effectiveCashDelta)}</strong></span>
+              <span>Caixa previsto <strong>{formatCurrency(run.metrics.cash + choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, config).effectiveCashDelta)}</strong></span>
             </div>
             <div className={styles.modalActions}>
               <button className="secondaryButton" type="button" onClick={() => setSelectedChoice(null)}>Voltar</button>
@@ -253,19 +288,16 @@ export function GamePage() {
             <h2>{feedback.entry.title}</h2>
             <p>{feedback.entry.consequence}</p>
             <div className={styles.feedbackGrid}>
-              {Object.entries(feedback.entry.delta).filter(([, value]) => value).map(([key, value]) => {
-                const isRisk = key === 'risk';
-                const positive = isRisk ? (value ?? 0) < 0 : (value ?? 0) > 0;
-                return (
-                  <article key={key} className={`${styles.feedbackStat} ${positive ? styles.goodFeedback : styles.badFeedback}`}>
-                    <small>{metricLabel(key)}</small>
-                    <strong>{formatSigned(value ?? 0)}</strong>
-                  </article>
-                );
-              })}
+              {describeFeedback(feedback.entry.delta).map((item) => (
+                <article key={item.key} className={`${styles.feedbackStat} ${item.positive ? styles.goodFeedback : styles.badFeedback}`}>
+                  <small>{item.positive ? '↑' : '↓'} {getMetricLabel(item.key)}</small>
+                  <strong>{item.title}</strong>
+                  <span>{item.description}</span>
+                </article>
+              ))}
             </div>
             <div className={styles.feedbackNote}>
-              <strong>Leitura do jogo</strong>
+              <strong>Leitura do método</strong>
               <span>{feedback.mentorTip}</span>
             </div>
             <div className={styles.modalActions}>
@@ -280,15 +312,13 @@ export function GamePage() {
   );
 }
 
-function metricLabel(key: string): string {
-  const labels: Record<string, string> = {
-    cash: 'Caixa',
-    reputation: 'Reputação',
-    quality: 'Qualidade',
-    capacity: 'Capacidade',
-    risk: 'Risco',
-    customers: 'Clientes',
-    fatigue: 'Carga',
-  };
-  return labels[key] ?? key;
+function InsightPopover({ title, lines }: { title: string; lines: string[] }) {
+  return (
+    <div className={styles.insightPopover}>
+      <strong>{title}</strong>
+      <ul>
+        {lines.length ? lines.map((line) => <li key={line}>{line}</li>) : <li>Nenhuma escolha específica se destacou isoladamente.</li>}
+      </ul>
+    </div>
+  );
 }

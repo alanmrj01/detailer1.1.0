@@ -8,11 +8,11 @@ export const defaultConfig: AppConfig = {
     tagline: 'Primeiros 90 dias do seu negócio de estética automotiva',
     introTitle: 'Primeiros 90 dias da sua estética automotiva',
     introDescription:
-      'Você tem R$ 6.000, conhecimento técnico básico e 90 dias para construir uma operação sustentável. Cada escolha altera caixa, reputação, qualidade, capacidade e risco.',
+      'Você tem R$ 6.000, conhecimento técnico básico e 90 dias para construir uma operação sustentável. Escolha sua estrutura, monte sua oferta e reaja a situações reais do mercado.',
     logoDataUrl: '',
     accentColor: '#66d0ff',
     supportText:
-      'Demonstração educacional em formato de jogo. Custos operacionais e preços de serviço são hipóteses configuráveis pelo especialista; equipamentos usam médias de varejo pesquisadas.',
+      'Custos operacionais e preços do jogo são configuráveis pelo criador. Os equipamentos já vêm preenchidos com médias de varejo pesquisadas no mercado brasileiro.',
   },
   security: {
     creatorPin: '2468',
@@ -153,14 +153,14 @@ export const defaultConfig: AppConfig = {
         id: 'first-quote',
         module: 'Situação-problema',
         eyebrow: 'Situação 1/5',
-        title: 'Chegou o primeiro orçamento importante',
-        situation: 'O dono de um Volkswagen T-Cross quer contratar seu serviço principal. Ele compara seu orçamento com uma opção mais barata, mas valoriza prazo e segurança.',
-        mentorTip: 'Os valores deste serviço são hipóteses educacionais configuráveis, não uma média nacional. O foco é mostrar como preço altera margem, demanda e risco.',
+        title: 'Chegou o primeiro orçamento de {{primaryService}}',
+        situation: 'Um cliente com Volkswagen T-Cross quer contratar sua {{primaryService}}. Ele está comparando orçamentos e quer perceber segurança, clareza e valor na sua proposta.',
+        mentorTip: 'Os valores desta etapa podem ser ajustados pelo criador. O objetivo é mostrar como o preço da {{primaryService}} altera margem, demanda e risco.',
         animation: 'pricing',
         choices: [
-          { id: 'low', label: 'Preço agressivo', description: 'Cobrar R$ 260 para garantir o fechamento.', consequence: 'A conversão aumenta, mas a margem e a folga para retrabalho ficam perigosamente pequenas.', effects: { cash: 290, customers: 4, reputation: 2, quality: -2, fatigue: 6, risk: 7 } },
+          { id: 'low', label: 'Cobrar preço de entrada', description: 'Cobrar R$ 260 para aumentar a chance de fechamento.', consequence: 'A conversão aumenta, mas a margem e a folga para retrabalho ficam perigosamente pequenas.', effects: { cash: 290, customers: 4, reputation: 2, quality: -2, fatigue: 6, risk: 7 } },
           { id: 'balanced-price', label: 'Preço sustentável', description: 'Cobrar R$ 520 com escopo e prazo claros.', consequence: 'Você equilibra fechamento, margem e capacidade de entregar o que prometeu.', effects: { cash: 520, customers: 2, reputation: 5, quality: 2, fatigue: 3, risk: -1 }, recommended: true },
-          { id: 'premium-price', label: 'Posicionamento premium', description: 'Cobrar R$ 760 e incluir inspeção e entrega detalhada.', consequence: 'A margem cresce, mas a exigência de acabamento e comunicação também aumenta.', effects: { cash: 720, customers: 1, reputation: 4, quality: 5, fatigue: 4, risk: 5 } },
+          { id: 'premium-price', label: 'Cobrar preço premium', description: 'Cobrar R$ 760 com inspeção e entrega detalhada.', consequence: 'A margem cresce, mas a exigência de acabamento e comunicação também aumenta.', effects: { cash: 720, customers: 1, reputation: 4, quality: 5, fatigue: 4, risk: 5 } },
         ],
       },
       {
@@ -181,7 +181,7 @@ export const defaultConfig: AppConfig = {
         id: 'execution-pressure',
         module: 'Situação-problema',
         eyebrow: 'Situação 3/5',
-        title: 'O serviço atrasou e o próximo cliente já chegou',
+        title: 'A {{primaryService}} atrasou e o próximo cliente já chegou',
         situation: 'O carro atual exigiu mais trabalho que o previsto. Atrasar, correr ou renegociar muda a experiência do cliente e a segurança da entrega.',
         mentorTip: 'Capacidade real é limitada pelo processo. Aceitar mais serviços do que a operação suporta transforma faturamento aparente em retrabalho.',
         animation: 'polishing',
@@ -195,8 +195,8 @@ export const defaultConfig: AppConfig = {
         id: 'customer-complaint',
         module: 'Situação-problema',
         eyebrow: 'Situação 4/5',
-        title: 'Um Chevrolet Onix voltou com uma reclamação',
-        situation: 'O cliente percebeu uma área abaixo do padrão combinado. A solução precisa equilibrar responsabilidade, reputação e custo.',
+        title: 'Um cliente voltou após a {{primaryService}}',
+        situation: 'O cliente percebeu uma área abaixo do padrão combinado na sua {{primaryService}}. A solução precisa equilibrar responsabilidade, reputação e custo.',
         mentorTip: 'O objetivo não é agradar a qualquer custo, mas ter um processo claro para verificar, corrigir e registrar falhas.',
         animation: 'complaint',
         choices: [

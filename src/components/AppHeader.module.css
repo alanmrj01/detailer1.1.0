@@ -19,6 +19,9 @@
   align-items: center;
   gap: 0.9rem;
   padding: 0;
+  border: 0;
+  appearance: none;
+  -webkit-appearance: none;
   color: #f8fafc;
   background: transparent;
   text-align: left;
