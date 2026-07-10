@@ -1,0 +1,103 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 72px;
+  padding: 0.9rem clamp(1rem, 4vw, 3rem);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  backdrop-filter: blur(20px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  color: var(--text);
+  text-align: left;
+}
+
+.brand strong {
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.mark,
+.logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  color: #f8fbff;
+  background: linear-gradient(145deg, #17375a, #10223b);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 15%, transparent);
+  font-weight: 900;
+}
+
+.logo {
+  object-fit: contain;
+  background: white;
+  border: 1px solid var(--border);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.actions button {
+  min-height: 40px;
+  padding: 0.6rem 0.85rem;
+  border-radius: 12px;
+  color: var(--muted);
+  background: transparent;
+  transition: 180ms ease;
+}
+
+.actions button:hover,
+.actions .active {
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-2));
+}
+
+.themeButton {
+  width: 40px;
+  padding: 0 !important;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 680px) {
+  .header {
+    min-height: 64px;
+  }
+
+  .brand strong {
+    font-size: 0.92rem;
+  }
+
+  .actions button:not(.themeButton) {
+    font-size: 0;
+    width: 42px;
+    padding: 0;
+  }
+
+  .actions button:first-child::after {
+    content: '▶';
+    font-size: 0.95rem;
+  }
+
+  .actions button:nth-child(2)::after {
+    content: '⚙';
+    font-size: 1rem;
+  }
+}

@@ -1,0 +1,14 @@
+.app {
+  min-height: 100vh;
+}
+
+.viewTransition {
+  animation: viewIn 260ms ease;
+}
+
+@keyframes viewIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
