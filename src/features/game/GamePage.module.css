@@ -41,7 +41,7 @@
   flex-direction: column;
   justify-content: center;
   min-height: 640px;
-  width: min(600px, 62%);
+  width: min(540px, 48%);
   padding: clamp(1.6rem, 5vw, 4rem);
   background: linear-gradient(90deg, var(--surface) 28%, color-mix(in srgb, var(--surface) 92%, transparent) 72%, transparent);
 }
@@ -199,7 +199,7 @@
   flex-direction: column;
   justify-content: flex-end;
   min-height: 560px;
-  width: min(560px, 78%);
+  width: min(560px, 48%);
   padding: clamp(1.4rem, 4vw, 2.4rem);
   background: linear-gradient(180deg, transparent 20%, color-mix(in srgb, var(--surface) 82%, transparent) 56%, var(--surface) 100%);
 }
@@ -458,7 +458,7 @@
   flex-direction: column;
   justify-content: center;
   min-height: 470px;
-  width: min(760px, 78%);
+  width: min(720px, 52%);
   padding: clamp(1.6rem, 4vw, 3rem);
   background: linear-gradient(180deg, transparent 10%, color-mix(in srgb, var(--surface) 86%, transparent) 54%, var(--surface) 100%);
 }
@@ -525,6 +525,19 @@
 .insightList li::before { position: absolute; left: 0; top: 0; font-weight: 900; }
 .positive::before { content: '✓'; color: #22c55e; }
 .negative::before { content: '!'; color: #ef4444; }
+
+
+.methodGuideList {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0.85rem 0 0;
+  padding-left: 1rem;
+  color: var(--muted);
+}
+
+.methodGuideList li {
+  line-height: 1.5;
+}
 
 .insightPopover {
   margin-top: 1rem;

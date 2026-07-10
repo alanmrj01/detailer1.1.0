@@ -1,0 +1,34 @@
+DETAILER BUSINESS — ENTREGA 1.2.2
+
+Base utilizada
+- detailer1.2.1(3).zip enviado pelo usuário.
+
+Alterações cirúrgicas aplicadas
+1. Ilustrações 3D animadas
+- Cenas 3D em .webp integradas ao React.
+- Animação de câmera suave, sweep de luz e efeitos específicos por contexto.
+- Estratégia/equipamentos: cartões flutuantes.
+- Lavagem/interior: água e bolhas animadas.
+- Polimento: brilho orbital animado.
+- Precificação: cartões de preço flutuantes.
+- Reclamação: alerta pulsante.
+- Resultado/crescimento: estrelas animadas.
+- Assets otimizados para boa performance no StackBlitz e em iframe.
+
+2. Estrutura das fases
+- Estratégias e situações-problema pertencem integralmente à Fase 1.
+- A Fase 1 possui as 8 decisões atuais.
+- O resultado é exibido somente após concluir toda a Fase 1.
+- O resultado possui o botão "Ir para a fase 2".
+- Ao clicar, aparece a mensagem de que a Fase 2 será desenvolvida conforme o método de ensino abordado.
+
+3. Orientação pedagógica do resultado
+- Justificativas finais mantidas e refinadas.
+- O jogo aponta padrões que o jogador deve observar na próxima partida.
+- As orientações não revelam diretamente quais alternativas devem ser escolhidas.
+
+Validação técnica
+- npm ci: aprovado
+- npm test: 7 testes aprovados
+- npm run build: aprovado
+- package-lock.json usa somente registry.npmjs.org

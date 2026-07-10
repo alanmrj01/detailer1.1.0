@@ -39,6 +39,7 @@ export function GamePage() {
   const [selectedChoice, setSelectedChoice] = useState<DecisionChoice | null>(null);
   const [feedback, setFeedback] = useState<{ entry: LedgerEntry; mentorTip: string } | null>(null);
   const [openInsight, setOpenInsight] = useState<InsightCard>(null);
+  const [showPhaseTwoTeaser, setShowPhaseTwoTeaser] = useState(false);
 
   useEffect(() => {
     if (run) writeJson(storageKeys.RUN_KEY, run);
@@ -49,6 +50,7 @@ export function GamePage() {
     setSelectedChoice(null);
     setFeedback(null);
     setOpenInsight(null);
+    setShowPhaseTwoTeaser(false);
     setRun(createRun(config));
   };
 
@@ -68,13 +70,13 @@ export function GamePage() {
             <p>{config.brand.introDescription}</p>
 
             <div className={styles.introStats}>
+              <span><strong>Fase 1</strong> estratégia + desafios</span>
               <span><strong>3</strong> definições de estratégia</span>
               <span><strong>5</strong> situações-problema</span>
-              <span><strong>{config.scenario.durationDays} dias</strong> simulados</span>
             </div>
 
             <div className={styles.introActions}>
-              <button className="primaryButton" type="button" onClick={() => setRun(createRun(config))}>Iniciar desafio</button>
+              <button className="primaryButton" type="button" onClick={() => { setShowPhaseTwoTeaser(false); setRun(createRun(config)); }}>Iniciar desafio</button>
               <button className="secondaryButton" type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
                 Tema {theme === 'dark' ? 'claro' : 'escuro'}
               </button>
@@ -87,8 +89,33 @@ export function GamePage() {
   }
 
   const completed = run.currentDecisionIndex >= config.scenario.decisions.length;
-  const awaitingPhaseTwo = !completed && run.currentDecisionIndex === STRATEGY_STEPS && !run.phase2Unlocked;
   const result: GameResult | null = completed ? calculateResult(run, config) : null;
+
+  if (completed && showPhaseTwoTeaser) {
+    return (
+      <main className={styles.page}>
+        <section className={styles.phaseBreakHero}>
+          <SceneAnimation scene="growth" />
+          <div className={styles.phaseBreakContent}>
+            <span className={styles.kicker}>Fase 2</span>
+            <h1>Próximo módulo em desenvolvimento</h1>
+            <p>
+              A fase 2 do jogo será desenvolvida conforme o método de ensino abordado,
+              trazendo novos cenários, decisões e aprofundamentos práticos para o criador.
+            </p>
+            <div className={styles.phaseBreakSummary}>
+              <StarRating value={result?.stars ?? 0} size="md" label="Classificação da fase 1" />
+              <span>Fase 1 concluída com <strong>{result?.stars.toFixed(1) ?? '0.0'} / 5.0</strong></span>
+            </div>
+            <div className={styles.resultActions}>
+              <button className="primaryButton" type="button" onClick={() => setShowPhaseTwoTeaser(false)}>Voltar ao resultado da fase 1</button>
+              <button className="secondaryButton" type="button" onClick={restartRun}>Jogar novamente</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   if (completed && result) {
     const band = config.scenario.resultBands.find((item) => item.id === result.bandId)!;
@@ -97,13 +124,14 @@ export function GamePage() {
       alerts: explainResultCard('alerts', run),
       method: explainResultCard('method', run),
     };
+    const improvementGuide = buildImprovementGuide(run, result);
 
     return (
       <main className={styles.page}>
         <section className={styles.resultHero}>
           <SceneAnimation scene="growth" />
           <div className={styles.resultContent}>
-            <span className={styles.kicker}>Resultado final</span>
+            <span className={styles.kicker}>Resultado final da fase 1</span>
             <h1>{band.title}</h1>
             <p>{band.summary}</p>
             <div className={styles.ratingShowcase}>
@@ -134,12 +162,16 @@ export function GamePage() {
                 <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'method' ? null : 'method')}>!</button>
                 <span className="eyebrow">Método</span>
                 <p>{band.methodFeedback}</p>
+                <ul className={styles.methodGuideList}>
+                  {improvementGuide.map((item) => <li key={item}>{item}</li>)}
+                </ul>
                 {openInsight === 'method' ? <InsightPopover title="Resumo das decisões mais influentes" lines={insightData.method} /> : null}
               </article>
             </div>
             <div className={styles.resultActions}>
-              <button className="primaryButton" type="button" onClick={restartRun}>Jogar novamente</button>
-              <button className="secondaryButton" type="button" onClick={() => setRun(null)}>Voltar para capa</button>
+              <button className="primaryButton" type="button" onClick={() => setShowPhaseTwoTeaser(true)}>Ir para a fase 2</button>
+              <button className="secondaryButton" type="button" onClick={restartRun}>Jogar novamente</button>
+              <button className="secondaryButton" type="button" onClick={() => { setShowPhaseTwoTeaser(false); setRun(null); }}>Voltar para capa</button>
             </div>
           </div>
         </section>
@@ -169,54 +201,13 @@ export function GamePage() {
     );
   }
 
-  if (awaitingPhaseTwo) {
-    return (
-      <main className={styles.page}>
-        <section className={styles.hudSection}>
-          <div className={styles.phaseRail}>
-            <article className={`${styles.phaseCard} ${styles.phaseActive}`}>
-              <small>Fase 1</small>
-              <strong>Estratégia concluída</strong>
-              <span>Base do negócio definida</span>
-            </article>
-            <article className={styles.phaseCard}>
-              <small>Fase 2</small>
-              <strong>Situações-problema</strong>
-              <span>5 desafios práticos</span>
-            </article>
-          </div>
-          <MetricStrip values={run.metrics} currency={config.scenario.currency} />
-        </section>
-
-        <section className={styles.phaseBreakHero}>
-          <SceneAnimation scene="growth" />
-          <div className={styles.phaseBreakContent}>
-            <span className={styles.kicker}>Transição de fase</span>
-            <h1>Estratégia montada. Hora de ir para o campo.</h1>
-            <p>Você concluiu as 3 escolhas-base do negócio. Na próxima fase, o jogo testa sua operação diante de preço, agenda, reclamação e crescimento.</p>
-            <div className={styles.phaseBreakSummary}>
-              <StarRating value={scoreToStars(calculateScoreFromMetrics(run.metrics, config))} size="md" label="Projeção atual" />
-              <span>Clientes <strong>{Math.round(run.metrics.customers)}</strong></span>
-              <span>Carga <strong>{Math.round(run.metrics.fatigue)}</strong></span>
-            </div>
-            <button
-              className="primaryButton"
-              type="button"
-              onClick={() => setRun({ ...run, phase2Unlocked: true })}
-            >
-              Seguir para fase 2 -&gt;
-            </button>
-          </div>
-        </section>
-      </main>
-    );
-  }
-
   const decisionConfig = config.scenario.decisions[run.currentDecisionIndex];
   const currentDecision = personalizeDecision(decisionConfig, run, config);
   const animation = resolveAnimation(run, currentDecision.animation);
   const progress = ((run.currentDecisionIndex + 1) / config.scenario.decisions.length) * 100;
-  const currentPhase = run.currentDecisionIndex < STRATEGY_STEPS ? 'Definição de estratégia' : 'Situações-problema';
+  const currentPhase = run.currentDecisionIndex < STRATEGY_STEPS
+    ? 'Fase 1 • Definição de estratégia'
+    : 'Fase 1 • Situações-problema';
   const phaseStep = run.currentDecisionIndex < STRATEGY_STEPS
     ? run.currentDecisionIndex + 1
     : run.currentDecisionIndex - STRATEGY_STEPS + 1;
@@ -240,15 +231,15 @@ export function GamePage() {
     <main className={styles.page}>
       <section className={styles.hudSection}>
         <div className={styles.phaseRail}>
-          <article className={`${styles.phaseCard} ${run.currentDecisionIndex < STRATEGY_STEPS ? styles.phaseActive : ''}`}>
+          <article className={`${styles.phaseCard} ${styles.phaseActive}`}>
             <small>Fase 1</small>
-            <strong>Estratégia</strong>
-            <span>3 escolhas-base</span>
+            <strong>Estratégia + desafios</strong>
+            <span>8 decisões jogáveis</span>
           </article>
-          <article className={`${styles.phaseCard} ${run.currentDecisionIndex >= STRATEGY_STEPS ? styles.phaseActive : ''}`}>
+          <article className={styles.phaseCard}>
             <small>Fase 2</small>
-            <strong>Situações</strong>
-            <span>5 desafios práticos</span>
+            <strong>Próximo módulo</strong>
+            <span>em desenvolvimento</span>
           </article>
         </div>
         <MetricStrip values={run.metrics} currency={config.scenario.currency} delta={feedback?.entry.delta} />
@@ -345,7 +336,6 @@ export function GamePage() {
           feedback={feedback}
           config={config}
           onClose={() => setFeedback(null)}
-          willShowPhaseTwo={run.currentDecisionIndex === STRATEGY_STEPS && !run.phase2Unlocked}
           completed={run.currentDecisionIndex >= config.scenario.decisions.length}
         />
       )}
@@ -357,13 +347,11 @@ function FeedbackModal({
   feedback,
   config,
   onClose,
-  willShowPhaseTwo,
   completed,
 }: {
   feedback: { entry: LedgerEntry; mentorTip: string };
   config: ReturnType<typeof useAppConfig>['config'];
   onClose: () => void;
-  willShowPhaseTwo: boolean;
   completed: boolean;
 }) {
   const stageStars = calculateStepStarGain(feedback.entry.before, feedback.entry.after, config);
@@ -398,7 +386,7 @@ function FeedbackModal({
         </div>
         <div className={styles.modalActions}>
           <button className="primaryButton" type="button" onClick={onClose}>
-            {completed ? 'Ver resultado' : willShowPhaseTwo ? 'Ir para a transição da fase 2' : 'Continuar'}
+            {completed ? 'Ver resultado' : 'Continuar'}
           </button>
         </div>
       </section>
@@ -415,4 +403,26 @@ function InsightPopover({ title, lines }: { title: string; lines: string[] }) {
       </ul>
     </div>
   );
+}
+
+function buildImprovementGuide(run: GameRun, result: GameResult): string[] {
+  const guide: string[] = [];
+
+  if (run.metrics.cash < 3500) {
+    guide.push('Na próxima tentativa, observe como decisões que consomem caixa cedo limitam sua margem para corrigir imprevistos depois.');
+  }
+  if (run.metrics.reputation < 55 || run.metrics.quality < 60) {
+    guide.push('Repare se a promessa comercial, o prazo e o padrão de entrega caminharam juntos ao longo da rodada.');
+  }
+  if (run.metrics.risk > 40 || run.metrics.fatigue > 45) {
+    guide.push('Preste atenção em escolhas que aceleram o negócio, mas deixam a operação mais dependente de esforço extra ou retrabalho.');
+  }
+  if (guide.length < 3 && result.stars >= 3.5) {
+    guide.push('Você já montou uma base sólida; tente identificar onde crescer sem perder o equilíbrio entre margem, rotina e percepção do cliente.');
+  }
+  if (guide.length < 3) {
+    guide.push('Compare o histórico da partida e procure padrões: normalmente o melhor resultado nasce do equilíbrio, e não de uma única escolha chamativa.');
+  }
+
+  return guide.slice(0, 3);
 }

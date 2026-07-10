@@ -155,16 +155,16 @@ export function calculateResult(run: GameRun, config: AppConfig): GameResult {
 
   const strengths: string[] = [];
   const alerts: string[] = [];
-  if (run.metrics.cash >= initial.cash * 0.65) strengths.push('Boa reserva de caixa para seguir operando.');
-  else alerts.push('Caixa final apertado para lidar com imprevistos.');
-  if (run.metrics.reputation >= 55) strengths.push('Sua reputação terminou em bom nível.');
-  else alerts.push('A reputação ainda precisa de mais consistência.');
-  if (run.metrics.quality >= 60) strengths.push('O padrão da entrega ficou acima do ponto de partida.');
-  else alerts.push('A qualidade foi pressionada em escolhas-chave.');
-  if (run.metrics.risk <= 35) strengths.push('O risco operacional ficou bem controlado.');
-  else alerts.push('O risco operacional terminou acima do ideal.');
-  if (run.metrics.fatigue <= 40) strengths.push('A carga de trabalho segue sustentável.');
-  else alerts.push('A operação está muito dependente do seu esforço pessoal.');
+  if (run.metrics.cash >= initial.cash * 0.65) strengths.push('Boa reserva de caixa para seguir operando e absorver ajustes da próxima rodada.');
+  else alerts.push('Caixa final apertado: vale revisar decisões que tiraram fôlego antes da reta final.');
+  if (run.metrics.reputation >= 55) strengths.push('Sua reputação terminou em bom nível, sinal de promessa e entrega mais coerentes.');
+  else alerts.push('A reputação ainda pede mais consistência entre oferta, prazo e experiência do cliente.');
+  if (run.metrics.quality >= 60) strengths.push('O padrão da entrega ficou acima do ponto de partida e sustentou melhor percepção de valor.');
+  else alerts.push('A qualidade foi pressionada em escolhas-chave e merece mais atenção na próxima tentativa.');
+  if (run.metrics.risk <= 35) strengths.push('O risco operacional ficou bem controlado, indicando decisões mais seguras.');
+  else alerts.push('O risco operacional terminou acima do ideal: observe onde velocidade ou economia cobraram um preço oculto.');
+  if (run.metrics.fatigue <= 40) strengths.push('A carga de trabalho segue sustentável, sem depender demais do seu esforço pessoal.');
+  else alerts.push('A operação ficou muito dependente do seu esforço pessoal; procure mais equilíbrio operacional.');
 
   return { score, stars, bandId: band.id, strengths, alerts };
 }

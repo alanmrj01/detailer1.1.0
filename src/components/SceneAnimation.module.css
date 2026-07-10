@@ -2,432 +2,301 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: #071522;
+  background:
+    radial-gradient(circle at 76% 30%, rgba(81, 215, 255, 0.18), transparent 24%),
+    linear-gradient(180deg, #061225 0%, #071522 46%, #030912 100%);
 }
 
-.artwork {
-  width: 100%;
-  height: 100%;
-  display: block;
-  transform: scale(1.015);
-  transform-origin: center;
-}
-
-.vignette {
+.image {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(1.05) contrast(1.04);
+  transform: scale(1.025);
+  animation: sceneFloat 11s ease-in-out infinite alternate;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.leftShade,
+.bottomShade,
+.lightSweep,
+.frameGlow,
+.floorGlow,
+.strategyPulse,
+.waterSpray,
+.polishingGlow,
+.priceCards,
+.alertPulse,
+.rewardStars {
+  position: absolute;
   pointer-events: none;
+}
+
+.leftShade {
+  inset: 0;
   background:
-    linear-gradient(90deg, rgba(4, 12, 21, 0.58) 0%, rgba(4, 12, 21, 0.16) 34%, rgba(4, 12, 21, 0) 58%),
-    linear-gradient(180deg, rgba(4, 12, 21, 0.05) 58%, rgba(4, 12, 21, 0.42) 100%);
+    linear-gradient(90deg, rgba(4, 10, 18, 0.96) 0%, rgba(4, 10, 18, 0.88) 22%, rgba(4, 10, 18, 0.62) 38%, rgba(4, 10, 18, 0.18) 54%, rgba(4, 10, 18, 0) 68%),
+    radial-gradient(circle at 14% 28%, rgba(83, 221, 255, 0.08), transparent 32%);
 }
 
-.spotlights {
-  animation: spotlightDrift 8s ease-in-out infinite alternate;
+.bottomShade {
+  inset: auto 0 0 0;
+  height: 48%;
+  background: linear-gradient(180deg, rgba(4, 10, 18, 0) 0%, rgba(4, 10, 18, 0.18) 32%, rgba(4, 10, 18, 0.72) 100%);
 }
 
-.person,
-.clientPerson,
-.carGroup,
-.strategyCard,
-.shelfProduct,
-.priceTag,
-.growthDashboard,
-.coinStack,
-.shoppingCart,
-.pressureWasher,
-.extractorMachine {
-  transform-box: fill-box;
-  transform-origin: center;
+.lightSweep {
+  top: -8%;
+  bottom: -8%;
+  width: 28%;
+  left: 56%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(138, 235, 255, 0.14) 44%, rgba(255, 255, 255, 0) 100%);
+  mix-blend-mode: screen;
+  transform: skewX(-18deg);
+  animation: sweep 8s ease-in-out infinite;
 }
 
-.person,
-.clientPerson {
-  animation: characterIdle 3.8s ease-in-out infinite;
+.frameGlow {
+  inset: 1rem;
+  border-radius: 28px;
+  border: 1px solid rgba(130, 226, 255, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(130, 226, 255, 0.03);
 }
 
-.personHead {
-  transform-box: fill-box;
-  transform-origin: center bottom;
-  animation: headTilt 5s ease-in-out infinite;
+.floorGlow {
+  left: 46%;
+  right: 5%;
+  bottom: 3%;
+  height: 18%;
+  background: radial-gradient(ellipse at center, rgba(78, 220, 255, 0.18) 0%, rgba(78, 220, 255, 0.07) 40%, rgba(78, 220, 255, 0) 78%);
+  filter: blur(8px);
 }
 
-.personArm,
-.clientArm {
-  transform-box: fill-box;
-  transform-origin: top center;
+.strategyPulse {
+  display: none;
+  right: 9%;
+  bottom: 16%;
+  gap: 0.7rem;
 }
 
-.thinkingArm {
-  animation: thinkingGesture 2.8s ease-in-out infinite;
+.strategyPulse i {
+  display: block;
+  width: 62px;
+  height: 82px;
+  border-radius: 18px;
+  border: 1px solid rgba(103, 232, 249, 0.28);
+  background: linear-gradient(180deg, rgba(103, 232, 249, 0.13), rgba(15, 23, 42, 0.12));
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.22), inset 0 0 20px rgba(103, 232, 249, 0.05);
+  animation: cardHover 3.2s ease-in-out infinite;
 }
 
-.strategyCard {
-  animation: cardFloat 4.4s ease-in-out infinite;
+.strategyPulse i:nth-child(2) { animation-delay: -1.05s; }
+.strategyPulse i:nth-child(3) { animation-delay: -2.1s; }
+
+.waterSpray {
+  display: none;
+  right: 18%;
+  top: 28%;
+  width: 180px;
+  height: 130px;
 }
 
-.strategyCard:nth-child(2) {
-  animation-delay: -1.1s;
+.waterSpray::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 42%;
+  width: 150px;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(125, 211, 252, 0), rgba(125, 211, 252, 0.92), rgba(224, 242, 254, 0));
+  filter: blur(1px);
+  transform: rotate(-18deg);
+  animation: sprayFlow 1.1s linear infinite;
 }
 
-.strategyCard:nth-child(3) {
-  animation-delay: -2.2s;
+.waterSpray i {
+  position: absolute;
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(224, 242, 254, 0.82);
+  box-shadow: 0 0 14px rgba(125, 211, 252, 0.44);
+  animation: bubbleRise 2.2s ease-in-out infinite;
 }
 
-.strategyCardSelected {
-  animation: selectedCardFloat 2.7s ease-in-out infinite;
+.waterSpray i:nth-child(1) { left: 36px; top: 84px; }
+.waterSpray i:nth-child(2) { left: 78px; top: 64px; animation-delay: -0.55s; }
+.waterSpray i:nth-child(3) { left: 116px; top: 48px; animation-delay: -1.1s; }
+.waterSpray i:nth-child(4) { left: 146px; top: 28px; animation-delay: -1.65s; }
+
+.polishingGlow {
+  display: none;
+  right: 20%;
+  top: 34%;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid rgba(103, 232, 249, 0.46);
+  box-shadow: 0 0 28px rgba(103, 232, 249, 0.28), inset 0 0 24px rgba(103, 232, 249, 0.12);
+  animation: polishOrbit 1.55s linear infinite;
 }
 
-.selectedPulse {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: selectedPulse 1.7s ease-in-out infinite;
+.polishingGlow i {
+  position: absolute;
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.72);
 }
 
-.thoughtDots circle {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: thoughtBubble 2.6s ease-in-out infinite;
+.polishingGlow i:first-child { left: -5px; top: 40px; }
+.polishingGlow i:last-child { right: 8px; bottom: 4px; }
+
+.priceCards {
+  display: none;
+  right: 9%;
+  top: 19%;
+  gap: 0.55rem;
 }
 
-.thoughtDots circle:nth-child(2) {
-  animation-delay: 0.22s;
+.priceCards i {
+  display: block;
+  width: 54px;
+  height: 74px;
+  border-radius: 16px;
+  border: 1px solid rgba(103, 232, 249, 0.3);
+  background: linear-gradient(180deg, rgba(224, 242, 254, 0.2), rgba(30, 64, 175, 0.15));
+  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.25);
+  animation: priceFloat 3s ease-in-out infinite;
 }
 
-.thoughtDots circle:nth-child(3) {
-  animation-delay: 0.44s;
+.priceCards i:nth-child(2) { animation-delay: -1s; }
+.priceCards i:nth-child(3) { animation-delay: -2s; }
+
+.alertPulse {
+  display: none;
+  right: 18%;
+  top: 20%;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border-radius: 50%;
+  color: white;
+  background: linear-gradient(180deg, #fb7185, #dc2626);
+  font-size: 1.6rem;
+  font-weight: 900;
+  box-shadow: 0 0 0 10px rgba(239, 68, 68, 0.08), 0 18px 30px rgba(239, 68, 68, 0.24);
+  animation: alertBeat 1.35s ease-in-out infinite;
 }
 
-.shelfProduct {
-  animation: shelfProductHover 3.6s ease-in-out infinite;
+.rewardStars {
+  display: none;
+  right: 11%;
+  top: 14%;
+  width: 180px;
+  height: 120px;
 }
 
-.shelfProduct:nth-child(2n) {
-  animation-delay: -0.9s;
+.rewardStars i {
+  position: absolute;
+  display: block;
+  color: #facc15;
+  font-style: normal;
+  text-shadow: 0 0 24px rgba(250, 204, 21, 0.5);
+  animation: starFloat 2.4s ease-in-out infinite;
 }
 
-.shelfProduct:nth-child(3n) {
-  animation-delay: -1.8s;
+.rewardStars i:nth-child(1) { left: 6px; bottom: 4px; font-size: 2rem; }
+.rewardStars i:nth-child(2) { left: 68px; top: 4px; font-size: 2.8rem; animation-delay: -0.8s; }
+.rewardStars i:nth-child(3) { right: 4px; bottom: 14px; font-size: 2.2rem; animation-delay: -1.6s; }
+
+.garage .strategyPulse,
+.store .strategyPulse,
+.mobile .strategyPulse,
+.equipment .strategyPulse,
+.pricing .priceCards {
+  display: flex;
 }
 
-.shoppingCart {
-  animation: cartNudge 4.6s ease-in-out infinite;
+.washing .waterSpray,
+.interior .waterSpray {
+  display: block;
 }
 
-.waterJet path:first-child {
-  stroke-dashoffset: 0;
-  animation: waterFlow 1.05s linear infinite;
+.polishing .polishingGlow,
+.interior .polishingGlow {
+  display: block;
 }
 
-.foamBubbles circle {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: foamPop 2.1s ease-in-out infinite;
+.complaint .alertPulse {
+  display: grid;
 }
 
-.foamBubbles circle:nth-child(2) { animation-delay: -0.35s; }
-.foamBubbles circle:nth-child(3) { animation-delay: -0.7s; }
-.foamBubbles circle:nth-child(4) { animation-delay: -1.05s; }
-.foamBubbles circle:nth-child(5) { animation-delay: -1.4s; }
-
-.pressureWasher,
-.extractorMachine {
-  animation: machineVibration 0.9s ease-in-out infinite;
+.growth .rewardStars {
+  display: block;
 }
 
-.polisherTool {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: polishingMotion 1.2s ease-in-out infinite;
+@keyframes sceneFloat {
+  from { transform: scale(1.025) translate3d(0, 0, 0); }
+  to { transform: scale(1.065) translate3d(-0.8%, -0.45%, 0); }
 }
 
-.polisherDisc {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: discSpin 0.9s linear infinite;
+@keyframes sweep {
+  0%, 100% { transform: translateX(-18%) skewX(-18deg); opacity: 0.16; }
+  50% { transform: translateX(34%) skewX(-18deg); opacity: 0.48; }
 }
 
-.shineSweep path {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: shinePulse 1.9s ease-in-out infinite;
+@keyframes cardHover {
+  0%, 100% { transform: translateY(0) rotateY(0deg); }
+  50% { transform: translateY(-8px) rotateY(-5deg); }
 }
 
-.shineSweep path:nth-child(2) {
-  animation-delay: -0.7s;
+@keyframes sprayFlow {
+  to { transform: rotate(-18deg) translateX(22px); opacity: 0.28; }
 }
 
-.openDoor {
-  transform-box: fill-box;
-  transform-origin: left center;
-  animation: doorBreath 3.4s ease-in-out infinite;
+@keyframes bubbleRise {
+  0%, 100% { transform: translateY(6px) scale(0.72); opacity: 0.28; }
+  50% { transform: translateY(-18px) scale(1.08); opacity: 0.95; }
 }
 
-.cleanLines path {
-  stroke-dasharray: 12 10;
-  animation: cleaningFlow 1.4s linear infinite;
-}
-
-.priceTag {
-  animation: priceFloat 3.2s ease-in-out infinite;
-}
-
-.priceTag:nth-child(2) {
-  animation-delay: -0.8s;
-}
-
-.priceTag:nth-child(3) {
-  animation-delay: -1.6s;
-}
-
-.decisionLine path,
-.inspectionBeam path {
-  stroke-dashoffset: 0;
-  animation: dashTravel 2.1s linear infinite;
-}
-
-.issueMarker {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: issuePulse 1.45s ease-in-out infinite;
-}
-
-.speechBubble {
-  animation: bubbleFloat 3.4s ease-in-out infinite;
-}
-
-.chartBars rect {
-  transform-box: fill-box;
-  transform-origin: center bottom;
-  animation: barGrow 2.2s ease-in-out infinite alternate;
-}
-
-.chartBars rect:nth-child(2) { animation-delay: -0.4s; }
-.chartBars rect:nth-child(3) { animation-delay: -0.8s; }
-.chartBars rect:nth-child(4) { animation-delay: -1.2s; }
-
-.chartLine {
-  stroke-dasharray: 430;
-  stroke-dashoffset: 430;
-  animation: chartDraw 3.6s ease-in-out infinite;
-}
-
-.coinStack {
-  animation: coinBounce 2.6s ease-in-out infinite;
-}
-
-.rewardStars path {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: rewardTwinkle 1.9s ease-in-out infinite;
-}
-
-.rewardStars path:nth-child(2) { animation-delay: -0.55s; }
-.rewardStars path:nth-child(3) { animation-delay: -1.05s; }
-
-.pose_choosing .personArm:last-child {
-  animation: choosingPoint 2.4s ease-in-out infinite;
-}
-
-.pose_washing .personArm,
-.pose_polishing .personArm,
-.pose_interior .personArm {
-  animation: workArm 1.25s ease-in-out infinite alternate;
-}
-
-.pose_celebrating .personArm {
-  animation: celebrationArm 1.8s ease-in-out infinite alternate;
-}
-
-.client_complaint .clientArm:last-child {
-  animation: complaintPoint 1.8s ease-in-out infinite alternate;
-}
-
-.client_approval .clientArm:last-child {
-  animation: approvalGesture 1.9s ease-in-out infinite alternate;
-}
-
-.carGroup {
-  animation: carFloat 4.2s ease-in-out infinite;
-}
-
-@keyframes spotlightDrift {
-  from { transform: translateX(-10px); opacity: 0.28; }
-  to { transform: translateX(18px); opacity: 0.45; }
-}
-
-@keyframes characterIdle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-@keyframes headTilt {
-  0%, 100% { transform: rotate(0deg); }
-  45% { transform: rotate(2deg); }
-  70% { transform: rotate(-1deg); }
-}
-
-@keyframes thinkingGesture {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(-7deg); }
-}
-
-@keyframes cardFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-7px) rotate(0.5deg); }
-}
-
-@keyframes selectedCardFloat {
-  0%, 100% { transform: translateY(-5px) scale(1.015); }
-  50% { transform: translateY(-12px) scale(1.035); }
-}
-
-@keyframes selectedPulse {
-  0%, 100% { transform: scale(1); opacity: 0.95; }
-  50% { transform: scale(1.12); opacity: 1; }
-}
-
-@keyframes thoughtBubble {
-  0%, 100% { transform: translateY(0) scale(1); opacity: 0.45; }
-  50% { transform: translateY(-8px) scale(1.12); opacity: 1; }
-}
-
-@keyframes shelfProductHover {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-
-@keyframes cartNudge {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(8px); }
-}
-
-@keyframes waterFlow {
-  to { stroke-dashoffset: -33; }
-}
-
-@keyframes foamPop {
-  0%, 100% { transform: translate(0, 0) scale(0.8); opacity: 0.45; }
-  45% { transform: translate(2px, -9px) scale(1.1); opacity: 1; }
-}
-
-@keyframes machineVibration {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(1.7px); }
-}
-
-@keyframes polishingMotion {
-  0%, 100% { transform: translateX(-3px) rotate(-2deg); }
-  50% { transform: translateX(7px) rotate(2deg); }
-}
-
-@keyframes discSpin {
+@keyframes polishOrbit {
   to { transform: rotate(360deg); }
 }
 
-@keyframes shinePulse {
-  0%, 100% { transform: scale(0.74) rotate(0deg); opacity: 0.3; }
-  50% { transform: scale(1.2) rotate(20deg); opacity: 1; }
-}
-
-@keyframes doorBreath {
-  0%, 100% { transform: rotate(-10deg); }
-  50% { transform: rotate(-13deg); }
-}
-
-@keyframes cleaningFlow {
-  to { stroke-dashoffset: -22; }
-}
-
 @keyframes priceFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.04); }
 }
 
-@keyframes dashTravel {
-  to { stroke-dashoffset: -44; }
-}
-
-@keyframes issuePulse {
+@keyframes alertBeat {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.16); }
+  45% { transform: scale(1.12); }
 }
 
-@keyframes bubbleFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
-}
-
-@keyframes barGrow {
-  from { transform: scaleY(0.88); }
-  to { transform: scaleY(1.04); }
-}
-
-@keyframes chartDraw {
-  0%, 15% { stroke-dashoffset: 430; opacity: 0.25; }
-  50%, 80% { stroke-dashoffset: 0; opacity: 1; }
-  100% { stroke-dashoffset: 0; opacity: 0.55; }
-}
-
-@keyframes coinBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-@keyframes rewardTwinkle {
-  0%, 100% { transform: scale(0.78) rotate(-8deg); opacity: 0.45; }
-  50% { transform: scale(1.16) rotate(12deg); opacity: 1; }
-}
-
-@keyframes choosingPoint {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(-9deg); }
-}
-
-@keyframes workArm {
-  from { transform: rotate(-2deg); }
-  to { transform: rotate(5deg); }
-}
-
-@keyframes celebrationArm {
-  from { transform: rotate(-3deg); }
-  to { transform: rotate(7deg); }
-}
-
-@keyframes complaintPoint {
-  from { transform: rotate(-2deg); }
-  to { transform: rotate(-8deg); }
-}
-
-@keyframes approvalGesture {
-  from { transform: rotate(-2deg); }
-  to { transform: rotate(7deg); }
-}
-
-@keyframes carFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-
-@media (max-width: 900px) {
-  .artwork {
-    transform: scale(1.08) translateX(2%);
-  }
-}
-
-@media (max-width: 680px) {
-  .artwork {
-    transform: scale(1.18) translateX(6%);
-  }
-
-  .vignette {
-    background:
-      linear-gradient(180deg, rgba(4, 12, 21, 0.04) 28%, rgba(4, 12, 21, 0.78) 78%, rgba(4, 12, 21, 0.94) 100%);
-  }
+@keyframes starFloat {
+  0%, 100% { transform: translateY(0) rotate(-4deg) scale(0.92); opacity: 0.7; }
+  50% { transform: translateY(-13px) rotate(5deg) scale(1.12); opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scene * {
+  .image,
+  .lightSweep,
+  .strategyPulse i,
+  .waterSpray::before,
+  .waterSpray i,
+  .polishingGlow,
+  .priceCards i,
+  .alertPulse,
+  .rewardStars i {
     animation: none !important;
   }
 }
