@@ -2,354 +2,432 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 20% 16%, rgba(102, 208, 255, 0.2), transparent 28%),
-    radial-gradient(circle at 82% 18%, rgba(52, 144, 220, 0.16), transparent 26%),
-    linear-gradient(180deg, #0d1b2b 0%, #091321 54%, #08101b 100%);
+  background: #071522;
 }
 
-.skyGlow {
-  position: absolute;
-  inset: 6% 16% auto;
-  height: 140px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(102, 208, 255, 0.28), transparent 68%);
-  filter: blur(20px);
-}
-
-.ground {
-  position: absolute;
-  left: -10%;
-  right: -10%;
-  bottom: -10%;
-  height: 42%;
-  background: linear-gradient(180deg, rgba(18, 33, 53, 0.6), #08111a 72%);
-  transform: perspective(1200px) rotateX(72deg);
-  transform-origin: bottom center;
-}
-
-.grid {
-  position: absolute;
-  inset: auto 6% 6% 6%;
-  height: 42%;
-  border-radius: 32px;
-  background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-  background-size: 36px 36px;
-  transform: perspective(1200px) rotateX(72deg);
-  transform-origin: bottom center;
-  opacity: 0.3;
-}
-
-.sceneBadge {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  max-width: 280px;
-  padding: 0.85rem 0.95rem;
-  border-radius: 18px;
-  color: #eff6ff;
-  background: rgba(8, 18, 31, 0.58);
-  border: 1px solid rgba(102, 208, 255, 0.16);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-}
-.sceneBadge strong { display: block; font-size: 0.95rem; }
-.sceneBadge span { display: block; margin-top: 0.28rem; color: rgba(226, 232, 240, 0.72); font-size: 0.75rem; line-height: 1.4; }
-
-.platform {
-  position: absolute;
-  left: 10%;
-  right: 10%;
-  bottom: 16%;
-  height: 90px;
-  border-radius: 50px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.18));
-  box-shadow: 0 30px 80px rgba(0,0,0,0.35);
-}
-
-.character {
-  position: absolute;
-  z-index: 2;
-  width: 72px;
-  height: 170px;
-  animation: floaty 4.5s ease-in-out infinite;
-}
-.tech { left: 12%; bottom: 21%; }
-.client { right: 12%; bottom: 20%; opacity: 0.86; }
-
-.head, .body, .arm, .leg {
-  position: absolute;
-  display: block;
-  border-radius: 999px;
-}
-.head {
-  top: 4px; left: 20px; width: 28px; height: 28px;
-  background: linear-gradient(180deg, #ffd8b3, #ffc38a);
-  box-shadow: 0 4px 0 rgba(0,0,0,0.08) inset;
-}
-.body {
-  top: 34px; left: 16px; width: 36px; height: 60px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #67e8f9, #0ea5e9);
-}
-.client .body { background: linear-gradient(180deg, #dbeafe, #60a5fa); }
-.arm {
-  top: 40px; width: 12px; height: 56px;
-  background: linear-gradient(180deg, #ffd8b3, #ffc38a);
-}
-.leftArm { left: 8px; transform: rotate(18deg); }
-.rightArm { right: 8px; transform: rotate(-12deg); }
-.leg {
-  top: 92px; width: 14px; height: 70px;
-  background: linear-gradient(180deg, #1d4ed8, #0f172a);
-}
-.leftLeg { left: 18px; transform: rotate(6deg); }
-.rightLeg { right: 18px; transform: rotate(-6deg); }
-
-.carWrap {
-  position: absolute;
-  left: 29%;
-  right: 27%;
-  bottom: 19%;
-  z-index: 2;
-}
-.car {
-  position: relative;
+.artwork {
   width: 100%;
-  height: 150px;
-  filter: drop-shadow(0 26px 28px rgba(0, 0, 0, 0.35));
+  height: 100%;
+  display: block;
+  transform: scale(1.015);
+  transform-origin: center;
 }
-.bodyPanel {
-  position: absolute;
-  left: 0; right: 0; bottom: 28px;
-  height: 54px;
-  border-radius: 22px 36px 18px 18px;
-  background: linear-gradient(145deg, #dff6ff, #53bdf0 52%, #0b3653 100%);
-}
-.roof {
-  position: absolute;
-  left: 20%; right: 20%; bottom: 68px; height: 28px;
-  border-radius: 28px 28px 10px 10px;
-  background: linear-gradient(145deg, #90e0ff, #155d84);
-}
-.window {
-  position: absolute;
-  left: 28%; right: 28%; bottom: 72px; height: 18px;
-  border-radius: 16px 16px 8px 8px;
-  background: linear-gradient(145deg, rgba(255,255,255,0.82), rgba(255,255,255,0.12));
-}
-.wheel {
-  position: absolute;
-  bottom: 0; width: 34px; height: 34px; border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, #dbeafe 0 18%, #111827 22% 100%);
-}
-.wheelLeft { left: 18%; }
-.wheelRight { right: 18%; }
 
-.choiceSet,
-.shelf,
-.priceBoard,
-.chartBoard,
-.clipboard,
-.alertBubble,
-.sprayGun,
-.polisher,
-.extractor,
-.coins,
-.foam {
+.vignette {
   position: absolute;
-  opacity: 0;
+  inset: 0;
   pointer-events: none;
-  transition: 220ms ease;
+  background:
+    linear-gradient(90deg, rgba(4, 12, 21, 0.58) 0%, rgba(4, 12, 21, 0.16) 34%, rgba(4, 12, 21, 0) 58%),
+    linear-gradient(180deg, rgba(4, 12, 21, 0.05) 58%, rgba(4, 12, 21, 0.42) 100%);
 }
 
-.choiceSet {
-  left: 15%; right: 15%; bottom: 16%; z-index: 3;
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-}
-.structureCard {
-  height: 126px;
-  border-radius: 24px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
-  border: 1px solid rgba(102, 208, 255, 0.18);
-  box-shadow: 0 26px 40px rgba(0,0,0,0.2);
-  position: relative;
-}
-.structureCard span {
-  position: absolute; left: 14px; bottom: 12px;
-  color: #f8fafc; font-size: 0.72rem; font-weight: 800;
-}
-.cardGarage::before,
-.cardStore::before,
-.cardMobile::before {
-  content: ''; position: absolute;
-}
-.cardGarage::before {
-  left: 18px; right: 18px; top: 30px; height: 54px;
-  border-radius: 18px 18px 8px 8px;
-  background: linear-gradient(145deg, #93c5fd, #1d4ed8);
-  box-shadow: inset 0 -18px 0 0 rgba(8, 36, 61, 0.68);
-}
-.cardStore::before {
-  left: 16px; right: 16px; top: 30px; height: 58px;
-  border-radius: 10px;
-  background: linear-gradient(145deg, #dbeafe, #38bdf8);
-  box-shadow: inset 0 12px 0 0 repeating-linear-gradient(90deg, #2563eb 0 10px, #7dd3fc 10px 20px);
-}
-.cardMobile::before {
-  left: 20px; right: 20px; top: 44px; height: 24px;
-  border-radius: 14px 18px 10px 10px;
-  background: linear-gradient(145deg, #bae6fd, #0284c7);
-  box-shadow: 0 10px 0 -2px #0f172a;
+.spotlights {
+  animation: spotlightDrift 8s ease-in-out infinite alternate;
 }
 
-.shelf {
-  right: 12%; bottom: 20%; z-index: 3; width: 170px; height: 160px;
-}
-.shelf::before {
-  content: ''; position: absolute; left: 20px; right: 20px; bottom: 20px; height: 12px;
-  border-radius: 999px; background: rgba(255,255,255,0.12);
-  box-shadow: 0 -42px 0 rgba(255,255,255,0.12), 0 -84px 0 rgba(255,255,255,0.12);
-}
-.machineTall, .machineRound, .machineBox {
-  position: absolute; display: block; border-radius: 16px;
-  background: linear-gradient(145deg, #a5f3fc, #0284c7);
-}
-.machineTall { width: 30px; height: 78px; left: 34px; bottom: 26px; }
-.machineRound { width: 42px; height: 42px; left: 74px; bottom: 66px; border-radius: 50%; }
-.machineBox { width: 38px; height: 56px; right: 20px; bottom: 26px; }
-
-.priceBoard, .chartBoard {
-  right: 11%; top: 32%; z-index: 3; width: 160px; height: 112px;
-  border-radius: 22px;
-  background: rgba(8, 18, 31, 0.5);
-  border: 1px solid rgba(102,208,255,0.16);
-  box-shadow: 0 26px 40px rgba(0,0,0,0.2);
-}
-.priceBoard i, .chartBoard i {
-  position: absolute; bottom: 18px; width: 22px; border-radius: 12px 12px 6px 6px;
-  background: linear-gradient(180deg, #dbeafe, #38bdf8);
-}
-.priceBoard i:nth-child(1), .chartBoard i:nth-child(1) { left: 22px; height: 34px; }
-.priceBoard i:nth-child(2), .chartBoard i:nth-child(2) { left: 62px; height: 56px; }
-.priceBoard i:nth-child(3), .chartBoard i:nth-child(3) { left: 102px; height: 76px; }
-.chartBoard i:nth-child(4) { display: block; left: 22px; right: 22px; top: 20px; bottom: auto; height: 4px; width: auto; border-radius: 999px; background: rgba(103,232,249,.65); }
-
-.clipboard {
-  right: 18%; bottom: 22%; width: 74px; height: 92px; z-index: 4;
-  border-radius: 16px; background: linear-gradient(145deg, #e2e8f0, #94a3b8);
-  box-shadow: 0 22px 34px rgba(0,0,0,0.2);
-}
-.clipboard span {
-  position: absolute; inset: 16px 16px auto; height: 4px; border-radius: 999px; background: #0f172a;
-  box-shadow: 0 16px 0 #0f172a, 0 32px 0 #0f172a;
+.person,
+.clientPerson,
+.carGroup,
+.strategyCard,
+.shelfProduct,
+.priceTag,
+.growthDashboard,
+.coinStack,
+.shoppingCart,
+.pressureWasher,
+.extractorMachine {
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
-.alertBubble {
-  right: 28%; top: 34%; z-index: 5;
-  display: grid; place-items: center;
-  width: 54px; height: 54px; border-radius: 50%;
-  color: #7f1d1d; font-weight: 900; font-size: 1.35rem;
-  background: radial-gradient(circle, #fee2e2, #ef4444);
-  box-shadow: 0 18px 30px rgba(239,68,68,.22);
+.person,
+.clientPerson {
+  animation: characterIdle 3.8s ease-in-out infinite;
 }
 
-.sprayGun, .polisher, .extractor {
-  left: 54%; bottom: 34%; z-index: 4;
-  width: 86px; height: 34px;
-  border-radius: 18px;
-  background: linear-gradient(145deg, #dbeafe, #38bdf8);
-  transform: rotate(-14deg);
-  box-shadow: 0 18px 28px rgba(0,0,0,0.22);
-}
-.sprayGun i, .polisher i, .extractor i {
-  position: absolute; display: block;
-}
-.sprayGun i {
-  right: -10px; top: 12px; width: 56px; height: 4px;
-  border-radius: 999px; background: rgba(103,232,249,.9);
-  box-shadow: 12px -8px 0 0 rgba(191, 219, 254, 0.7), 18px 8px 0 0 rgba(191, 219, 254, 0.7);
-}
-.polisher i {
-  right: -4px; top: 2px; width: 30px; height: 30px; border-radius: 50%;
-  background: radial-gradient(circle, #dbeafe 0 28%, #67e8f9 30% 100%);
-}
-.extractor i {
-  right: -4px; top: 8px; width: 38px; height: 18px; border-radius: 12px;
-  background: linear-gradient(90deg, #dbeafe, #7dd3fc);
+.personHead {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: headTilt 5s ease-in-out infinite;
 }
 
-.coins {
-  left: 18%; bottom: 22%; z-index: 3; width: 120px; height: 74px;
+.personArm,
+.clientArm {
+  transform-box: fill-box;
+  transform-origin: top center;
 }
-.coins i {
-  position: absolute; bottom: 0; width: 58px; height: 18px; border-radius: 999px;
-  background: linear-gradient(180deg, #fef08a, #f59e0b);
-  box-shadow: 0 10px 18px rgba(245,158,11,.18);
+
+.thinkingArm {
+  animation: thinkingGesture 2.8s ease-in-out infinite;
 }
-.coins i:nth-child(1) { left: 0; bottom: 0; }
-.coins i:nth-child(2) { left: 20px; bottom: 18px; }
-.coins i:nth-child(3) { left: 40px; bottom: 36px; }
 
-.foam {
-  left: 44%; bottom: 40%; z-index: 4;
+.strategyCard {
+  animation: cardFloat 4.4s ease-in-out infinite;
 }
-.foam i {
-  position: absolute; display: block; width: 14px; height: 14px; border-radius: 50%;
-  background: rgba(255,255,255,0.72);
-  box-shadow: 0 0 10px rgba(255,255,255,0.3);
+
+.strategyCard:nth-child(2) {
+  animation-delay: -1.1s;
 }
-.foam i:nth-child(1) { left: 0; top: 0; }
-.foam i:nth-child(2) { left: 14px; top: 8px; }
-.foam i:nth-child(3) { left: 28px; top: -4px; }
-.foam i:nth-child(4) { left: 38px; top: 10px; }
 
-.garage .choiceSet,
-.store .choiceSet,
-.mobile .choiceSet { opacity: 1; }
-.equipment .shelf { opacity: 1; }
-.washing .sprayGun,
-.washing .foam { opacity: 1; }
-.polishing .polisher { opacity: 1; }
-.interior .extractor,
-.interior .clipboard { opacity: 1; }
-.pricing .priceBoard,
-.pricing .coins { opacity: 1; }
-.complaint .alertBubble,
-.complaint .clipboard,
-.complaint .client { opacity: 1; }
-.growth .chartBoard,
-.growth .coins { opacity: 1; }
+.strategyCard:nth-child(3) {
+  animation-delay: -2.2s;
+}
 
-.washing .client,
-.polishing .client,
-.interior .client,
-.pricing .client,
-.growth .client { bottom: 18%; }
-.mobile .tech { left: 16%; }
-.store .client { right: 16%; }
-.complaint .carWrap { left: 25%; right: 32%; }
+.strategyCardSelected {
+  animation: selectedCardFloat 2.7s ease-in-out infinite;
+}
 
-@keyframes floaty {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
+.selectedPulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: selectedPulse 1.7s ease-in-out infinite;
+}
+
+.thoughtDots circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: thoughtBubble 2.6s ease-in-out infinite;
+}
+
+.thoughtDots circle:nth-child(2) {
+  animation-delay: 0.22s;
+}
+
+.thoughtDots circle:nth-child(3) {
+  animation-delay: 0.44s;
+}
+
+.shelfProduct {
+  animation: shelfProductHover 3.6s ease-in-out infinite;
+}
+
+.shelfProduct:nth-child(2n) {
+  animation-delay: -0.9s;
+}
+
+.shelfProduct:nth-child(3n) {
+  animation-delay: -1.8s;
+}
+
+.shoppingCart {
+  animation: cartNudge 4.6s ease-in-out infinite;
+}
+
+.waterJet path:first-child {
+  stroke-dashoffset: 0;
+  animation: waterFlow 1.05s linear infinite;
+}
+
+.foamBubbles circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: foamPop 2.1s ease-in-out infinite;
+}
+
+.foamBubbles circle:nth-child(2) { animation-delay: -0.35s; }
+.foamBubbles circle:nth-child(3) { animation-delay: -0.7s; }
+.foamBubbles circle:nth-child(4) { animation-delay: -1.05s; }
+.foamBubbles circle:nth-child(5) { animation-delay: -1.4s; }
+
+.pressureWasher,
+.extractorMachine {
+  animation: machineVibration 0.9s ease-in-out infinite;
+}
+
+.polisherTool {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: polishingMotion 1.2s ease-in-out infinite;
+}
+
+.polisherDisc {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: discSpin 0.9s linear infinite;
+}
+
+.shineSweep path {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: shinePulse 1.9s ease-in-out infinite;
+}
+
+.shineSweep path:nth-child(2) {
+  animation-delay: -0.7s;
+}
+
+.openDoor {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: doorBreath 3.4s ease-in-out infinite;
+}
+
+.cleanLines path {
+  stroke-dasharray: 12 10;
+  animation: cleaningFlow 1.4s linear infinite;
+}
+
+.priceTag {
+  animation: priceFloat 3.2s ease-in-out infinite;
+}
+
+.priceTag:nth-child(2) {
+  animation-delay: -0.8s;
+}
+
+.priceTag:nth-child(3) {
+  animation-delay: -1.6s;
+}
+
+.decisionLine path,
+.inspectionBeam path {
+  stroke-dashoffset: 0;
+  animation: dashTravel 2.1s linear infinite;
+}
+
+.issueMarker {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: issuePulse 1.45s ease-in-out infinite;
+}
+
+.speechBubble {
+  animation: bubbleFloat 3.4s ease-in-out infinite;
+}
+
+.chartBars rect {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: barGrow 2.2s ease-in-out infinite alternate;
+}
+
+.chartBars rect:nth-child(2) { animation-delay: -0.4s; }
+.chartBars rect:nth-child(3) { animation-delay: -0.8s; }
+.chartBars rect:nth-child(4) { animation-delay: -1.2s; }
+
+.chartLine {
+  stroke-dasharray: 430;
+  stroke-dashoffset: 430;
+  animation: chartDraw 3.6s ease-in-out infinite;
+}
+
+.coinStack {
+  animation: coinBounce 2.6s ease-in-out infinite;
+}
+
+.rewardStars path {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rewardTwinkle 1.9s ease-in-out infinite;
+}
+
+.rewardStars path:nth-child(2) { animation-delay: -0.55s; }
+.rewardStars path:nth-child(3) { animation-delay: -1.05s; }
+
+.pose_choosing .personArm:last-child {
+  animation: choosingPoint 2.4s ease-in-out infinite;
+}
+
+.pose_washing .personArm,
+.pose_polishing .personArm,
+.pose_interior .personArm {
+  animation: workArm 1.25s ease-in-out infinite alternate;
+}
+
+.pose_celebrating .personArm {
+  animation: celebrationArm 1.8s ease-in-out infinite alternate;
+}
+
+.client_complaint .clientArm:last-child {
+  animation: complaintPoint 1.8s ease-in-out infinite alternate;
+}
+
+.client_approval .clientArm:last-child {
+  animation: approvalGesture 1.9s ease-in-out infinite alternate;
+}
+
+.carGroup {
+  animation: carFloat 4.2s ease-in-out infinite;
+}
+
+@keyframes spotlightDrift {
+  from { transform: translateX(-10px); opacity: 0.28; }
+  to { transform: translateX(18px); opacity: 0.45; }
+}
+
+@keyframes characterIdle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes headTilt {
+  0%, 100% { transform: rotate(0deg); }
+  45% { transform: rotate(2deg); }
+  70% { transform: rotate(-1deg); }
+}
+
+@keyframes thinkingGesture {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-7deg); }
+}
+
+@keyframes cardFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(0.5deg); }
+}
+
+@keyframes selectedCardFloat {
+  0%, 100% { transform: translateY(-5px) scale(1.015); }
+  50% { transform: translateY(-12px) scale(1.035); }
+}
+
+@keyframes selectedPulse {
+  0%, 100% { transform: scale(1); opacity: 0.95; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+
+@keyframes thoughtBubble {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.45; }
+  50% { transform: translateY(-8px) scale(1.12); opacity: 1; }
+}
+
+@keyframes shelfProductHover {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes cartNudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(8px); }
+}
+
+@keyframes waterFlow {
+  to { stroke-dashoffset: -33; }
+}
+
+@keyframes foamPop {
+  0%, 100% { transform: translate(0, 0) scale(0.8); opacity: 0.45; }
+  45% { transform: translate(2px, -9px) scale(1.1); opacity: 1; }
+}
+
+@keyframes machineVibration {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(1.7px); }
+}
+
+@keyframes polishingMotion {
+  0%, 100% { transform: translateX(-3px) rotate(-2deg); }
+  50% { transform: translateX(7px) rotate(2deg); }
+}
+
+@keyframes discSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shinePulse {
+  0%, 100% { transform: scale(0.74) rotate(0deg); opacity: 0.3; }
+  50% { transform: scale(1.2) rotate(20deg); opacity: 1; }
+}
+
+@keyframes doorBreath {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(-13deg); }
+}
+
+@keyframes cleaningFlow {
+  to { stroke-dashoffset: -22; }
+}
+
+@keyframes priceFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes dashTravel {
+  to { stroke-dashoffset: -44; }
+}
+
+@keyframes issuePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.16); }
+}
+
+@keyframes bubbleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes barGrow {
+  from { transform: scaleY(0.88); }
+  to { transform: scaleY(1.04); }
+}
+
+@keyframes chartDraw {
+  0%, 15% { stroke-dashoffset: 430; opacity: 0.25; }
+  50%, 80% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0.55; }
+}
+
+@keyframes coinBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes rewardTwinkle {
+  0%, 100% { transform: scale(0.78) rotate(-8deg); opacity: 0.45; }
+  50% { transform: scale(1.16) rotate(12deg); opacity: 1; }
+}
+
+@keyframes choosingPoint {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-9deg); }
+}
+
+@keyframes workArm {
+  from { transform: rotate(-2deg); }
+  to { transform: rotate(5deg); }
+}
+
+@keyframes celebrationArm {
+  from { transform: rotate(-3deg); }
+  to { transform: rotate(7deg); }
+}
+
+@keyframes complaintPoint {
+  from { transform: rotate(-2deg); }
+  to { transform: rotate(-8deg); }
+}
+
+@keyframes approvalGesture {
+  from { transform: rotate(-2deg); }
+  to { transform: rotate(7deg); }
+}
+
+@keyframes carFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
 @media (max-width: 900px) {
-  .sceneBadge {
-    max-width: 210px;
+  .artwork {
+    transform: scale(1.08) translateX(2%);
   }
-  .choiceSet { left: 8%; right: 8%; }
-  .carWrap { left: 20%; right: 20%; }
 }
 
 @media (max-width: 680px) {
-  .sceneBadge {
-    top: 14px; left: 14px; right: 14px; max-width: none;
+  .artwork {
+    transform: scale(1.18) translateX(6%);
   }
-  .choiceSet { grid-template-columns: 1fr; bottom: 14%; }
-  .structureCard:nth-child(2), .structureCard:nth-child(3) { display: none; }
-  .character.client { display: none; }
-  .carWrap { left: 10%; right: 10%; }
-  .shelf, .priceBoard, .chartBoard { right: 6%; }
+
+  .vignette {
+    background:
+      linear-gradient(180deg, rgba(4, 12, 21, 0.04) 28%, rgba(4, 12, 21, 0.78) 78%, rgba(4, 12, 21, 0.94) 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene * {
+    animation: none !important;
+  }
 }
