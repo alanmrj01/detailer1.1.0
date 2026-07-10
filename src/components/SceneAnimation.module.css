@@ -289,6 +289,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .image,
+  .foreground,
+  .ambientParticles i,
   .lightSweep,
   .strategyPulse i,
   .waterSpray::before,
@@ -299,4 +301,74 @@
   .rewardStars i {
     animation: none !important;
   }
+}
+
+.foreground {
+  position: absolute;
+  inset: -1.5%;
+  width: 103%;
+  height: 103%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(1.08) contrast(1.05);
+  opacity: 0.72;
+  mask-image: radial-gradient(circle at 76% 54%, #000 0 20%, rgba(0, 0, 0, 0.78) 31%, transparent 54%);
+  -webkit-mask-image: radial-gradient(circle at 76% 54%, #000 0 20%, rgba(0, 0, 0, 0.78) 31%, transparent 54%);
+  animation: foregroundBob 4.8s ease-in-out infinite;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.ambientParticles {
+  position: absolute;
+  right: 9%;
+  bottom: 13%;
+  width: 210px;
+  height: 170px;
+  pointer-events: none;
+}
+
+.ambientParticles i {
+  position: absolute;
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(186, 230, 253, 0.9);
+  box-shadow: 0 0 18px rgba(103, 232, 249, 0.6);
+  animation: ambientFloat 4s ease-in-out infinite;
+}
+
+.ambientParticles i:nth-child(1) { left: 8%; bottom: 14%; }
+.ambientParticles i:nth-child(2) { left: 36%; top: 12%; animation-delay: -1s; }
+.ambientParticles i:nth-child(3) { right: 12%; bottom: 28%; animation-delay: -2s; }
+.ambientParticles i:nth-child(4) { right: 34%; top: 40%; animation-delay: -3s; }
+
+.garage .foreground,
+.store .foreground,
+.mobile .foreground,
+.equipment .foreground {
+  mask-image: radial-gradient(circle at 73% 54%, #000 0 22%, rgba(0, 0, 0, 0.76) 34%, transparent 55%);
+  -webkit-mask-image: radial-gradient(circle at 73% 54%, #000 0 22%, rgba(0, 0, 0, 0.76) 34%, transparent 55%);
+}
+
+.complaint .foreground,
+.pricing .foreground {
+  mask-image: radial-gradient(circle at 79% 52%, #000 0 25%, rgba(0, 0, 0, 0.75) 37%, transparent 58%);
+  -webkit-mask-image: radial-gradient(circle at 79% 52%, #000 0 25%, rgba(0, 0, 0, 0.75) 37%, transparent 58%);
+}
+
+.growth .foreground {
+  animation-duration: 3.7s;
+}
+
+@keyframes foregroundBob {
+  0%, 100% { transform: translate3d(0, 2px, 0) scale(1.005); }
+  50% { transform: translate3d(-5px, -8px, 0) scale(1.025); }
+}
+
+@keyframes ambientFloat {
+  0%, 100% { transform: translateY(7px) scale(0.65); opacity: 0.2; }
+  50% { transform: translateY(-18px) scale(1.12); opacity: 0.95; }
 }

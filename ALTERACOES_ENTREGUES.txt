@@ -1,34 +1,32 @@
-DETAILER BUSINESS — ENTREGA 1.2.2
+Detailer Business — ajustes cirúrgicos desta entrega
 
 Base utilizada
-- detailer1.2.1(3).zip enviado pelo usuário.
+- detailer1.2.2.zip enviado pelo usuário.
 
-Alterações cirúrgicas aplicadas
-1. Ilustrações 3D animadas
-- Cenas 3D em .webp integradas ao React.
-- Animação de câmera suave, sweep de luz e efeitos específicos por contexto.
-- Estratégia/equipamentos: cartões flutuantes.
-- Lavagem/interior: água e bolhas animadas.
-- Polimento: brilho orbital animado.
-- Precificação: cartões de preço flutuantes.
-- Reclamação: alerta pulsante.
-- Resultado/crescimento: estrelas animadas.
-- Assets otimizados para boa performance no StackBlitz e em iframe.
+Alterações realizadas
+1. Cenas 3D principais
+- Mantidas as ilustrações 3D existentes.
+- A animação foi reforçada com parallax leve, movimento independente do primeiro plano, partículas, sweep de luz e efeitos específicos por cena.
+- As animações usam apenas transform/opacity para preservar desempenho.
 
-2. Estrutura das fases
-- Estratégias e situações-problema pertencem integralmente à Fase 1.
-- A Fase 1 possui as 8 decisões atuais.
-- O resultado é exibido somente após concluir toda a Fase 1.
-- O resultado possui o botão "Ir para a fase 2".
-- Ao clicar, aparece a mensagem de que a Fase 2 será desenvolvida conforme o método de ensino abordado.
+2. Ilustrações das opções de escolha
+- As formas abstratas foram substituídas por miniaturas das mesmas cenas 3D do restante do jogo.
+- Cada escolha possui enquadramento, marcador e animações leves próprias.
+- Foram mantidos os textos, valores, efeitos e bloqueios já existentes.
 
-3. Orientação pedagógica do resultado
-- Justificativas finais mantidas e refinadas.
-- O jogo aponta padrões que o jogador deve observar na próxima partida.
-- As orientações não revelam diretamente quais alternativas devem ser escolhidas.
+3. Tela de resultado da fase 1
+- O resumo principal permanece no hero.
+- Fortalezas, Atenções e Método foram organizados em uma seção própria.
+- Cada card inicia compacto e possui botão "Ler mais" / "Recolher".
+- O ícone de exclamação e as explicações por escolhas foram preservados.
+- O histórico de decisões agora pode ser aberto e recolhido por botão.
 
-Validação técnica
-- npm ci: aprovado
+4. Preservação
+- Fase 1 continua reunindo estratégia + desafios.
+- Botão e mensagem da Fase 2 foram preservados.
+- Estrelas, indicadores, configurações, preços, decisões e lógica do jogo não foram alterados.
+
+Validação
+- npm ci: OK
 - npm test: 7 testes aprovados
-- npm run build: aprovado
-- package-lock.json usa somente registry.npmjs.org
+- npm run build: OK

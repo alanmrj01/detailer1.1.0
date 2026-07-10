@@ -39,6 +39,8 @@ export function GamePage() {
   const [selectedChoice, setSelectedChoice] = useState<DecisionChoice | null>(null);
   const [feedback, setFeedback] = useState<{ entry: LedgerEntry; mentorTip: string } | null>(null);
   const [openInsight, setOpenInsight] = useState<InsightCard>(null);
+  const [expandedResultCard, setExpandedResultCard] = useState<InsightCard>(null);
+  const [timelineExpanded, setTimelineExpanded] = useState(false);
   const [showPhaseTwoTeaser, setShowPhaseTwoTeaser] = useState(false);
 
   useEffect(() => {
@@ -50,6 +52,8 @@ export function GamePage() {
     setSelectedChoice(null);
     setFeedback(null);
     setOpenInsight(null);
+    setExpandedResultCard(null);
+    setTimelineExpanded(false);
     setShowPhaseTwoTeaser(false);
     setRun(createRun(config));
   };
@@ -126,6 +130,9 @@ export function GamePage() {
     };
     const improvementGuide = buildImprovementGuide(run, result);
 
+    const cardIsExpanded = (card: Exclude<InsightCard, null>) =>
+      expandedResultCard === card || openInsight === card;
+
     return (
       <main className={styles.page}>
         <section className={styles.resultHero}>
@@ -141,33 +148,6 @@ export function GamePage() {
                 <span>Seu desempenho final combina caixa, reputação, qualidade, capacidade, risco e carga operacional.</span>
               </div>
             </div>
-            <div className={styles.resultGrid}>
-              <article className={`${styles.resultCard} panel`}>
-                <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'strengths' ? null : 'strengths')}>!</button>
-                <span className="eyebrow">Fortalezas</span>
-                <ul className={styles.insightList}>
-                  {result.strengths.map((item) => <li key={item} className={styles.positive}>{item}</li>)}
-                </ul>
-                {openInsight === 'strengths' ? <InsightPopover title="Escolhas que fortaleceram este resultado" lines={insightData.strengths} /> : null}
-              </article>
-              <article className={`${styles.resultCard} panel`}>
-                <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'alerts' ? null : 'alerts')}>!</button>
-                <span className="eyebrow">Atenções</span>
-                <ul className={styles.insightList}>
-                  {result.alerts.map((item) => <li key={item} className={styles.negative}>{item}</li>)}
-                </ul>
-                {openInsight === 'alerts' ? <InsightPopover title="Escolhas que puxaram o resultado para baixo" lines={insightData.alerts} /> : null}
-              </article>
-              <article className={`${styles.resultCard} panel`}>
-                <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'method' ? null : 'method')}>!</button>
-                <span className="eyebrow">Método</span>
-                <p>{band.methodFeedback}</p>
-                <ul className={styles.methodGuideList}>
-                  {improvementGuide.map((item) => <li key={item}>{item}</li>)}
-                </ul>
-                {openInsight === 'method' ? <InsightPopover title="Resumo das decisões mais influentes" lines={insightData.method} /> : null}
-              </article>
-            </div>
             <div className={styles.resultActions}>
               <button className="primaryButton" type="button" onClick={() => setShowPhaseTwoTeaser(true)}>Ir para a fase 2</button>
               <button className="secondaryButton" type="button" onClick={restartRun}>Jogar novamente</button>
@@ -176,26 +156,110 @@ export function GamePage() {
           </div>
         </section>
 
-        <section className="panel">
-          <span className="eyebrow">Linha do tempo</span>
-          <h2>Principais escolhas da partida</h2>
-          <div className={styles.timeline}>
-            {run.ledger.map((entry, index) => (
-              <article key={entry.id} className={styles.timelineItem}>
-                <span>{index + 1}</span>
-                <div>
-                  <strong>{entry.title}</strong>
-                  <p>{summarizeConsequence(entry.consequence)}</p>
-                </div>
-                <small>
-                  {describeFeedback(entry.delta)
-                    .slice(0, 3)
-                    .map((item) => `${item.positive ? '↑' : '↓'} ${item.title.replace(item.positive ? ' em alta' : ' pressionado', '')}`)
-                    .join(' · ')}
-                </small>
-              </article>
-            ))}
+        <section className={styles.resultDetailsSection}>
+          <div className={styles.resultSectionHeader}>
+            <div>
+              <span className="eyebrow">Diagnóstico da fase 1</span>
+              <h2>Entenda seu resultado sem perder a visão geral</h2>
+            </div>
+            <p>Abra apenas o bloco que deseja analisar. Os demais permanecem compactos para evitar excesso de informação.</p>
           </div>
+
+          <div className={styles.resultGrid}>
+            <article className={`${styles.resultCard} panel ${cardIsExpanded('strengths') ? styles.resultCardExpanded : styles.resultCardCollapsed}`}>
+              <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'strengths' ? null : 'strengths')}>!</button>
+              <div className={styles.resultCardBody}>
+                <span className="eyebrow">Fortalezas</span>
+                <ul className={styles.insightList}>
+                  {result.strengths.map((item) => <li key={item} className={styles.positive}>{item}</li>)}
+                </ul>
+                {openInsight === 'strengths' ? <InsightPopover title="Escolhas que fortaleceram este resultado" lines={insightData.strengths} /> : null}
+              </div>
+              <button
+                className={styles.readMoreButton}
+                type="button"
+                onClick={() => setExpandedResultCard(expandedResultCard === 'strengths' ? null : 'strengths')}
+              >
+                {expandedResultCard === 'strengths' ? 'Recolher' : 'Ler mais'}
+              </button>
+            </article>
+
+            <article className={`${styles.resultCard} panel ${cardIsExpanded('alerts') ? styles.resultCardExpanded : styles.resultCardCollapsed}`}>
+              <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'alerts' ? null : 'alerts')}>!</button>
+              <div className={styles.resultCardBody}>
+                <span className="eyebrow">Atenções</span>
+                <ul className={styles.insightList}>
+                  {result.alerts.map((item) => <li key={item} className={styles.negative}>{item}</li>)}
+                </ul>
+                {openInsight === 'alerts' ? <InsightPopover title="Escolhas que puxaram o resultado para baixo" lines={insightData.alerts} /> : null}
+              </div>
+              <button
+                className={styles.readMoreButton}
+                type="button"
+                onClick={() => setExpandedResultCard(expandedResultCard === 'alerts' ? null : 'alerts')}
+              >
+                {expandedResultCard === 'alerts' ? 'Recolher' : 'Ler mais'}
+              </button>
+            </article>
+
+            <article className={`${styles.resultCard} panel ${cardIsExpanded('method') ? styles.resultCardExpanded : styles.resultCardCollapsed}`}>
+              <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'method' ? null : 'method')}>!</button>
+              <div className={styles.resultCardBody}>
+                <span className="eyebrow">Método</span>
+                <p>{band.methodFeedback}</p>
+                <ul className={styles.methodGuideList}>
+                  {improvementGuide.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+                {openInsight === 'method' ? <InsightPopover title="Resumo das decisões mais influentes" lines={insightData.method} /> : null}
+              </div>
+              <button
+                className={styles.readMoreButton}
+                type="button"
+                onClick={() => setExpandedResultCard(expandedResultCard === 'method' ? null : 'method')}
+              >
+                {expandedResultCard === 'method' ? 'Recolher' : 'Ler mais'}
+              </button>
+            </article>
+          </div>
+        </section>
+
+        <section className={`${styles.historySection} panel`}>
+          <div className={styles.historyHeader}>
+            <div>
+              <span className="eyebrow">Linha do tempo</span>
+              <h2>Principais escolhas da partida</h2>
+              <p>{run.ledger.length} decisões registradas nesta fase.</p>
+            </div>
+            <button className={styles.historyToggle} type="button" onClick={() => setTimelineExpanded((current) => !current)}>
+              {timelineExpanded ? 'Recolher histórico' : 'Ver histórico completo'}
+            </button>
+          </div>
+
+          {timelineExpanded ? (
+            <div className={styles.timeline}>
+              {run.ledger.map((entry, index) => (
+                <article key={entry.id} className={styles.timelineItem}>
+                  <span>{index + 1}</span>
+                  <div>
+                    <strong>{entry.title}</strong>
+                    <p>{summarizeConsequence(entry.consequence)}</p>
+                  </div>
+                  <small>
+                    {describeFeedback(entry.delta)
+                      .slice(0, 3)
+                      .map((item) => `${item.positive ? '↑' : '↓'} ${item.title.replace(item.positive ? ' em alta' : ' pressionado', '')}`)
+                      .join(' · ')}
+                  </small>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.historyPreview}>
+              <span>{run.ledger[0]?.title ?? 'Primeira decisão registrada'}</span>
+              <i />
+              <span>{run.ledger.at(-1)?.title ?? 'Última decisão registrada'}</span>
+            </div>
+          )}
         </section>
       </main>
     );

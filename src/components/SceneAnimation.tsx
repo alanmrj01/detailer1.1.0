@@ -69,12 +69,20 @@ export function SceneAnimation({ scene }: SceneAnimationProps) {
         draggable={false}
         decoding="async"
       />
+      <img
+        className={styles.foreground}
+        src={current.src}
+        alt=""
+        draggable={false}
+        decoding="async"
+      />
 
       <div className={styles.leftShade} />
       <div className={styles.bottomShade} />
       <div className={styles.lightSweep} />
       <div className={styles.frameGlow} />
       <div className={styles.floorGlow} />
+      <div className={styles.ambientParticles}><i /><i /><i /><i /></div>
 
       <div className={styles.strategyPulse}>
         <i />
