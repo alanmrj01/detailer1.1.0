@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { MetricStrip } from '../../components/MetricStrip';
 import { SceneAnimation } from '../../components/SceneAnimation';
 import { useAppConfig } from '../../context/AppConfigContext';
@@ -144,9 +144,10 @@ export function GamePage() {
     setFeedback(latestEntry ? { entry: latestEntry, mentorTip: currentDecision.mentorTip } : null);
   };
 
-  const sectionTitle = useMemo(() => (
-    run.currentDecisionIndex < STRATEGY_STEPS ? 'Escolha o rumo da operação' : 'Resolva a situação atual'
-  ), [run.currentDecisionIndex]);
+  const sectionTitle =
+    run.currentDecisionIndex < STRATEGY_STEPS
+      ? 'Escolha o rumo da operação'
+      : 'Resolva a situação atual';
 
   return (
     <main className={styles.page}>

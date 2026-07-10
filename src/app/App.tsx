@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AppHeader } from '../components/AppHeader';
+import { GameErrorBoundary } from '../components/GameErrorBoundary';
 import { useAppConfig } from '../context/AppConfigContext';
 import { GamePage } from '../features/game/GamePage';
 import { SettingsPage } from '../features/settings/SettingsPage';
@@ -25,7 +26,7 @@ export function App() {
         onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       />
       <div key={view} className={styles.viewTransition}>
-        {view === 'game' ? <GamePage /> : <SettingsPage />}
+        {view === 'game' ? <GameErrorBoundary><GamePage /></GameErrorBoundary> : <SettingsPage />}
       </div>
     </div>
   );
