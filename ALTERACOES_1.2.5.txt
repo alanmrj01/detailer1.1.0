@@ -1,19 +1,27 @@
-Detailer Business 1.2.5
+Detailer Business 1.2.5 — ajustes visuais cirúrgicos
 
-Alterações visuais cirúrgicas realizadas sobre a versão 1.2.4:
+Base utilizada
+- detailer1.2.4(1).zip enviado pelo usuário.
+- Toda a lógica, configurações, decisões, preços, pontuação, fases e tela de resultado foram preservadas.
 
-- Nova disposição geral baseada no print de referência enviado.
-- Tela inicial em formato de game, com ilustração 3D em destaque, CTA e indicadores inferiores.
-- Fase 1 - Estratégia e Fase 1 - Desafio reorganizadas em uma única tela de jogo.
-- Cena 3D principal em destaque, pergunta objetiva e cards de escolhas abaixo.
-- Cards das escolhas com ilustrações diferentes, preço, contexto e impactos FIN/REP/OPE/CLI.
-- Resultado reorganizado com estrelas, indicadores, forças, atenções e método.
-- Cards do resultado com Ler mais/Recolher.
-- Histórico das escolhas recolhível.
-- Painel da fase 2 exibido ao clicar em Seguir para fase 2.
-- Navegação inferior com Início, Como jogar, Configurações e Histórico.
-- Toda a lógica de decisões, preços, configurações, pontuação, estrelas e persistência foi preservada.
+Alterações realizadas
+1. Volta integral ao modelo de disposição anterior da versão 1.2.4.
+2. Cenas 3D principais:
+   - remoção das cópias sobrepostas da mesma imagem, que causavam recortes e posicionamentos incorretos;
+   - uma única ilustração principal por cena;
+   - enquadramento individual por contexto para manter personagem, veículo e equipamentos visíveis à direita do texto;
+   - animação leve de câmera, iluminação e efeitos específicos preservada;
+   - fallback responsivo e suporte a redução de movimento.
+3. Ilustrações das escolhas:
+   - todas as 27 imagens continuam diferentes;
+   - enquadramento individual por escolha;
+   - imagens maiores e mais legíveis dentro dos cards;
+   - fallback para impedir cards sem ilustração.
+4. Componentes:
+   - nenhuma alteração de regra de jogo;
+   - apenas ajustes de largura e enquadramento para evitar imagens fora do contexto.
 
-Validação:
+Validação
+- npm ci: OK
 - npm test: 7 testes aprovados
-- npm run build: concluído
+- npm run build: OK

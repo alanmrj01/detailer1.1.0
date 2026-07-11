@@ -1,10 +1,15 @@
 .visual {
   position: relative;
-  width: 100%;
-  height: 136px;
+  flex-shrink: 0;
+  width: 150px;
+  height: 104px;
   overflow: hidden;
-  border-bottom: 1px solid rgba(102, 208, 255, 0.2);
+  border-radius: 20px;
+  border: 1px solid rgba(102, 208, 255, 0.28);
   background: #071421;
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.08),
+    0 16px 30px rgba(0, 0, 0, 0.22);
   isolation: isolate;
 }
 
@@ -14,45 +19,40 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: saturate(1.06) contrast(1.05) brightness(0.96);
+  object-position: var(--choice-position, 50% 50%);
+  filter: saturate(1.04) contrast(1.035) brightness(1.01);
   user-select: none;
   -webkit-user-drag: none;
+  transform: scale(1.01);
 }
 
 .depthShade {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(3, 9, 16, 0.02) 38%, rgba(3, 9, 16, 0.5) 100%),
-    linear-gradient(90deg, rgba(3, 9, 16, 0.12), transparent 58%);
+    linear-gradient(90deg, rgba(3, 9, 16, 0.04), rgba(3, 9, 16, 0) 58%),
+    linear-gradient(180deg, rgba(3, 9, 16, 0) 58%, rgba(3, 9, 16, 0.24) 100%);
 }
 
 .focusRing {
   position: absolute;
-  inset: 8px;
-  border-radius: 12px;
-  border: 1px solid rgba(140, 229, 255, 0.12);
-  box-shadow: inset 0 0 20px rgba(80, 210, 255, 0.04);
+  inset: 6px;
+  border-radius: 15px;
+  border: 1px solid rgba(140, 229, 255, 0.15);
+  box-shadow: inset 0 0 18px rgba(80, 210, 255, 0.045);
 }
 
 button:hover .visual {
-  box-shadow: inset 0 0 0 1px rgba(126, 230, 255, 0.36);
+  border-color: rgba(126, 230, 255, 0.52);
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.1),
+    0 18px 34px rgba(0, 0, 0, 0.26),
+    0 0 0 1px rgba(102, 208, 255, 0.08);
 }
 
-@media (max-width: 680px) {
+@media (max-width: 520px) {
   .visual {
-    height: 100%;
-    min-height: 180px;
-    border-right: 1px solid rgba(102, 208, 255, 0.16);
-    border-bottom: 0;
-  }
-}
-
-@media (max-width: 440px) {
-  .visual {
-    height: 150px;
-    min-height: 150px;
-    border-right: 0;
-    border-bottom: 1px solid rgba(102, 208, 255, 0.16);
+    width: 100%;
+    height: 126px;
   }
 }

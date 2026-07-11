@@ -62,10 +62,14 @@ export function SceneAnimation({ scene }: SceneAnimationProps) {
 
   return (
     <div className={`${styles.scene} ${styles[scene] ?? ''}`} aria-hidden="true">
-      <img className={styles.baseImage} src={current.src} alt={current.alt} draggable={false} decoding="async" />
-      <img className={styles.actorLayer} src={current.src} alt="" draggable={false} decoding="async" />
-      <img className={styles.actionLayer} src={current.src} alt="" draggable={false} decoding="async" />
-      <img className={styles.vehicleLayer} src={current.src} alt="" draggable={false} decoding="async" />
+      <img
+        className={styles.image}
+        src={current.src}
+        alt={current.alt}
+        draggable={false}
+        decoding="async"
+        fetchPriority="high"
+      />
 
       <div className={styles.leftShade} />
       <div className={styles.bottomShade} />

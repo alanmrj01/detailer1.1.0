@@ -37,7 +37,9 @@ describe('GamePage', () => {
       renderer = create(<GamePage />);
     });
 
-    const startButton = renderer!.root.findAllByType('button')[0];
+    const startButton = renderer!.root.findAllByType('button').find((button) =>
+      button.children.some((child) => child === 'Iniciar desafio'),
+    );
 
     expect(startButton).toBeTruthy();
 

@@ -1,16 +1,8 @@
 .scene {
-  --actor-x: 73%;
-  --actor-y: 55%;
-  --actor-w: 15%;
-  --actor-h: 34%;
-  --action-x: 82%;
-  --action-y: 52%;
-  --action-w: 18%;
-  --action-h: 28%;
-  --vehicle-x: 76%;
-  --vehicle-y: 70%;
-  --vehicle-w: 28%;
-  --vehicle-h: 24%;
+  --scene-x: 72%;
+  --scene-y: 50%;
+  --scene-scale-from: 1.015;
+  --scene-scale-to: 1.045;
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -19,54 +11,32 @@
     linear-gradient(180deg, #061225 0%, #071522 46%, #030912 100%);
 }
 
-.baseImage,
-.actorLayer,
-.actionLayer,
-.vehicleLayer {
+.garage { --scene-x: 72%; }
+.store { --scene-x: 73%; }
+.mobile { --scene-x: 74%; }
+.equipment { --scene-x: 75%; }
+.washing { --scene-x: 73%; }
+.polishing { --scene-x: 74%; }
+.interior { --scene-x: 75%; }
+.pricing { --scene-x: 73%; }
+.complaint { --scene-x: 73%; }
+.growth { --scene-x: 73%; }
+
+.image {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: var(--scene-x) var(--scene-y);
+  filter: saturate(1.03) contrast(1.035) brightness(0.97);
+  transform: scale(var(--scene-scale-from));
+  transform-origin: var(--scene-x) var(--scene-y);
+  animation: sceneBreath 8s ease-in-out infinite alternate;
   user-select: none;
   -webkit-user-drag: none;
   backface-visibility: hidden;
-}
-
-.baseImage {
-  filter: saturate(1.04) contrast(1.04) brightness(0.94);
-  transform: scale(1.015);
-}
-
-.actorLayer,
-.actionLayer,
-.vehicleLayer {
-  filter: saturate(1.08) contrast(1.05) brightness(1.03);
   will-change: transform;
-  mask-repeat: no-repeat;
-  -webkit-mask-repeat: no-repeat;
-}
-
-.actorLayer {
-  mask-image: radial-gradient(ellipse var(--actor-w) var(--actor-h) at var(--actor-x) var(--actor-y), #000 0 64%, rgba(0,0,0,.84) 72%, transparent 82%);
-  -webkit-mask-image: radial-gradient(ellipse var(--actor-w) var(--actor-h) at var(--actor-x) var(--actor-y), #000 0 64%, rgba(0,0,0,.84) 72%, transparent 82%);
-  transform-origin: var(--actor-x) var(--actor-y);
-  animation: actorIdle 2.8s ease-in-out infinite;
-}
-
-.actionLayer {
-  mask-image: radial-gradient(ellipse var(--action-w) var(--action-h) at var(--action-x) var(--action-y), #000 0 60%, rgba(0,0,0,.82) 70%, transparent 82%);
-  -webkit-mask-image: radial-gradient(ellipse var(--action-w) var(--action-h) at var(--action-x) var(--action-y), #000 0 60%, rgba(0,0,0,.82) 70%, transparent 82%);
-  transform-origin: var(--action-x) var(--action-y);
-  animation: actionIdle 3.2s ease-in-out infinite;
-}
-
-.vehicleLayer {
-  mask-image: radial-gradient(ellipse var(--vehicle-w) var(--vehicle-h) at var(--vehicle-x) var(--vehicle-y), #000 0 60%, rgba(0,0,0,.76) 72%, transparent 84%);
-  -webkit-mask-image: radial-gradient(ellipse var(--vehicle-w) var(--vehicle-h) at var(--vehicle-x) var(--vehicle-y), #000 0 60%, rgba(0,0,0,.76) 72%, transparent 84%);
-  transform-origin: var(--vehicle-x) var(--vehicle-y);
-  animation: vehicleIdle 4.6s ease-in-out infinite;
 }
 
 .leftShade,
@@ -88,59 +58,66 @@
 .leftShade {
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(4, 10, 18, 0.96) 0%, rgba(4, 10, 18, 0.88) 22%, rgba(4, 10, 18, 0.62) 38%, rgba(4, 10, 18, 0.18) 54%, rgba(4, 10, 18, 0) 68%),
+    linear-gradient(90deg,
+      rgba(4, 10, 18, 0.98) 0%,
+      rgba(4, 10, 18, 0.94) 24%,
+      rgba(4, 10, 18, 0.74) 38%,
+      rgba(4, 10, 18, 0.34) 52%,
+      rgba(4, 10, 18, 0.06) 66%,
+      rgba(4, 10, 18, 0) 76%),
     radial-gradient(circle at 14% 28%, rgba(83, 221, 255, 0.08), transparent 32%);
 }
 
 .bottomShade {
   inset: auto 0 0 0;
   height: 48%;
-  background: linear-gradient(180deg, rgba(4, 10, 18, 0) 0%, rgba(4, 10, 18, 0.18) 32%, rgba(4, 10, 18, 0.72) 100%);
+  background: linear-gradient(180deg, rgba(4, 10, 18, 0) 0%, rgba(4, 10, 18, 0.14) 35%, rgba(4, 10, 18, 0.68) 100%);
 }
 
 .lightSweep {
-  top: -8%;
-  bottom: -8%;
-  width: 28%;
-  left: 56%;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(138, 235, 255, 0.14) 44%, rgba(255, 255, 255, 0) 100%);
+  top: -10%;
+  bottom: -10%;
+  width: 22%;
+  left: 60%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(138, 235, 255, 0.12) 48%, rgba(255, 255, 255, 0) 100%);
   mix-blend-mode: screen;
   transform: skewX(-18deg);
-  animation: sweep 8s ease-in-out infinite;
+  animation: sweep 9s ease-in-out infinite;
 }
 
 .frameGlow {
   inset: 1rem;
   border-radius: 28px;
-  border: 1px solid rgba(130, 226, 255, 0.15);
-  box-shadow: inset 0 0 0 1px rgba(130, 226, 255, 0.03);
+  border: 1px solid rgba(130, 226, 255, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(130, 226, 255, 0.025);
 }
 
 .floorGlow {
-  left: 46%;
+  left: 48%;
   right: 5%;
-  bottom: 3%;
-  height: 18%;
-  background: radial-gradient(ellipse at center, rgba(78, 220, 255, 0.18) 0%, rgba(78, 220, 255, 0.07) 40%, rgba(78, 220, 255, 0) 78%);
-  filter: blur(8px);
+  bottom: 2%;
+  height: 16%;
+  background: radial-gradient(ellipse at center, rgba(78, 220, 255, 0.15) 0%, rgba(78, 220, 255, 0.05) 42%, rgba(78, 220, 255, 0) 78%);
+  filter: blur(9px);
 }
 
 .ambientParticles {
-  right: 9%;
-  bottom: 13%;
-  width: 210px;
-  height: 170px;
+  right: 8%;
+  bottom: 11%;
+  width: 180px;
+  height: 150px;
+  opacity: 0.68;
 }
 
 .ambientParticles i {
   position: absolute;
   display: block;
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: rgba(186, 230, 253, 0.9);
-  box-shadow: 0 0 18px rgba(103, 232, 249, 0.6);
-  animation: ambientFloat 4s ease-in-out infinite;
+  background: rgba(186, 230, 253, 0.8);
+  box-shadow: 0 0 16px rgba(103, 232, 249, 0.52);
+  animation: ambientFloat 4.2s ease-in-out infinite;
 }
 
 .ambientParticles i:nth-child(1) { left: 8%; bottom: 14%; }
@@ -150,37 +127,37 @@
 
 .strategyPulse {
   display: none;
-  right: 9%;
+  right: 7%;
   bottom: 16%;
-  gap: 0.7rem;
+  gap: 0.58rem;
 }
 
 .strategyPulse i {
   display: block;
-  width: 62px;
-  height: 82px;
-  border-radius: 18px;
-  border: 1px solid rgba(103, 232, 249, 0.28);
-  background: linear-gradient(180deg, rgba(103, 232, 249, 0.13), rgba(15, 23, 42, 0.12));
-  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.22), inset 0 0 20px rgba(103, 232, 249, 0.05);
-  animation: cardHover 3.2s ease-in-out infinite;
+  width: 54px;
+  height: 72px;
+  border-radius: 16px;
+  border: 1px solid rgba(103, 232, 249, 0.22);
+  background: linear-gradient(180deg, rgba(103, 232, 249, 0.1), rgba(15, 23, 42, 0.08));
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.18), inset 0 0 18px rgba(103, 232, 249, 0.04);
+  animation: cardHover 3.3s ease-in-out infinite;
 }
-.strategyPulse i:nth-child(2) { animation-delay: -1.05s; }
-.strategyPulse i:nth-child(3) { animation-delay: -2.1s; }
+.strategyPulse i:nth-child(2) { animation-delay: -1.1s; }
+.strategyPulse i:nth-child(3) { animation-delay: -2.2s; }
 
 .waterSpray {
   display: none;
-  right: 18%;
-  top: 28%;
-  width: 180px;
-  height: 130px;
+  right: 16%;
+  top: 29%;
+  width: 170px;
+  height: 120px;
 }
 .waterSpray::before {
   content: '';
   position: absolute;
   left: 0;
   top: 42%;
-  width: 150px;
+  width: 142px;
   height: 6px;
   border-radius: 999px;
   background: linear-gradient(90deg, rgba(125, 211, 252, 0), rgba(125, 211, 252, 0.92), rgba(224, 242, 254, 0));
@@ -191,55 +168,55 @@
 .waterSpray i {
   position: absolute;
   display: block;
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
   background: rgba(224, 242, 254, 0.82);
   box-shadow: 0 0 14px rgba(125, 211, 252, 0.44);
   animation: bubbleRise 2.2s ease-in-out infinite;
 }
-.waterSpray i:nth-child(1) { left: 36px; top: 84px; }
-.waterSpray i:nth-child(2) { left: 78px; top: 64px; animation-delay: -0.55s; }
-.waterSpray i:nth-child(3) { left: 116px; top: 48px; animation-delay: -1.1s; }
-.waterSpray i:nth-child(4) { left: 146px; top: 28px; animation-delay: -1.65s; }
+.waterSpray i:nth-child(1) { left: 34px; top: 80px; }
+.waterSpray i:nth-child(2) { left: 74px; top: 61px; animation-delay: -0.55s; }
+.waterSpray i:nth-child(3) { left: 110px; top: 45px; animation-delay: -1.1s; }
+.waterSpray i:nth-child(4) { left: 140px; top: 27px; animation-delay: -1.65s; }
 
 .polishingGlow {
   display: none;
-  right: 20%;
-  top: 34%;
-  width: 100px;
-  height: 100px;
+  right: 19%;
+  top: 35%;
+  width: 92px;
+  height: 92px;
   border-radius: 50%;
-  border: 4px solid rgba(103, 232, 249, 0.46);
-  box-shadow: 0 0 28px rgba(103, 232, 249, 0.28), inset 0 0 24px rgba(103, 232, 249, 0.12);
+  border: 4px solid rgba(103, 232, 249, 0.42);
+  box-shadow: 0 0 26px rgba(103, 232, 249, 0.24), inset 0 0 22px rgba(103, 232, 249, 0.1);
   animation: polishOrbit 1.55s linear infinite;
 }
 .polishingGlow i {
   position: absolute;
   display: block;
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   background: white;
-  box-shadow: 0 0 16px rgba(255, 255, 255, 0.72);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.68);
 }
-.polishingGlow i:first-child { left: -5px; top: 40px; }
-.polishingGlow i:last-child { right: 8px; bottom: 4px; }
+.polishingGlow i:first-child { left: -5px; top: 37px; }
+.polishingGlow i:last-child { right: 7px; bottom: 4px; }
 
 .priceCards {
   display: none;
-  right: 9%;
+  right: 8%;
   top: 19%;
-  gap: 0.55rem;
+  gap: 0.5rem;
 }
 .priceCards i {
   display: block;
-  width: 54px;
-  height: 74px;
-  border-radius: 16px;
-  border: 1px solid rgba(103, 232, 249, 0.3);
-  background: linear-gradient(180deg, rgba(224, 242, 254, 0.2), rgba(30, 64, 175, 0.15));
-  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.25);
+  width: 50px;
+  height: 68px;
+  border-radius: 15px;
+  border: 1px solid rgba(103, 232, 249, 0.26);
+  background: linear-gradient(180deg, rgba(224, 242, 254, 0.17), rgba(30, 64, 175, 0.12));
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.22);
   animation: priceFloat 3s ease-in-out infinite;
 }
 .priceCards i:nth-child(2) { animation-delay: -1s; }
@@ -247,153 +224,115 @@
 
 .alertPulse {
   display: none;
-  right: 18%;
+  right: 17%;
   top: 20%;
-  width: 56px;
-  height: 56px;
+  width: 54px;
+  height: 54px;
   place-items: center;
   border-radius: 50%;
   color: white;
   background: linear-gradient(180deg, #fb7185, #e11d48);
-  box-shadow: 0 0 0 12px rgba(244, 63, 94, 0.12), 0 18px 28px rgba(0,0,0,.25);
-  font-size: 1.4rem;
+  box-shadow: 0 0 0 11px rgba(244, 63, 94, 0.11), 0 17px 27px rgba(0,0,0,.23);
+  font-size: 1.35rem;
   font-weight: 900;
   animation: alertBeat 1.35s ease-in-out infinite;
 }
 
 .rewardStars {
   display: none;
-  right: 13%;
+  right: 12%;
   top: 14%;
-  width: 170px;
-  height: 110px;
+  width: 165px;
+  height: 105px;
 }
 .rewardStars i {
   position: absolute;
   color: #facc15;
-  text-shadow: 0 0 22px rgba(250, 204, 21, 0.5);
+  text-shadow: 0 0 20px rgba(250, 204, 21, 0.46);
   animation: starFloat 2.5s ease-in-out infinite;
 }
-.rewardStars i:nth-child(1) { left: 10px; bottom: 14px; font-size: 1.8rem; }
-.rewardStars i:nth-child(2) { left: 62px; top: 2px; font-size: 3rem; animation-delay: -.8s; }
-.rewardStars i:nth-child(3) { right: 4px; bottom: 24px; font-size: 2rem; animation-delay: -1.6s; }
-
-.garage { --actor-x: 69%; --actor-y: 60%; --actor-w: 14%; --actor-h: 36%; --action-x: 54%; --action-y: 33%; --action-w: 20%; --action-h: 26%; }
-.store { --actor-x: 70%; --actor-y: 60%; --actor-w: 14%; --actor-h: 36%; --action-x: 77%; --action-y: 34%; --action-w: 20%; --action-h: 25%; }
-.mobile { --actor-x: 69%; --actor-y: 60%; --actor-w: 14%; --actor-h: 36%; --action-x: 88%; --action-y: 38%; --action-w: 17%; --action-h: 25%; }
-.equipment { --actor-x: 66%; --actor-y: 60%; --actor-w: 13%; --actor-h: 36%; --action-x: 82%; --action-y: 58%; --action-w: 24%; --action-h: 30%; }
-.washing { --actor-x: 67%; --actor-y: 55%; --actor-w: 14%; --actor-h: 34%; --action-x: 77%; --action-y: 52%; --action-w: 16%; --action-h: 24%; --vehicle-x: 79%; --vehicle-y: 66%; }
-.polishing { --actor-x: 67%; --actor-y: 55%; --actor-w: 14%; --actor-h: 34%; --action-x: 76%; --action-y: 56%; --action-w: 16%; --action-h: 22%; --vehicle-x: 82%; --vehicle-y: 66%; }
-.interior { --actor-x: 66%; --actor-y: 60%; --actor-w: 13%; --actor-h: 36%; --action-x: 83%; --action-y: 58%; --action-w: 22%; --action-h: 30%; }
-.pricing { --actor-x: 70%; --actor-y: 58%; --actor-w: 14%; --actor-h: 36%; --action-x: 78%; --action-y: 26%; --action-w: 24%; --action-h: 22%; }
-.complaint { --actor-x: 70%; --actor-y: 58%; --actor-w: 22%; --actor-h: 38%; --action-x: 80%; --action-y: 28%; --action-w: 18%; --action-h: 20%; }
-.growth { --actor-x: 70%; --actor-y: 58%; --actor-w: 15%; --actor-h: 36%; --action-x: 73%; --action-y: 22%; --action-w: 28%; --action-h: 24%; }
+.rewardStars i:nth-child(1) { left: 10px; bottom: 14px; font-size: 1.7rem; }
+.rewardStars i:nth-child(2) { left: 60px; top: 2px; font-size: 2.8rem; animation-delay: -.8s; }
+.rewardStars i:nth-child(3) { right: 4px; bottom: 22px; font-size: 1.9rem; animation-delay: -1.6s; }
 
 .garage .strategyPulse,
 .store .strategyPulse,
-.mobile .strategyPulse,
-.equipment .strategyPulse,
-.pricing .priceCards,
-.washing .waterSpray,
-.interior .waterSpray,
+.mobile .strategyPulse { display: flex; }
+.washing .waterSpray { display: block; }
 .polishing .polishingGlow,
-.complaint .alertPulse,
-.growth .rewardStars {
-  display: flex;
-}
+.interior .polishingGlow { display: block; }
+.pricing .priceCards { display: flex; }
 .complaint .alertPulse { display: grid; }
 .growth .rewardStars { display: block; }
 
-.washing .actionLayer,
-.interior .actionLayer { animation: washAction 1.65s ease-in-out infinite; }
-.polishing .actionLayer { animation: polishAction 1.35s ease-in-out infinite; }
-.pricing .actionLayer { animation: priceAction 2.8s ease-in-out infinite; }
-.complaint .actionLayer { animation: complaintAction 2.2s ease-in-out infinite; }
-.growth .actorLayer { animation: celebrateActor 2.2s ease-in-out infinite; }
-.growth .actionLayer { animation: growthAction 2.6s ease-in-out infinite; }
-
-@keyframes actorIdle {
-  0%, 100% { transform: translate3d(0, 2px, 0) rotate(0deg) scale(1.002); }
-  50% { transform: translate3d(-3px, -7px, 0) rotate(-0.45deg) scale(1.012); }
-}
-
-@keyframes actionIdle {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1.002); }
-  50% { transform: translate3d(4px, -4px, 0) scale(1.015); }
-}
-
-@keyframes vehicleIdle {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1.002); }
-  50% { transform: translate3d(0, -2px, 0) scale(1.006); }
-}
-
-@keyframes washAction {
-  0%, 100% { transform: translate3d(-3px, 1px, 0) rotate(-0.6deg) scale(1.006); }
-  50% { transform: translate3d(7px, -4px, 0) rotate(0.7deg) scale(1.018); }
-}
-
-@keyframes polishAction {
-  0%, 100% { transform: translate3d(-2px, 1px, 0) rotate(-1.2deg) scale(1.006); }
-  50% { transform: translate3d(5px, -3px, 0) rotate(1.2deg) scale(1.018); }
-}
-
-@keyframes priceAction {
-  0%, 100% { transform: translate3d(0, 3px, 0) scale(.99); }
-  50% { transform: translate3d(0, -8px, 0) scale(1.025); }
-}
-
-@keyframes complaintAction {
-  0%, 100% { transform: translate3d(0, 1px, 0) rotate(-0.4deg) scale(1.004); }
-  50% { transform: translate3d(5px, -5px, 0) rotate(0.55deg) scale(1.015); }
-}
-
-@keyframes celebrateActor {
-  0%, 100% { transform: translate3d(0, 4px, 0) rotate(-0.3deg) scale(1.002); }
-  50% { transform: translate3d(-4px, -10px, 0) rotate(0.8deg) scale(1.018); }
-}
-
-@keyframes growthAction {
-  0%, 100% { transform: translate3d(0, 5px, 0) scale(.985); opacity: .92; }
-  50% { transform: translate3d(0, -8px, 0) scale(1.03); opacity: 1; }
+@keyframes sceneBreath {
+  0% { transform: scale(var(--scene-scale-from)) translate3d(0, 0, 0); }
+  100% { transform: scale(var(--scene-scale-to)) translate3d(-0.25%, -0.18%, 0); }
 }
 
 @keyframes sweep {
-  0%, 100% { transform: translateX(-18%) skewX(-18deg); opacity: 0.16; }
-  50% { transform: translateX(34%) skewX(-18deg); opacity: 0.48; }
+  0%, 100% { transform: translateX(-16%) skewX(-18deg); opacity: 0.18; }
+  50% { transform: translateX(30%) skewX(-18deg); opacity: 0.38; }
 }
+
+@keyframes ambientFloat {
+  0%, 100% { transform: translateY(0) scale(.92); opacity: .42; }
+  50% { transform: translateY(-17px) scale(1.08); opacity: .92; }
+}
+
 @keyframes cardHover {
-  0%, 100% { transform: translateY(0) rotateY(0deg); }
-  50% { transform: translateY(-8px) rotateY(-5deg); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
 }
-@keyframes sprayFlow { to { transform: rotate(-18deg) translateX(22px); opacity: 0.28; } }
+
+@keyframes sprayFlow {
+  0% { transform: rotate(-18deg) translateX(-10px); opacity: .35; }
+  50% { opacity: .95; }
+  100% { transform: rotate(-18deg) translateX(10px); opacity: .35; }
+}
+
 @keyframes bubbleRise {
-  0%, 100% { transform: translateY(6px) scale(0.72); opacity: 0.28; }
-  50% { transform: translateY(-18px) scale(1.08); opacity: 0.95; }
+  0%, 100% { transform: translateY(4px) scale(.88); opacity: .35; }
+  50% { transform: translateY(-12px) scale(1.08); opacity: .9; }
 }
-@keyframes polishOrbit { to { transform: rotate(360deg); } }
+
+@keyframes polishOrbit {
+  to { transform: rotate(360deg); }
+}
+
 @keyframes priceFloat {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-8px) scale(1.04); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
 }
+
 @keyframes alertBeat {
   0%, 100% { transform: scale(1); }
-  45% { transform: scale(1.12); }
+  50% { transform: scale(1.1); }
 }
+
 @keyframes starFloat {
-  0%, 100% { transform: translateY(0) rotate(-4deg) scale(0.92); opacity: 0.7; }
-  50% { transform: translateY(-13px) rotate(5deg) scale(1.12); opacity: 1; }
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-9px) rotate(4deg); }
 }
-@keyframes ambientFloat {
-  0%, 100% { transform: translateY(7px) scale(0.65); opacity: 0.2; }
-  50% { transform: translateY(-18px) scale(1.12); opacity: 0.95; }
+
+@media (max-width: 1040px) {
+  .scene {
+    --scene-x: 68%;
+  }
+
+  .leftShade {
+    background: linear-gradient(180deg,
+      rgba(4, 10, 18, 0.05) 0%,
+      rgba(4, 10, 18, 0.14) 44%,
+      rgba(4, 10, 18, 0.82) 76%,
+      rgba(4, 10, 18, 0.97) 100%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .actorLayer,
-  .actionLayer,
-  .vehicleLayer,
-  .ambientParticles i,
+  .image,
   .lightSweep,
+  .ambientParticles i,
   .strategyPulse i,
   .waterSpray::before,
   .waterSpray i,

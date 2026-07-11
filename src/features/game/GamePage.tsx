@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChoiceVisual } from '../../components/ChoiceVisual';
+import { MetricStrip } from '../../components/MetricStrip';
 import { SceneAnimation } from '../../components/SceneAnimation';
 import { StarRating } from '../../components/StarRating';
 import { useAppConfig } from '../../context/AppConfigContext';
-import type { DecisionChoice, MetricKey } from '../../types/config';
+import type { DecisionChoice } from '../../types/config';
 import type { GameResult, GameRun, LedgerEntry } from '../../types/game';
 import { formatCurrency } from '../../utils/format';
 import { readJson, storageKeys, writeJson } from '../../utils/storage';
@@ -19,6 +20,7 @@ import {
   scoreToStars,
 } from './gameEngine';
 import {
+  describeChoiceImpact,
   describeFeedback,
   explainResultCard,
   getMetricLabel,
@@ -29,16 +31,17 @@ import styles from './GamePage.module.css';
 
 const STRATEGY_STEPS = 3;
 
-type ResultPanel = 'strengths' | 'alerts' | 'method' | null;
+type InsightCard = 'strengths' | 'alerts' | 'method' | null;
 
 export function GamePage() {
-  const { config } = useAppConfig();
+  const { config, theme, setTheme } = useAppConfig();
   const [run, setRun] = useState<GameRun | null>(() => readJson<GameRun>(storageKeys.RUN_KEY));
   const [selectedChoice, setSelectedChoice] = useState<DecisionChoice | null>(null);
   const [feedback, setFeedback] = useState<{ entry: LedgerEntry; mentorTip: string } | null>(null);
-  const [expandedPanel, setExpandedPanel] = useState<ResultPanel>(null);
-  const [historyExpanded, setHistoryExpanded] = useState(false);
-  const [showPhaseTwo, setShowPhaseTwo] = useState(false);
+  const [openInsight, setOpenInsight] = useState<InsightCard>(null);
+  const [expandedResultCard, setExpandedResultCard] = useState<InsightCard>(null);
+  const [timelineExpanded, setTimelineExpanded] = useState(false);
+  const [showPhaseTwoTeaser, setShowPhaseTwoTeaser] = useState(false);
 
   useEffect(() => {
     if (run) writeJson(storageKeys.RUN_KEY, run);
@@ -48,33 +51,41 @@ export function GamePage() {
   const restartRun = () => {
     setSelectedChoice(null);
     setFeedback(null);
-    setExpandedPanel(null);
-    setHistoryExpanded(false);
-    setShowPhaseTwo(false);
+    setOpenInsight(null);
+    setExpandedResultCard(null);
+    setTimelineExpanded(false);
+    setShowPhaseTwoTeaser(false);
     setRun(createRun(config));
   };
 
   if (!run) {
     return (
       <main className={styles.introPage}>
-        <section className={styles.introScreen}>
+        <section className={styles.introHero}>
           <SceneAnimation scene="garage" />
-          <div className={styles.introShade} />
-          <div className={styles.introBrand}>
-            <div className={styles.dbMark}>DB</div>
-            <span><strong>DETAILER</strong><b>BUSINESS</b></span>
-          </div>
           <div className={styles.introContent}>
+            <span className={styles.kicker}>{config.brand.creatorName}</span>
+            {config.brand.logoDataUrl ? (
+              <img className={styles.introLogo} src={config.brand.logoDataUrl} alt={`Logo ${config.brand.appName}`} />
+            ) : (
+              <div className={styles.logoBadge}>DB</div>
+            )}
             <h1>{config.brand.introTitle}</h1>
             <p>{config.brand.introDescription}</p>
-            <button className={styles.playButton} type="button" onClick={() => setRun(createRun(config))}>
-              Iniciar desafio <span className={styles.playLabel}>JOGAR AGORA</span><span>→</span>
-            </button>
+
             <div className={styles.introStats}>
+              <span><strong>Fase 1</strong> estratégia + desafios</span>
               <span><strong>3</strong> definições de estratégia</span>
-              <span><strong>5</strong> situações-desafio</span>
-              <span><strong>90</strong> dias simulados</span>
+              <span><strong>5</strong> situações-problema</span>
             </div>
+
+            <div className={styles.introActions}>
+              <button className="primaryButton" type="button" onClick={() => { setShowPhaseTwoTeaser(false); setRun(createRun(config)); }}>Iniciar desafio</button>
+              <button className="secondaryButton" type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                Tema {theme === 'dark' ? 'claro' : 'escuro'}
+              </button>
+            </div>
+            <small>{config.brand.supportText}</small>
           </div>
         </section>
       </main>
@@ -82,342 +93,400 @@ export function GamePage() {
   }
 
   const completed = run.currentDecisionIndex >= config.scenario.decisions.length;
-  const result = completed ? calculateResult(run, config) : null;
+  const result: GameResult | null = completed ? calculateResult(run, config) : null;
+
+  if (completed && showPhaseTwoTeaser) {
+    return (
+      <main className={styles.page}>
+        <section className={styles.phaseBreakHero}>
+          <SceneAnimation scene="growth" />
+          <div className={styles.phaseBreakContent}>
+            <span className={styles.kicker}>Fase 2</span>
+            <h1>Próximo módulo em desenvolvimento</h1>
+            <p>
+              A fase 2 do jogo será desenvolvida conforme o método de ensino abordado,
+              trazendo novos cenários, decisões e aprofundamentos práticos para o criador.
+            </p>
+            <div className={styles.phaseBreakSummary}>
+              <StarRating value={result?.stars ?? 0} size="md" label="Classificação da fase 1" />
+              <span>Fase 1 concluída com <strong>{result?.stars.toFixed(1) ?? '0.0'} / 5.0</strong></span>
+            </div>
+            <div className={styles.resultActions}>
+              <button className="primaryButton" type="button" onClick={() => setShowPhaseTwoTeaser(false)}>Voltar ao resultado da fase 1</button>
+              <button className="secondaryButton" type="button" onClick={restartRun}>Jogar novamente</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
   if (completed && result) {
+    const band = config.scenario.resultBands.find((item) => item.id === result.bandId)!;
+    const insightData = {
+      strengths: explainResultCard('strengths', run),
+      alerts: explainResultCard('alerts', run),
+      method: explainResultCard('method', run),
+    };
+    const improvementGuide = buildImprovementGuide(run, result);
+
+    const cardIsExpanded = (card: Exclude<InsightCard, null>) =>
+      expandedResultCard === card || openInsight === card;
+
     return (
-      <ResultScreen
-        run={run}
-        result={result}
-        onRestart={restartRun}
-        onHome={() => setRun(null)}
-        showPhaseTwo={showPhaseTwo}
-        setShowPhaseTwo={setShowPhaseTwo}
-        expandedPanel={expandedPanel}
-        setExpandedPanel={setExpandedPanel}
-        historyExpanded={historyExpanded}
-        setHistoryExpanded={setHistoryExpanded}
-      />
+      <main className={styles.page}>
+        <section className={styles.resultHero}>
+          <SceneAnimation scene="growth" />
+          <div className={styles.resultContent}>
+            <span className={styles.kicker}>Resultado final da fase 1</span>
+            <h1>{band.title}</h1>
+            <p>{band.summary}</p>
+            <div className={styles.ratingShowcase}>
+              <StarRating value={result.stars} size="xl" animated label="Classificação do jogador" />
+              <div className={styles.ratingNote}>
+                <strong>{result.stars.toFixed(1)} / 5.0 estrelas</strong>
+                <span>Seu desempenho final combina caixa, reputação, qualidade, capacidade, risco e carga operacional.</span>
+              </div>
+            </div>
+            <div className={styles.resultActions}>
+              <button className="primaryButton" type="button" onClick={() => setShowPhaseTwoTeaser(true)}>Ir para a fase 2</button>
+              <button className="secondaryButton" type="button" onClick={restartRun}>Jogar novamente</button>
+              <button className="secondaryButton" type="button" onClick={() => { setShowPhaseTwoTeaser(false); setRun(null); }}>Voltar para capa</button>
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.resultDetailsSection}>
+          <div className={styles.resultSectionHeader}>
+            <div>
+              <span className="eyebrow">Diagnóstico da fase 1</span>
+              <h2>Entenda seu resultado sem perder a visão geral</h2>
+            </div>
+            <p>Abra apenas o bloco que deseja analisar. Os demais permanecem compactos para evitar excesso de informação.</p>
+          </div>
+
+          <div className={styles.resultGrid}>
+            <article className={`${styles.resultCard} panel ${cardIsExpanded('strengths') ? styles.resultCardExpanded : styles.resultCardCollapsed}`}>
+              <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'strengths' ? null : 'strengths')}>!</button>
+              <div className={styles.resultCardBody}>
+                <span className="eyebrow">Fortalezas</span>
+                <ul className={styles.insightList}>
+                  {result.strengths.map((item) => <li key={item} className={styles.positive}>{item}</li>)}
+                </ul>
+                {openInsight === 'strengths' ? <InsightPopover title="Escolhas que fortaleceram este resultado" lines={insightData.strengths} /> : null}
+              </div>
+              <button
+                className={styles.readMoreButton}
+                type="button"
+                onClick={() => setExpandedResultCard(expandedResultCard === 'strengths' ? null : 'strengths')}
+              >
+                {expandedResultCard === 'strengths' ? 'Recolher' : 'Ler mais'}
+              </button>
+            </article>
+
+            <article className={`${styles.resultCard} panel ${cardIsExpanded('alerts') ? styles.resultCardExpanded : styles.resultCardCollapsed}`}>
+              <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'alerts' ? null : 'alerts')}>!</button>
+              <div className={styles.resultCardBody}>
+                <span className="eyebrow">Atenções</span>
+                <ul className={styles.insightList}>
+                  {result.alerts.map((item) => <li key={item} className={styles.negative}>{item}</li>)}
+                </ul>
+                {openInsight === 'alerts' ? <InsightPopover title="Escolhas que puxaram o resultado para baixo" lines={insightData.alerts} /> : null}
+              </div>
+              <button
+                className={styles.readMoreButton}
+                type="button"
+                onClick={() => setExpandedResultCard(expandedResultCard === 'alerts' ? null : 'alerts')}
+              >
+                {expandedResultCard === 'alerts' ? 'Recolher' : 'Ler mais'}
+              </button>
+            </article>
+
+            <article className={`${styles.resultCard} panel ${cardIsExpanded('method') ? styles.resultCardExpanded : styles.resultCardCollapsed}`}>
+              <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'method' ? null : 'method')}>!</button>
+              <div className={styles.resultCardBody}>
+                <span className="eyebrow">Método</span>
+                <p>{band.methodFeedback}</p>
+                <ul className={styles.methodGuideList}>
+                  {improvementGuide.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+                {openInsight === 'method' ? <InsightPopover title="Resumo das decisões mais influentes" lines={insightData.method} /> : null}
+              </div>
+              <button
+                className={styles.readMoreButton}
+                type="button"
+                onClick={() => setExpandedResultCard(expandedResultCard === 'method' ? null : 'method')}
+              >
+                {expandedResultCard === 'method' ? 'Recolher' : 'Ler mais'}
+              </button>
+            </article>
+          </div>
+        </section>
+
+        <section className={`${styles.historySection} panel`}>
+          <div className={styles.historyHeader}>
+            <div>
+              <span className="eyebrow">Linha do tempo</span>
+              <h2>Principais escolhas da partida</h2>
+              <p>{run.ledger.length} decisões registradas nesta fase.</p>
+            </div>
+            <button className={styles.historyToggle} type="button" onClick={() => setTimelineExpanded((current) => !current)}>
+              {timelineExpanded ? 'Recolher histórico' : 'Ver histórico completo'}
+            </button>
+          </div>
+
+          {timelineExpanded ? (
+            <div className={styles.timeline}>
+              {run.ledger.map((entry, index) => (
+                <article key={entry.id} className={styles.timelineItem}>
+                  <span>{index + 1}</span>
+                  <div>
+                    <strong>{entry.title}</strong>
+                    <p>{summarizeConsequence(entry.consequence)}</p>
+                  </div>
+                  <small>
+                    {describeFeedback(entry.delta)
+                      .slice(0, 3)
+                      .map((item) => `${item.positive ? '↑' : '↓'} ${item.title.replace(item.positive ? ' em alta' : ' pressionado', '')}`)
+                      .join(' · ')}
+                  </small>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.historyPreview}>
+              <span>{run.ledger[0]?.title ?? 'Primeira decisão registrada'}</span>
+              <i />
+              <span>{run.ledger.at(-1)?.title ?? 'Última decisão registrada'}</span>
+            </div>
+          )}
+        </section>
+      </main>
     );
   }
 
   const decisionConfig = config.scenario.decisions[run.currentDecisionIndex];
   const currentDecision = personalizeDecision(decisionConfig, run, config);
-  const scene = resolveAnimation(run, currentDecision.animation);
-  const isStrategy = run.currentDecisionIndex < STRATEGY_STEPS;
-  const phaseStep = isStrategy ? run.currentDecisionIndex + 1 : run.currentDecisionIndex - STRATEGY_STEPS + 1;
-  const phaseTotal = isStrategy ? STRATEGY_STEPS : config.scenario.decisions.length - STRATEGY_STEPS;
-  const day = Math.max(1, Math.round(((run.currentDecisionIndex + 1) / config.scenario.decisions.length) * 90));
+  const animation = resolveAnimation(run, currentDecision.animation);
+  const progress = ((run.currentDecisionIndex + 1) / config.scenario.decisions.length) * 100;
+  const currentPhase = run.currentDecisionIndex < STRATEGY_STEPS
+    ? 'Fase 1 • Definição de estratégia'
+    : 'Fase 1 • Situações-problema';
+  const phaseStep = run.currentDecisionIndex < STRATEGY_STEPS
+    ? run.currentDecisionIndex + 1
+    : run.currentDecisionIndex - STRATEGY_STEPS + 1;
+  const phaseTotal = run.currentDecisionIndex < STRATEGY_STEPS
+    ? STRATEGY_STEPS
+    : config.scenario.decisions.length - STRATEGY_STEPS;
 
   const confirmChoice = () => {
     if (!selectedChoice) return;
-    const sourceChoice = decisionConfig.choices.find((choice) => choice.id === selectedChoice.id) ?? selectedChoice;
-    const nextRun = applyChoice(run, decisionConfig.id, sourceChoice, config);
-    const entry = nextRun.ledger[nextRun.ledger.length - 1];
+    const originalChoice = decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice;
+    const nextRun = applyChoice(run, decisionConfig.id, originalChoice, config);
+    const latestEntry = nextRun.ledger[nextRun.ledger.length - 1] ?? null;
     setRun(nextRun);
     setSelectedChoice(null);
-    if (entry) setFeedback({ entry, mentorTip: currentDecision.mentorTip });
+    setFeedback(latestEntry ? { entry: latestEntry, mentorTip: currentDecision.mentorTip } : null);
   };
 
-  return (
-    <main className={styles.gamePage}>
-      <section className={styles.gameScreen}>
-        <header className={styles.gameHeader}>
-          <div>
-            <span className={styles.phaseName}>FASE 1 - {isStrategy ? 'ESTRATÉGIA' : 'DESAFIO'}</span>
-            <div className={styles.stepRow}>
-              <strong>{isStrategy ? `Etapa ${phaseStep}/${phaseTotal}` : `Situação ${phaseStep}/${phaseTotal}`}</strong>
-              <span>Etapa {run.currentDecisionIndex + 1}/{config.scenario.decisions.length}</span>
-            </div>
-            <div className={styles.progressTrack}><i style={{ width: `${((run.currentDecisionIndex + 1) / config.scenario.decisions.length) * 100}%` }} /></div>
-          </div>
-          <div className={styles.gameMeta}>
-            <span>🪙 <strong>{formatCurrency(run.metrics.cash, config.scenario.currency)}</strong></span>
-            <span>🗓 <strong>Dia {day}</strong></span>
-          </div>
-        </header>
+  const sectionTitle = run.currentDecisionIndex < STRATEGY_STEPS ? 'Defina seu plano' : 'Resolva o desafio';
 
-        <section className={styles.scenePanel}>
-          <SceneAnimation scene={scene} />
-          <div className={styles.sceneCopy}>
-            <span>{currentDecision.eyebrow}</span>
+  return (
+    <main className={styles.page}>
+      <section className={styles.hudSection}>
+        <div className={styles.phaseRail}>
+          <article className={`${styles.phaseCard} ${styles.phaseActive}`}>
+            <small>Fase 1</small>
+            <strong>Estratégia + desafios</strong>
+            <span>8 decisões jogáveis</span>
+          </article>
+          <article className={styles.phaseCard}>
+            <small>Fase 2</small>
+            <strong>Próximo módulo</strong>
+            <span>em desenvolvimento</span>
+          </article>
+        </div>
+        <MetricStrip values={run.metrics} currency={config.scenario.currency} delta={feedback?.entry.delta} />
+        <div className={styles.minorStats}>
+          <span>Clientes <strong>{Math.round(run.metrics.customers)}</strong></span>
+          <span>Carga <strong>{Math.round(run.metrics.fatigue)}</strong></span>
+          <span>Classificação <strong>{scoreToStars(calculateScoreFromMetrics(run.metrics, config)).toFixed(1)}★</strong></span>
+        </div>
+      </section>
+
+      <section className={styles.gameArena}>
+        <article className={styles.storyStage}>
+          <SceneAnimation scene={animation} />
+          <div className={styles.storyOverlay}>
+            <div className={styles.storyTopbar}>
+              <span className={styles.phaseBadge}>{currentPhase}</span>
+              <span className={styles.turnBadge}>Etapa {phaseStep}/{phaseTotal}</span>
+            </div>
+            <div className={styles.storyProgress}>
+              <small>{run.currentDecisionIndex + 1} / {config.scenario.decisions.length}</small>
+              <div><i style={{ width: `${progress}%` }} /></div>
+            </div>
+            <span className={styles.kicker}>{currentDecision.eyebrow}</span>
             <h1>{currentDecision.title}</h1>
             <p>{currentDecision.situation}</p>
           </div>
-        </section>
+        </article>
 
-        <section className={`${styles.choiceGrid} ${currentDecision.choices.length === 4 ? styles.fourChoices : ''}`}>
-          {currentDecision.choices.map((choice) => {
-            const sourceChoice = decisionConfig.choices.find((item) => item.id === choice.id) ?? choice;
-            const availability = choiceAvailability(sourceChoice, run, config);
-            const cost = equipmentCost(sourceChoice, config);
-            return (
-              <button
-                key={choice.id}
-                className={styles.choiceCard}
-                type="button"
-                disabled={!availability.available}
-                onClick={() => setSelectedChoice(choice)}
-              >
-                <ChoiceVisual decisionId={decisionConfig.id} choiceId={choice.id} />
-                <div className={styles.choiceText}>
-                  <h2>{choice.label}</h2>
-                  <p>{choice.description}</p>
-                  {cost > 0 ? <strong className={styles.choicePrice}>{formatCurrency(cost, config.scenario.currency)}</strong> : null}
-                  <small>{summarizeConsequence(availability.available ? choice.consequence : availability.reason ?? '')}</small>
-                </div>
-                <ImpactRow effects={choice.effects} />
-              </button>
-            );
-          })}
-        </section>
+        <section className={styles.decisionPanel}>
+          <div className={styles.panelHeader}>
+            <span className={styles.commandTag}>Escolha agora</span>
+            <h2>{sectionTitle}</h2>
+            <p>Observe a cena, compare as opções e escolha a ação com mais coerência para o seu negócio.</p>
+          </div>
 
-        <div className={styles.hintBar}>ⓘ Dica: {currentDecision.mentorTip}</div>
+          <div className={styles.choiceGrid}>
+            {currentDecision.choices.map((choice) => {
+              const originalChoice = decisionConfig.choices.find((item) => item.id === choice.id) ?? choice;
+              const availability = choiceAvailability(originalChoice, run, config);
+              const cost = equipmentCost(originalChoice, config);
+              const impactPreview = describeChoiceImpact(choice.effects);
+              return (
+                <button
+                  key={choice.id}
+                  className={styles.choiceCard}
+                  type="button"
+                  disabled={!availability.available}
+                  onClick={() => setSelectedChoice(choice)}
+                >
+                  <ChoiceVisual decisionId={decisionConfig.id} choiceId={choice.id} />
+                  <div className={styles.choiceBody}>
+                    <div className={styles.choiceHeader}>
+                      <h3>{choice.label}</h3>
+                      {cost > 0 ? <strong className={styles.choiceCost}>{formatCurrency(cost, config.scenario.currency)}</strong> : null}
+                    </div>
+                    <p>{choice.description}</p>
+                    <div className={styles.impactRow}>
+                      {impactPreview.map((item) => (
+                        <span key={item.key} className={item.positive ? styles.goodPill : styles.badPill}>
+                          {item.positive ? '↑' : '↓'} {item.label}
+                        </span>
+                      ))}
+                    </div>
+                    <small className={styles.choiceHint}>{availability.available ? summarizeConsequence(choice.consequence) : availability.reason}</small>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
       </section>
 
-      {selectedChoice ? (
-        <div className={styles.modalBackdrop} onMouseDown={() => setSelectedChoice(null)}>
-          <section className={styles.confirmModal} onMouseDown={(event) => event.stopPropagation()}>
-            <span>CONFIRMAR DECISÃO</span>
+      {selectedChoice && (
+        <div className={styles.modalBackdrop} role="presentation" onMouseDown={() => setSelectedChoice(null)}>
+          <section className={styles.modal} role="dialog" aria-modal="true" onMouseDown={(event) => event.stopPropagation()}>
+            <span className={styles.kicker}>Confirmar decisão</span>
             <h2>{selectedChoice.label}</h2>
             <p>{summarizeConsequence(selectedChoice.consequence)}</p>
+            <div className={styles.modalEconomy}>
+              <span>Caixa atual <strong>{formatCurrency(run.metrics.cash)}</strong></span>
+              <span>Impacto <strong>{formatCurrency(choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, config).effectiveCashDelta)}</strong></span>
+              <span>Caixa previsto <strong>{formatCurrency(run.metrics.cash + choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, config).effectiveCashDelta)}</strong></span>
+            </div>
             <div className={styles.modalActions}>
               <button className="secondaryButton" type="button" onClick={() => setSelectedChoice(null)}>Voltar</button>
               <button className="primaryButton" type="button" onClick={confirmChoice}>Confirmar escolha</button>
             </div>
           </section>
         </div>
-      ) : null}
+      )}
 
-      {feedback ? (
+      {feedback && (
         <FeedbackModal
           feedback={feedback}
-          projectedStars={scoreToStars(calculateScoreFromMetrics(feedback.entry.after, config))}
-          stepStars={calculateStepStarGain(feedback.entry.before, feedback.entry.after, config)}
-          onContinue={() => setFeedback(null)}
+          config={config}
+          onClose={() => setFeedback(null)}
           completed={run.currentDecisionIndex >= config.scenario.decisions.length}
         />
-      ) : null}
+      )}
     </main>
-  );
-}
-
-function ImpactRow({ effects }: { effects: DecisionChoice['effects'] }) {
-  const groups = [
-    { label: 'FIN', value: effects.cash ?? 0 },
-    { label: 'REP', value: effects.reputation ?? 0 },
-    { label: 'OPE', value: (effects.quality ?? 0) + (effects.capacity ?? 0) - (effects.fatigue ?? 0) },
-    { label: 'CLI', value: (effects.customers ?? 0) - (effects.risk ?? 0) },
-  ];
-
-  return (
-    <div className={styles.impactIndicators}>
-      {groups.map((group) => (
-        <span key={group.label}>
-          <b>{group.label}</b>
-          <i className={group.value > 0 ? styles.up : group.value < 0 ? styles.down : styles.neutral}>
-            {group.value > 0 ? '↑' : group.value < 0 ? '↓' : '•'}
-          </i>
-        </span>
-      ))}
-    </div>
   );
 }
 
 function FeedbackModal({
   feedback,
-  projectedStars,
-  stepStars,
-  onContinue,
+  config,
+  onClose,
   completed,
 }: {
   feedback: { entry: LedgerEntry; mentorTip: string };
-  projectedStars: number;
-  stepStars: number;
-  onContinue: () => void;
+  config: ReturnType<typeof useAppConfig>['config'];
+  onClose: () => void;
   completed: boolean;
 }) {
+  const stageStars = calculateStepStarGain(feedback.entry.before, feedback.entry.after, config);
+  const projectedStars = scoreToStars(calculateScoreFromMetrics(feedback.entry.after, config));
+
   return (
-    <div className={styles.modalBackdrop}>
-      <section className={`${styles.confirmModal} ${styles.feedbackModal}`}>
-        <span>CONSEQUÊNCIA DA ESCOLHA</span>
+    <div className={styles.modalBackdrop} role="presentation">
+      <section className={`${styles.modal} ${styles.feedbackModal}`} role="dialog" aria-modal="true">
+        <span className={styles.kicker}>Consequência da escolha</span>
         <h2>{feedback.entry.title}</h2>
         <p>{summarizeConsequence(feedback.entry.consequence)}</p>
-        <div className={styles.rewardRow}>
-          <StarRating value={projectedStars} animated showValue={false} />
-          <strong>+{stepStars.toFixed(1)}★</strong>
+        <div className={styles.rewardPanel}>
+          <div className={styles.rewardCopy}>
+            <small>Mini estrelas da etapa</small>
+            <strong>+{stageStars.toFixed(1)}★</strong>
+            <span>Projeção atual: {projectedStars.toFixed(1)} / 5.0 estrelas</span>
+          </div>
+          <StarRating value={projectedStars} size="md" animated showValue={false} />
         </div>
         <div className={styles.feedbackGrid}>
           {describeFeedback(feedback.entry.delta).map((item) => (
-            <article key={item.key} className={item.positive ? styles.goodFeedback : styles.badFeedback}>
+            <article key={item.key} className={`${styles.feedbackStat} ${item.positive ? styles.goodFeedback : styles.badFeedback}`}>
               <small>{item.positive ? '↑' : '↓'} {getMetricLabel(item.key)}</small>
               <strong>{item.title}</strong>
               <span>{item.description}</span>
             </article>
           ))}
         </div>
-        <div className={styles.methodNote}><b>Método</b><span>{feedback.mentorTip}</span></div>
-        <button className="primaryButton" type="button" onClick={onContinue}>{completed ? 'Ver resultado' : 'Continuar'}</button>
+        <div className={styles.feedbackNote}>
+          <strong>Leitura do método</strong>
+          <span>{feedback.mentorTip}</span>
+        </div>
+        <div className={styles.modalActions}>
+          <button className="primaryButton" type="button" onClick={onClose}>
+            {completed ? 'Ver resultado' : 'Continuar'}
+          </button>
+        </div>
       </section>
     </div>
   );
 }
 
-function ResultScreen({
-  run,
-  result,
-  onRestart,
-  onHome,
-  showPhaseTwo,
-  setShowPhaseTwo,
-  expandedPanel,
-  setExpandedPanel,
-  historyExpanded,
-  setHistoryExpanded,
-}: {
-  run: GameRun;
-  result: GameResult;
-  onRestart: () => void;
-  onHome: () => void;
-  showPhaseTwo: boolean;
-  setShowPhaseTwo: (value: boolean) => void;
-  expandedPanel: ResultPanel;
-  setExpandedPanel: (panel: ResultPanel) => void;
-  historyExpanded: boolean;
-  setHistoryExpanded: (value: boolean) => void;
-}) {
-  const { config } = useAppConfig();
-  const band = config.scenario.resultBands.find((item) => item.id === result.bandId)!;
-  const insightData = useMemo(() => ({
-    strengths: explainResultCard('strengths', run),
-    alerts: explainResultCard('alerts', run),
-    method: explainResultCard('method', run),
-  }), [run]);
-
+function InsightPopover({ title, lines }: { title: string; lines: string[] }) {
   return (
-    <main className={styles.resultPage}>
-      <section className={styles.resultScreen}>
-        <div className={styles.resultMain}>
-          <span className={styles.phaseName}>FASE 1 - RESULTADO</span>
-          <h1>Seu desempenho nos primeiros 90 dias</h1>
-          <div className={styles.resultRating}>
-            <StarRating value={result.stars} size="xl" animated showValue={false} />
-            <strong>{result.stars.toFixed(1)}<small>de 5.0</small></strong>
-          </div>
-
-          <div className={styles.resultMetrics}>
-            <ResultMetric label="Financeiro" icon="💵" value={run.metrics.cash >= 3500} />
-            <ResultMetric label="Reputação" icon="★" value={run.metrics.reputation >= 55} />
-            <ResultMetric label="Operação" icon="⚙" value={run.metrics.quality + run.metrics.capacity - run.metrics.risk >= 55} />
-            <ResultMetric label="Clientes" icon="👥" value={run.metrics.customers >= 5} />
-          </div>
-
-          <div className={styles.resultSummaryGrid}>
-            <ResultSummary
-              title="Suas forças"
-              tone="good"
-              items={result.strengths}
-              expanded={expandedPanel === 'strengths'}
-              onToggle={() => setExpandedPanel(expandedPanel === 'strengths' ? null : 'strengths')}
-              details={insightData.strengths}
-            />
-            <ResultSummary
-              title="Atenções"
-              tone="bad"
-              items={result.alerts}
-              expanded={expandedPanel === 'alerts'}
-              onToggle={() => setExpandedPanel(expandedPanel === 'alerts' ? null : 'alerts')}
-              details={insightData.alerts}
-            />
-            <ResultSummary
-              title="Método DB"
-              tone="method"
-              items={[band.methodFeedback, ...buildImprovementGuide(run, result)]}
-              expanded={expandedPanel === 'method'}
-              onToggle={() => setExpandedPanel(expandedPanel === 'method' ? null : 'method')}
-              details={insightData.method}
-            />
-          </div>
-
-          <div className={styles.resultActions}>
-            <button className="secondaryButton" type="button" onClick={() => setHistoryExpanded(!historyExpanded)}>
-              {historyExpanded ? 'Recolher histórico' : 'Ver histórico das escolhas'}
-            </button>
-            <button className="primaryButton" type="button" onClick={() => setShowPhaseTwo(true)}>Seguir para fase 2 →</button>
-          </div>
-
-          {historyExpanded ? (
-            <section className={styles.historyPanel}>
-              {run.ledger.map((entry, index) => (
-                <article key={entry.id}>
-                  <b>{index + 1}</b>
-                  <div><strong>{entry.title}</strong><p>{summarizeConsequence(entry.consequence)}</p></div>
-                </article>
-              ))}
-              <div className={styles.historyFooter}>
-                <button className="secondaryButton" type="button" onClick={onRestart}>Jogar novamente</button>
-                <button className="secondaryButton" type="button" onClick={onHome}>Voltar para capa</button>
-              </div>
-            </section>
-          ) : null}
-        </div>
-
-        {showPhaseTwo ? (
-          <aside className={styles.phaseTwoCard}>
-            <button className={styles.closePhaseTwo} type="button" onClick={() => setShowPhaseTwo(false)}>×</button>
-            <div className={styles.rocket}>🚀</div>
-            <h2>Fase 2 em breve!</h2>
-            <p>A fase 2 do jogo será desenvolvida conforme o método de ensino abordado.</p>
-            <span>Em breve, você terá novos desafios, estratégias e ferramentas para levar sua operação ao próximo nível.</span>
-            <button className="primaryButton" type="button" onClick={() => setShowPhaseTwo(false)}>Entendi</button>
-          </aside>
-        ) : null}
-      </section>
-    </main>
-  );
-}
-
-function ResultMetric({ label, icon, value }: { label: string; icon: string; value: boolean }) {
-  return (
-    <article>
-      <small>{label}</small>
-      <div><span>{icon}</span><b className={value ? styles.up : styles.down}>{value ? '↑' : '↓'}</b></div>
-    </article>
-  );
-}
-
-function ResultSummary({
-  title,
-  tone,
-  items,
-  expanded,
-  onToggle,
-  details,
-}: {
-  title: string;
-  tone: 'good' | 'bad' | 'method';
-  items: string[];
-  expanded: boolean;
-  onToggle: () => void;
-  details: string[];
-}) {
-  const visible = expanded ? items : items.slice(0, 3);
-  return (
-    <article className={`${styles.resultSummary} ${styles[tone]}`}>
-      <h2>{title}</h2>
-      <ul>{visible.map((item) => <li key={item}>{item}</li>)}</ul>
-      {expanded && details.length ? <div className={styles.detailBox}>{details.map((item) => <p key={item}>{item}</p>)}</div> : null}
-      <button type="button" onClick={onToggle}>{expanded ? 'Recolher' : 'Ler mais'}</button>
-    </article>
+    <div className={styles.insightPopover}>
+      <strong>{title}</strong>
+      <ul>
+        {lines.length ? lines.map((line) => <li key={line}>{line}</li>) : <li>Nenhuma escolha específica se destacou isoladamente.</li>}
+      </ul>
+    </div>
   );
 }
 
 function buildImprovementGuide(run: GameRun, result: GameResult): string[] {
   const guide: string[] = [];
-  if (run.metrics.cash < 3500) guide.push('Revise onde o caixa foi comprometido cedo demais.');
-  if (run.metrics.reputation < 55 || run.metrics.quality < 60) guide.push('Observe se promessa, prazo e padrão de entrega caminharam juntos.');
-  if (run.metrics.risk > 40 || run.metrics.fatigue > 45) guide.push('Compare decisões rápidas com o custo operacional que elas criaram.');
-  if (result.stars >= 3.5) guide.push('Busque crescer sem perder equilíbrio entre margem, rotina e percepção do cliente.');
-  if (!guide.length) guide.push('Use o histórico para identificar padrões, sem procurar uma única resposta ideal.');
+
+  if (run.metrics.cash < 3500) {
+    guide.push('Na próxima tentativa, observe como decisões que consomem caixa cedo limitam sua margem para corrigir imprevistos depois.');
+  }
+  if (run.metrics.reputation < 55 || run.metrics.quality < 60) {
+    guide.push('Repare se a promessa comercial, o prazo e o padrão de entrega caminharam juntos ao longo da rodada.');
+  }
+  if (run.metrics.risk > 40 || run.metrics.fatigue > 45) {
+    guide.push('Preste atenção em escolhas que aceleram o negócio, mas deixam a operação mais dependente de esforço extra ou retrabalho.');
+  }
+  if (guide.length < 3 && result.stars >= 3.5) {
+    guide.push('Você já montou uma base sólida; tente identificar onde crescer sem perder o equilíbrio entre margem, rotina e percepção do cliente.');
+  }
+  if (guide.length < 3) {
+    guide.push('Compare o histórico da partida e procure padrões: normalmente o melhor resultado nasce do equilíbrio, e não de uma única escolha chamativa.');
+  }
+
   return guide.slice(0, 3);
 }

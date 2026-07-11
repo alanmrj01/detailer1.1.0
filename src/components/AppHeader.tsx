@@ -1,23 +1,14 @@
 import type { ThemeMode } from '../types/config';
 import styles from './AppHeader.module.css';
 
-export type AppView = 'game' | 'howto' | 'settings' | 'history';
-
 interface AppHeaderProps {
   appName: string;
   logoDataUrl: string;
-  activeView: AppView;
-  onNavigate: (view: AppView) => void;
+  activeView: 'game' | 'settings';
+  onNavigate: (view: 'game' | 'settings') => void;
   theme: ThemeMode;
   onToggleTheme: () => void;
 }
-
-const navItems: Array<{ id: AppView; label: string; icon: string }> = [
-  { id: 'game', label: 'Início', icon: '⌂' },
-  { id: 'howto', label: 'Como jogar', icon: '?' },
-  { id: 'settings', label: 'Configurações', icon: '⚙' },
-  { id: 'history', label: 'Histórico', icon: '▣' },
-];
 
 export function AppHeader({
   appName,
@@ -35,32 +26,28 @@ export function AppHeader({
         ) : (
           <span className={styles.mark}>DB</span>
         )}
-        <span className={styles.brandText}>
-          <strong>DETAILER</strong>
-          <b>BUSINESS</b>
-        </span>
+        <strong>{appName}</strong>
       </button>
 
       <nav className={styles.actions} aria-label="Navegação principal">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            className={activeView === item.id ? styles.active : ''}
-            type="button"
-            onClick={() => onNavigate(item.id)}
-          >
-            <span className={styles.navIcon}>{item.icon}</span>
-            <span>{item.label}</span>
-          </button>
-        ))}
-      </nav>
-
-      <div className={styles.utility}>
+        <button
+          className={activeView === 'game' ? styles.active : ''}
+          type="button"
+          onClick={() => onNavigate('game')}
+        >
+          Jogar
+        </button>
+        <button
+          className={activeView === 'settings' ? styles.active : ''}
+          type="button"
+          onClick={() => onNavigate('settings')}
+        >
+          Configurações
+        </button>
         <button className={styles.themeButton} type="button" onClick={onToggleTheme} aria-label="Alternar tema">
           {theme === 'dark' ? '☀' : '◐'}
         </button>
-        <span className={styles.version}>v1.2.5</span>
-      </div>
+      </nav>
     </header>
   );
 }
