@@ -4,11 +4,16 @@ import { GameErrorBoundary } from '../components/GameErrorBoundary';
 import { useAppConfig } from '../context/AppConfigContext';
 import { GamePage } from '../features/game/GamePage';
 import { SettingsPage } from '../features/settings/SettingsPage';
+import { preloadVisualAssets } from '../utils/preloadVisualAssets';
 import styles from './App.module.css';
 
 export function App() {
   const { config, theme, setTheme } = useAppConfig();
   const [view, setView] = useState<'game' | 'settings'>('game');
+
+  useEffect(() => {
+    preloadVisualAssets();
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;

@@ -1,26 +1,31 @@
 .scene {
-  --scene-x: 72%;
+  --scene-x: 58%;
   --scene-y: 50%;
-  --scene-scale-from: 1.015;
-  --scene-scale-to: 1.045;
+  --scene-scale-from: 1.005;
+  --scene-scale-to: 1.025;
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background:
+  background-color: #061225;
+  background-image:
     radial-gradient(circle at 76% 30%, rgba(81, 215, 255, 0.18), transparent 24%),
-    linear-gradient(180deg, #061225 0%, #071522 46%, #030912 100%);
+    linear-gradient(180deg, rgba(6, 18, 37, 0.22), rgba(3, 9, 18, 0.58)),
+    var(--scene-image);
+  background-repeat: no-repeat;
+  background-size: auto, auto, cover;
+  background-position: center, center, var(--scene-x) var(--scene-y);
 }
 
-.garage { --scene-x: 72%; }
-.store { --scene-x: 73%; }
-.mobile { --scene-x: 74%; }
-.equipment { --scene-x: 75%; }
-.washing { --scene-x: 73%; }
-.polishing { --scene-x: 74%; }
-.interior { --scene-x: 75%; }
-.pricing { --scene-x: 73%; }
-.complaint { --scene-x: 73%; }
-.growth { --scene-x: 73%; }
+.garage { --scene-x: 58%; }
+.store { --scene-x: 58%; }
+.mobile { --scene-x: 58%; }
+.equipment { --scene-x: 60%; }
+.washing { --scene-x: 62%; }
+.polishing { --scene-x: 62%; }
+.interior { --scene-x: 60%; }
+.pricing { --scene-x: 54%; }
+.complaint { --scene-x: 60%; }
+.growth { --scene-x: 62%; }
 
 .image {
   position: absolute;

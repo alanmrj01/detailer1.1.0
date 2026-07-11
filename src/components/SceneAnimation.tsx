@@ -7,6 +7,7 @@ import polishingScene from '../assets/scenes/polishing.webp';
 import pricingScene from '../assets/scenes/pricing.webp';
 import complaintScene from '../assets/scenes/complaint.webp';
 import growthScene from '../assets/scenes/growth.webp';
+import type { CSSProperties } from 'react';
 import type { AnimationScene } from '../types/config';
 import styles from './SceneAnimation.module.css';
 
@@ -60,8 +61,10 @@ const sceneMap: Record<AnimationScene, { src: string; alt: string }> = {
 export function SceneAnimation({ scene }: SceneAnimationProps) {
   const current = sceneMap[scene] ?? sceneMap.garage;
 
+  const style = { '--scene-image': `url(\"${current.src}\")` } as CSSProperties;
+
   return (
-    <div className={`${styles.scene} ${styles[scene] ?? ''}`} aria-hidden="true">
+    <div className={`${styles.scene} ${styles[scene] ?? ''}`} aria-hidden="true" style={style}>
       <img
         className={styles.image}
         src={current.src}

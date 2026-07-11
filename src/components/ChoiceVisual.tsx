@@ -69,45 +69,16 @@ const fallbackByDecision: Record<string, string> = {
   'growth-choice': marketingChoice,
 };
 
-const positionByChoice: Record<string, string> = {
-  garage: '50% 54%',
-  store: '50% 52%',
-  mobile: '58% 52%',
-  essential: '45% 54%',
-  polishing: '58% 54%',
-  interior: '64% 54%',
-  complete: '58% 54%',
-  wash: '52% 55%',
-  polish: '55% 55%',
-  'interior-service': '58% 54%',
-  balanced: '54% 54%',
-  low: '52% 52%',
-  'balanced-price': '54% 52%',
-  'premium-price': '56% 52%',
-  'discount-blast': '52% 50%',
-  'local-partnership': '54% 50%',
-  'content-routine': '56% 50%',
-  'preserve-quality': '54% 50%',
-  rush: '52% 50%',
-  renegotiate: '54% 50%',
-  redo: '52% 50%',
-  'partial-refund': '54% 50%',
-  contest: '56% 50%',
-  marketing: '54% 52%',
-  reserve: '52% 52%',
-  training: '54% 52%',
-  helper: '56% 52%',
-};
-
 export function ChoiceVisual({ decisionId, choiceId }: { decisionId: string; choiceId: string }) {
   const fallback = fallbackByDecision[decisionId] ?? garageChoice;
   const src = choiceImages[choiceId] ?? fallback;
   const style = {
-    '--choice-position': positionByChoice[choiceId] ?? '50% 50%',
+    '--choice-image': `url("${src}")`,
   } as CSSProperties;
 
   const handleError = (event: SyntheticEvent<HTMLImageElement>) => {
-    if (event.currentTarget.src !== fallback) {
+    const fallbackUrl = new URL(fallback, window.location.href).href;
+    if (event.currentTarget.src !== fallbackUrl) {
       event.currentTarget.src = fallback;
     }
   };

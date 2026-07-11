@@ -1,0 +1,18 @@
+DETAILER BUSINESS — AJUSTES CIRÚRGICOS DE ILUSTRAÇÕES
+
+Base utilizada: detailer1.2.6.zip
+
+Alterações realizadas:
+- preservação integral da lógica, textos, regras, fases, indicadores e configurações;
+- pré-carregamento das 9 cenas principais e das 27 ilustrações de escolhas;
+- correção do enquadramento das cenas principais para manter os personagens e objetos à direita da área de texto;
+- redução discreta do zoom das cenas principais para evitar cortes;
+- mini-ilustrações das escolhas ajustadas para a proporção original 18:11;
+- centralização das mini-ilustrações sem recortes por posicionamentos individuais;
+- fallback visual mantido para impedir cards sem imagem;
+- confirmação de 27 imagens de escolhas distintas.
+
+Validação:
+- npm ci: OK
+- npm test: 7 testes aprovados
+- npm run build: OK
