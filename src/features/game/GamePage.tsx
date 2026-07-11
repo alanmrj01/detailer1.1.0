@@ -340,7 +340,7 @@ export function GamePage() {
           <div className={styles.choiceGrid}>
             {currentDecision.choices.map((choice) => {
               const originalChoice = decisionConfig.choices.find((item) => item.id === choice.id) ?? choice;
-              const availability = choiceAvailability(originalChoice, run, config);
+              const availability = choiceAvailability(originalChoice, run, config, decisionConfig.id);
               const cost = equipmentCost(originalChoice, config);
               const impactPreview = describeChoiceImpact(choice.effects);
               return (
@@ -360,12 +360,12 @@ export function GamePage() {
                     <p>{choice.description}</p>
                     <div className={styles.impactRow}>
                       {impactPreview.map((item) => (
-                        <span key={item.key} className={item.positive ? styles.goodPill : styles.badPill}>
-                          {item.positive ? '↑' : '↓'} {item.label}
+                        <span key={item.key} className={styles.impactPill}>
+                          Impacta {item.label}
                         </span>
                       ))}
                     </div>
-                    <small className={styles.choiceHint}>{availability.available ? summarizeConsequence(choice.consequence) : availability.reason}</small>
+                    {!availability.available ? <small className={styles.choiceHint}>{availability.reason}</small> : null}
                   </div>
                 </button>
               );
@@ -379,11 +379,12 @@ export function GamePage() {
           <section className={styles.modal} role="dialog" aria-modal="true" onMouseDown={(event) => event.stopPropagation()}>
             <span className={styles.kicker}>Confirmar decisão</span>
             <h2>{selectedChoice.label}</h2>
-            <p>{summarizeConsequence(selectedChoice.consequence)}</p>
+            <p>{selectedChoice.description}</p>
+            <small className={styles.decisionPrivacy}>A consequência completa será revelada depois da confirmação.</small>
             <div className={styles.modalEconomy}>
               <span>Caixa atual <strong>{formatCurrency(run.metrics.cash)}</strong></span>
-              <span>Impacto <strong>{formatCurrency(choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, config).effectiveCashDelta)}</strong></span>
-              <span>Caixa previsto <strong>{formatCurrency(run.metrics.cash + choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, config).effectiveCashDelta)}</strong></span>
+              <span>Impacto <strong>{formatCurrency(choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, config, decisionConfig.id).effectiveCashDelta)}</strong></span>
+              <span>Caixa previsto <strong>{formatCurrency(run.metrics.cash + choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, config, decisionConfig.id).effectiveCashDelta)}</strong></span>
             </div>
             <div className={styles.modalActions}>
               <button className="secondaryButton" type="button" onClick={() => setSelectedChoice(null)}>Voltar</button>

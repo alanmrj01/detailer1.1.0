@@ -96,6 +96,7 @@ export type AnimationScene =
 
 export interface DecisionConfig {
   id: string;
+  vehicleId?: string;
   module: string;
   eyebrow: string;
   title: string;

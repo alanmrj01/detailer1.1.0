@@ -1,0 +1,53 @@
+Detailer Business — motor e painel 1.3.0
+
+Base utilizada:
+- detailer1.2.10(1).zip
+
+Alterações realizadas, preservando integralmente o visual, as ilustrações, os fluxos e as decisões existentes:
+
+1. Pontuação recalibrada
+- A pontuação passa a ser calibrada contra todos os caminhos válidos da configuração atual.
+- Escala final efetiva: 0 a 100 pontos / 0,0 a 5,0 estrelas.
+- Todas as quatro faixas de resultado agora são alcançáveis.
+- O caminho recomendado padrão termina com 4,6 estrelas.
+
+2. Teste automático de todos os caminhos
+- 12.636 caminhos completos são enumerados e testados.
+- Os testes verificam pontuação, estrelas, conclusão e alcançabilidade das faixas.
+- Total da suíte: 14 testes aprovados.
+
+3. Menor revelação antes da escolha
+- A consequência completa deixou de aparecer nos cards e no modal de confirmação.
+- Antes da decisão, aparecem apenas até duas áreas potencialmente impactadas, sem revelar ganho ou perda.
+- A consequência completa continua aparecendo após a confirmação.
+
+4. Veículos conectados ao motor
+- Marca e modelo configurados aparecem nas situações vinculadas.
+- Segmento, fator de tamanho e fator de sujeira alteram esforço, risco e custo de correção nas situações relacionadas.
+- Cada decisão pode ser vinculada a um veículo pelo painel do criador.
+
+5. Validação restaurada
+- Nova aba Configurações > Dados e validação.
+- Verificação de estrutura, preços, fontes, IDs, pesos, faixas, recomendações, veículos e caminhos válidos.
+- Exibição de quantidade de caminhos por faixa e estrelas do caminho recomendado.
+
+6. Exportação e importação restauradas
+- Exportação completa da configuração em JSON.
+- Importação com verificação estrutural e bloqueio quando existem erros.
+- Migração automática de configurações da versão anterior.
+- Botão para restaurar a configuração original.
+
+Resultados do balanceamento padrão:
+- Caminhos válidos: 12.636
+- Pontuação mínima: 0
+- Pontuação máxima: 100
+- Caminho recomendado: 91 pontos / 4,6 estrelas
+- fragile: 8.492 caminhos
+- promising: 3.133 caminhos
+- sustainable: 816 caminhos
+- excellent: 195 caminhos
+
+Validação técnica:
+- npm ci: OK
+- npm test: 14 testes aprovados
+- npm run build: OK

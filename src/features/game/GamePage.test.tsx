@@ -31,24 +31,53 @@ beforeEach(() => {
 
 describe('GamePage', () => {
   it('inicia a partida sem quebrar a ordem dos hooks do React', () => {
-    let renderer: ReturnType<typeof create>;
+    const renderer = startGame();
+    expect(renderer.root.findAllByType('h1')[0].children.join('')).toContain('Onde sua operação vai começar?');
+  });
 
-    act(() => {
-      renderer = create(<GamePage />);
-    });
+  it('só revela a consequência completa depois que a decisão é confirmada', () => {
+    const renderer = startGame();
+    const consequence = 'Você preserva caixa e reduz pressão';
 
-    const startButton = renderer!.root.findAllByType('button').find((button) =>
-      button.children.some((child) => child === 'Iniciar desafio'),
+    expect(renderedText(renderer.root)).not.toContain(consequence);
+
+    const choiceButton = renderer.root.findAllByType('button').find((button) =>
+      renderedText(button).includes('Adaptar a garagem'),
     );
+    expect(choiceButton).toBeTruthy();
 
-    expect(startButton).toBeTruthy();
+    act(() => choiceButton!.props.onClick());
+    expect(renderedText(renderer.root)).not.toContain(consequence);
+    expect(renderedText(renderer.root)).toContain('A consequência completa será revelada depois da confirmação.');
 
-    expect(() => {
-      act(() => {
-        startButton!.props.onClick();
-      });
-    }).not.toThrow();
+    const confirmButton = renderer.root.findAllByType('button').find((button) =>
+      renderedText(button).includes('Confirmar escolha'),
+    );
+    act(() => confirmButton!.props.onClick());
 
-    expect(renderer!.root.findAllByType('h1')[0].children.join('')).toContain('Onde sua operação vai começar?');
+    expect(renderedText(renderer.root)).toContain(consequence);
   });
 });
+
+function startGame() {
+  let renderer: ReturnType<typeof create>;
+  act(() => {
+    renderer = create(<GamePage />);
+  });
+
+  const startButton = renderer!.root.findAllByType('button').find((button) =>
+    button.children.some((child) => child === 'Iniciar desafio'),
+  );
+  expect(startButton).toBeTruthy();
+  act(() => startButton!.props.onClick());
+  return renderer!;
+}
+
+function renderedText(node: unknown): string {
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(renderedText).join(' ');
+  if (node && typeof node === 'object' && 'children' in node) {
+    return renderedText((node as { children?: unknown[] }).children ?? []);
+  }
+  return '';
+}

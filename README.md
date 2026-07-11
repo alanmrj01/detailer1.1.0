@@ -7,26 +7,28 @@ Aplicação web educacional configurável para demonstrar a um criador de conte�
 - React + Vite + TypeScript + CSS Modules.
 - Tema claro e escuro.
 - Interface responsiva para celular e desktop.
-- Sete decisões encadeadas nos primeiros 90 dias de uma estética automotiva.
+- Oito decisões encadeadas nos primeiros 90 dias de uma estética automotiva.
 - Motor determinístico com:
   - impactos em caixa, reputação, qualidade, capacidade, risco, clientes e fadiga;
   - requisitos de equipamento;
   - bloqueio de compras que violam a reserva mínima;
   - limites de indicadores entre 0 e 100;
   - rastro/auditoria de todas as decisões;
-  - cálculo final por pesos configuráveis.
-- Animações CSS dinâmicas de garagem, lavagem, polimento, interior, reclamação e crescimento.
+  - cálculo final por pesos configuráveis e calibração automática contra todos os caminhos válidos;
+  - todas as faixas de resultado alcançáveis;
+  - caminho recomendado calibrado para aproximadamente 4,5 estrelas.
+- Ilustrações 3D em WebP com animações e efeitos leves para garagem, lavagem, polimento, interior, reclamação e crescimento.
 - Painel protegido do criador para editar:
   - nome, método, textos, cor e logo;
   - PIN local;
   - capital e indicadores iniciais;
   - preços e fontes de mercado;
-  - veículos;
+  - veículos vinculados às situações, com fatores de tamanho, sujeira e segmento aplicados pelo motor;
   - todas as situações, escolhas, consequências e impactos;
   - faixas e mensagens do resultado final;
   - exportação e importação de toda a configuração em JSON.
 - Build de produção incluído em `dist/`.
-- Testes de regressão do motor de decisões.
+- Testes de regressão, importação/exportação e varredura automática dos 12.636 caminhos válidos do jogo.
 
 ## Acesso do criador
 
@@ -49,6 +51,19 @@ Abrir: `http://localhost:5173`
 npm run test
 npm run build
 ```
+
+
+## Balanceamento e validação
+
+A versão atual recalibra a pontuação considerando todos os caminhos completos permitidos pelas regras configuradas. Com a configuração padrão:
+
+- 12.636 caminhos válidos são testados automaticamente;
+- a escala ocupa de 0 a 100 pontos;
+- todas as quatro faixas de resultado são alcançáveis;
+- o caminho recomendado termina próximo de 4,5 estrelas;
+- alterações no painel podem ser verificadas em **Configurações → Dados e validação**.
+
+A mesma área permite exportar e importar a configuração em JSON e restaurar a configuração original.
 
 ## Uso em iframe
 
@@ -107,7 +122,7 @@ src/
 - Não possui login de alunos, checkout, certificados ou painel remoto.
 - O PIN não é segurança real.
 - Valores de serviços são hipóteses educacionais configuráveis; não são apresentados como média nacional.
-- As animações são vetoriais/CSS, sem uso de imagens de terceiros.
+- As ilustrações são assets WebP locais com efeitos CSS leves e não dependem de carregamento externo.
 
 ## Próxima evolução comercial recomendada
 

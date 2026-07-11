@@ -45,14 +45,25 @@ export function getOperationLabel(run: GameRun): string {
   }
 }
 
-export function personalizeText(text: string, run: GameRun, config: AppConfig): string {
+export function personalizeText(
+  text: string,
+  run: GameRun,
+  config: AppConfig,
+  vehicleId?: string,
+): string {
   const primaryService = getPrimaryServiceLabel(run);
   const operationModel = getOperationLabel(run);
+  const vehicle = vehicleId
+    ? config.scenario.cars.find((item) => item.id === vehicleId)
+    : null;
+  const vehicleLabel = vehicle ? `${vehicle.brand} ${vehicle.model}` : 'veículo do cliente';
   const contextMap: Record<string, string> = {
     '{{primaryService}}': primaryService,
     '{{primaryServiceCap}}': capitalize(primaryService),
     '{{operationModel}}': operationModel,
     '{{currency}}': config.scenario.currency,
+    '{{vehicle}}': vehicleLabel,
+    '{{vehicleModel}}': vehicle?.model ?? 'veículo',
   };
 
   return Object.entries(contextMap).reduce(
@@ -64,29 +75,36 @@ export function personalizeText(text: string, run: GameRun, config: AppConfig): 
 export function personalizeDecision(decision: DecisionConfig, run: GameRun, config: AppConfig): DecisionConfig {
   return {
     ...decision,
-    title: personalizeText(decision.title, run, config),
-    situation: personalizeText(decision.situation, run, config),
-    mentorTip: personalizeText(decision.mentorTip, run, config),
-    choices: decision.choices.map((choice) => personalizeChoice(choice, run, config)),
+    title: personalizeText(decision.title, run, config, decision.vehicleId),
+    situation: personalizeText(decision.situation, run, config, decision.vehicleId),
+    mentorTip: personalizeText(decision.mentorTip, run, config, decision.vehicleId),
+    choices: decision.choices.map((choice) => personalizeChoice(choice, run, config, decision.vehicleId)),
   };
 }
 
-export function personalizeChoice(choice: DecisionChoice, run: GameRun, config: AppConfig): DecisionChoice {
+export function personalizeChoice(
+  choice: DecisionChoice,
+  run: GameRun,
+  config: AppConfig,
+  vehicleId?: string,
+): DecisionChoice {
   return {
     ...choice,
-    label: personalizeText(choice.label, run, config),
-    description: personalizeText(choice.description, run, config),
-    consequence: personalizeText(choice.consequence, run, config),
+    label: personalizeText(choice.label, run, config, vehicleId),
+    description: personalizeText(choice.description, run, config, vehicleId),
+    consequence: personalizeText(choice.consequence, run, config, vehicleId),
   };
 }
 
-export function describeChoiceImpact(effects: DecisionChoice['effects']): Array<{ key: string; positive: boolean; label: string }> {
+export function describeChoiceImpact(
+  effects: DecisionChoice['effects'],
+): Array<{ key: string; label: string }> {
   return Object.entries(effects)
     .filter(([, value]) => value)
-    .slice(0, 4)
-    .map(([key, value]) => ({
+    .sort(([, left], [, right]) => Math.abs(right ?? 0) - Math.abs(left ?? 0))
+    .slice(0, 2)
+    .map(([key]) => ({
       key,
-      positive: key === 'risk' ? (value ?? 0) < 0 : (value ?? 0) > 0,
       label: getMetricLabel(key),
     }));
 }

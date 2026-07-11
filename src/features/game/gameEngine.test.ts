@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { defaultConfig } from '../../data/defaultConfig';
-import { applyChoice, calculateResult, choiceAvailability, createRun, equipmentCost } from './gameEngine';
+import {
+  analyzeGameBalance,
+  applyChoice,
+  calculateResult,
+  choiceAvailability,
+  createRun,
+  enumerateValidGamePaths,
+  equipmentCost,
+} from './gameEngine';
 
 describe('gameEngine', () => {
   it('calcula o custo de equipamentos diretamente pelo catálogo configurável', () => {
@@ -16,8 +24,9 @@ describe('gameEngine', () => {
   it('bloqueia uma compra quando a reserva mínima não pode ser preservada', () => {
     const run = createRun(defaultConfig);
     run.metrics.cash = 1000;
-    const choice = defaultConfig.scenario.decisions[1].choices[3];
-    const availability = choiceAvailability(choice, run, defaultConfig);
+    const decision = defaultConfig.scenario.decisions[1];
+    const choice = decision.choices[3];
+    const availability = choiceAvailability(choice, run, defaultConfig, decision.id);
 
     expect(availability.available).toBe(false);
     expect(availability.reason).toContain('reserva mínima');
@@ -25,11 +34,12 @@ describe('gameEngine', () => {
 
   it('respeita requisitos de equipamento para serviços', () => {
     const run = createRun(defaultConfig);
-    const polish = defaultConfig.scenario.decisions[2].choices.find((item) => item.id === 'polish')!;
+    const decision = defaultConfig.scenario.decisions[2];
+    const polish = decision.choices.find((item) => item.id === 'polish')!;
 
-    expect(choiceAvailability(polish, run, defaultConfig).available).toBe(false);
+    expect(choiceAvailability(polish, run, defaultConfig, decision.id).available).toBe(false);
     run.flags.push('eq_polisher');
-    expect(choiceAvailability(polish, run, defaultConfig).available).toBe(true);
+    expect(choiceAvailability(polish, run, defaultConfig, decision.id).available).toBe(true);
   });
 
   it('mantém indicadores percentuais dentro de 0 e 100', () => {
@@ -66,5 +76,57 @@ describe('gameEngine', () => {
         2,
       );
     });
+  });
+
+  it('testa automaticamente todos os 12.636 caminhos válidos do jogo', () => {
+    const paths = enumerateValidGamePaths(defaultConfig);
+
+    expect(paths).toHaveLength(12636);
+    paths.forEach((path) => {
+      expect(path.choiceIds).toHaveLength(defaultConfig.scenario.decisions.length);
+      expect(path.score).toBeGreaterThanOrEqual(0);
+      expect(path.score).toBeLessThanOrEqual(100);
+      expect(path.stars).toBeGreaterThanOrEqual(0);
+      expect(path.stars).toBeLessThanOrEqual(5);
+    });
+  });
+
+  it('mantém todas as faixas de resultado alcançáveis', () => {
+    const balance = analyzeGameBalance(defaultConfig);
+
+    expect(balance.minScore).toBe(0);
+    expect(balance.maxScore).toBe(100);
+    defaultConfig.scenario.resultBands.forEach((band) => {
+      expect(balance.reachableBandIds).toContain(band.id);
+      expect(balance.bandCounts[band.id]).toBeGreaterThan(0);
+    });
+  });
+
+  it('faz o caminho recomendado terminar próximo de 4,5 estrelas', () => {
+    const balance = analyzeGameBalance(defaultConfig);
+
+    expect(balance.recommendedChoiceIds).toHaveLength(defaultConfig.scenario.decisions.length);
+    expect(balance.recommendedStars).not.toBeNull();
+    expect(balance.recommendedStars!).toBeGreaterThanOrEqual(4.4);
+    expect(balance.recommendedStars!).toBeLessThanOrEqual(4.6);
+  });
+
+  it('usa fatores do veículo para ajustar esforço e risco da situação vinculada', () => {
+    const regularConfig = structuredClone(defaultConfig);
+    const demandingConfig = structuredClone(defaultConfig);
+    const demandingVehicle = demandingConfig.scenario.cars.find((car) => car.id === 't-cross')!;
+    demandingVehicle.sizeFactor = 1.5;
+    demandingVehicle.soilFactor = 1.4;
+
+    const regularRun = createRun(regularConfig);
+    const demandingRun = createRun(demandingConfig);
+    const decision = regularConfig.scenario.decisions.find((item) => item.id === 'first-quote')!;
+    const choice = decision.choices.find((item) => item.id === 'low')!;
+
+    const regularResult = applyChoice(regularRun, decision.id, choice, regularConfig);
+    const demandingResult = applyChoice(demandingRun, decision.id, choice, demandingConfig);
+
+    expect(demandingResult.metrics.fatigue).toBeGreaterThan(regularResult.metrics.fatigue);
+    expect(demandingResult.metrics.risk).toBeGreaterThan(regularResult.metrics.risk);
   });
 });

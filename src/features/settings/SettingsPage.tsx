@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAppConfig } from '../../context/AppConfigContext';
 import type {
   AppConfig,
@@ -8,20 +8,31 @@ import type {
   MetricKey,
   ResultBand,
 } from '../../types/config';
+import { analyzeGameBalance } from '../game/gameEngine';
+import { downloadConfig, parseConfigJson } from '../../utils/configTransfer';
+import { validateConfig } from '../../utils/configValidation';
 import { formatCurrency } from '../../utils/format';
 import styles from './SettingsPage.module.css';
 
-type SettingsTab = 'branding' | 'scenario' | 'market' | 'decisions' | 'results';
+type SettingsTab = 'branding' | 'scenario' | 'market' | 'decisions' | 'results' | 'data';
 
 const metricKeys: MetricKey[] = ['cash', 'reputation', 'quality', 'capacity', 'risk', 'customers', 'fatigue'];
 
 export function SettingsPage() {
-  const { config, updateConfig } = useAppConfig();
+  const { config, setConfig, updateConfig, resetConfig } = useAppConfig();
   const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem('detailer-creator-unlocked') === 'true');
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
   const [tab, setTab] = useState<SettingsTab>('branding');
   const [notice, setNotice] = useState('');
+  const issues = useMemo(() => validateConfig(config), [config]);
+  const balance = useMemo(() => {
+    try {
+      return analyzeGameBalance(config);
+    } catch {
+      return null;
+    }
+  }, [config]);
 
   const unlock = () => {
     if (pin === config.security.creatorPin) {
@@ -78,6 +89,7 @@ export function SettingsPage() {
           <TabButton id="market" active={tab} onClick={setTab}>Mercado e veículos</TabButton>
           <TabButton id="decisions" active={tab} onClick={setTab}>Decisões</TabButton>
           <TabButton id="results" active={tab} onClick={setTab}>Resultados</TabButton>
+          <TabButton id="data" active={tab} onClick={setTab}>Dados e validação</TabButton>
         </nav>
       </aside>
 
@@ -87,6 +99,16 @@ export function SettingsPage() {
         {tab === 'market' && <MarketSettings config={config} updateConfig={updateConfig} />}
         {tab === 'decisions' && <DecisionSettings config={config} updateConfig={updateConfig} />}
         {tab === 'results' && <ResultSettings config={config} updateConfig={updateConfig} />}
+        {tab === 'data' && (
+          <DataSettings
+            config={config}
+            setConfig={setConfig}
+            resetConfig={resetConfig}
+            issues={issues}
+            balance={balance}
+            notify={notify}
+          />
+        )}
       </section>
       {notice && <div className={styles.toast}>{notice}</div>}
     </main>
@@ -216,7 +238,7 @@ function MarketSettings({ config, updateConfig }: SharedProps) {
         </div>
       </SettingsModule>
 
-      <SettingsModule title="Veículos usados nos cenários" description="A lista inicial usa modelos populares no Brasil. O criador pode adequar marca, modelo e fatores de tamanho/sujeira.">
+      <SettingsModule title="Veículos usados nos cenários" description="Marca e modelo aparecem nas situações vinculadas. Segmento, tamanho e sujeira ajustam esforço, risco e custo de correção nas decisões relacionadas ao veículo.">
         <div className={styles.tableEditor}>
           {config.scenario.cars.map((car, index) => (
             <div className={styles.carRow} key={car.id}>
@@ -260,6 +282,7 @@ function DecisionSettings({ config, updateConfig }: SharedProps) {
                 <Field label="Título" wide><input value={decision.title} onChange={(e) => patchDecision(decisionIndex, { ...decision, title: e.target.value })} /></Field>
                 <Field label="Situação" wide><textarea rows={4} value={decision.situation} onChange={(e) => patchDecision(decisionIndex, { ...decision, situation: e.target.value })} /></Field>
                 <Field label="Orientação do método" wide><textarea rows={3} value={decision.mentorTip} onChange={(e) => patchDecision(decisionIndex, { ...decision, mentorTip: e.target.value })} /></Field>
+                <Field label="Veículo usado nesta situação"><select value={decision.vehicleId ?? ''} onChange={(e) => patchDecision(decisionIndex, { ...decision, vehicleId: e.target.value || undefined })}><option value="">Sem veículo vinculado</option>{config.scenario.cars.map((car) => <option key={car.id} value={car.id}>{car.brand} {car.model}</option>)}</select></Field>
                 <Field label="Animação da cena"><select value={decision.animation} onChange={(e) => patchDecision(decisionIndex, { ...decision, animation: e.target.value as DecisionConfig['animation'] })}><option value="garage">Garagem</option><option value="mobile">Delivery</option><option value="store">Loja</option><option value="equipment">Equipamentos</option><option value="washing">Lavagem</option><option value="polishing">Polimento</option><option value="interior">Interior</option><option value="pricing">Precificação</option><option value="complaint">Reclamação</option><option value="growth">Crescimento</option></select></Field>
               </div>
               <div className={styles.choiceEditorList}>
@@ -328,6 +351,92 @@ function ResultSettings({ config, updateConfig }: SharedProps) {
         ))}
       </div>
     </SettingsModule>
+  );
+}
+
+
+function DataSettings({
+  config,
+  setConfig,
+  resetConfig,
+  issues,
+  balance,
+  notify,
+}: {
+  config: AppConfig;
+  setConfig: (next: AppConfig) => void;
+  resetConfig: () => void;
+  issues: ReturnType<typeof validateConfig>;
+  balance: ReturnType<typeof analyzeGameBalance> | null;
+  notify: (message: string) => void;
+}) {
+  const importConfig = (file?: File) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const imported = parseConfigJson(String(reader.result));
+        const importedIssues = validateConfig(imported);
+        const errors = importedIssues.filter((issue) => issue.level === 'error');
+        if (errors.length) {
+          notify(`Importação bloqueada: ${errors[0].message}`);
+          return;
+        }
+        setConfig(imported);
+        notify('Configuração importada com sucesso.');
+      } catch (error) {
+        notify(error instanceof Error ? error.message : 'Não foi possível importar o arquivo.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const restore = () => {
+    if (!window.confirm('Restaurar toda a configuração original do Detailer Business?')) return;
+    resetConfig();
+    notify('Configuração original restaurada.');
+  };
+
+  const errors = issues.filter((issue) => issue.level === 'error');
+  const warnings = issues.filter((issue) => issue.level === 'warning');
+
+  return (
+    <>
+      <SettingsModule title="Dados, backup e validação" description="Exporte uma versão revisável, importe configurações e verifique automaticamente coerência, caminhos e balanceamento.">
+        <div className={styles.dataActions}>
+          <button className="primaryButton" type="button" onClick={() => downloadConfig(config)}>Exportar configuração JSON</button>
+          <label className="secondaryButton">Importar configuração<input hidden type="file" accept="application/json,.json" onChange={(event) => importConfig(event.target.files?.[0])} /></label>
+          <button className="ghostButton" type="button" onClick={restore}>Restaurar configuração original</button>
+        </div>
+        <p className={styles.productionNote}>A importação só é aplicada quando não existem erros estruturais. Alertas pedagógicos e de mercado permanecem visíveis para revisão do criador.</p>
+      </SettingsModule>
+
+      <SettingsModule title="Validação automática" description="O painel verifica dados, faixas, referências, recomendações e alcançabilidade dos resultados.">
+        <div className={styles.validationSummary}>
+          <span><strong>{errors.length}</strong> erros</span>
+          <span><strong>{warnings.length}</strong> alertas</span>
+          <span><strong>{balance?.totalPaths.toLocaleString('pt-BR') ?? '—'}</strong> caminhos válidos</span>
+          <span><strong>{balance?.recommendedStars?.toFixed(1) ?? '—'}★</strong> caminho recomendado</span>
+        </div>
+        <div className={styles.issueList}>
+          {!issues.length ? <div className={styles.okIssue}>Configuração válida: todas as faixas são alcançáveis e o caminho recomendado está calibrado.</div> : null}
+          {issues.map((issue, index) => (
+            <div key={`${issue.level}-${index}`} className={issue.level === 'error' ? styles.errorIssue : styles.warningIssue}>{issue.message}</div>
+          ))}
+        </div>
+        {balance ? (
+          <div className={styles.balanceGrid}>
+            {config.scenario.resultBands.map((band) => (
+              <article key={band.id}>
+                <small>{band.minScore}–{band.maxScore} pontos</small>
+                <strong>{band.title}</strong>
+                <span>{(balance.bandCounts[band.id] ?? 0).toLocaleString('pt-BR')} caminhos</span>
+              </article>
+            ))}
+          </div>
+        ) : null}
+      </SettingsModule>
+    </>
   );
 }
 

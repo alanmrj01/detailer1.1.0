@@ -1,7 +1,7 @@
 import type { AppConfig } from '../types/config';
 
 export const defaultConfig: AppConfig = {
-  version: 2,
+  version: 3,
   brand: {
     appName: 'Detailer Business',
     creatorName: 'Método de especialista',
@@ -151,10 +151,11 @@ export const defaultConfig: AppConfig = {
       },
       {
         id: 'first-quote',
+        vehicleId: 't-cross',
         module: 'Situação-problema',
         eyebrow: 'Situação 1/5',
         title: 'Chegou o primeiro orçamento de {{primaryService}}',
-        situation: 'Um cliente com Volkswagen T-Cross quer contratar sua {{primaryService}}. Ele está comparando orçamentos e quer perceber segurança, clareza e valor na sua proposta.',
+        situation: 'Um cliente com {{vehicle}} quer contratar sua {{primaryService}}. Ele está comparando orçamentos e quer perceber segurança, clareza e valor na sua proposta.',
         mentorTip: 'Os valores desta etapa podem ser ajustados pelo criador. O objetivo é mostrar como o preço da {{primaryService}} altera margem, demanda e risco.',
         animation: 'pricing',
         choices: [
@@ -193,10 +194,11 @@ export const defaultConfig: AppConfig = {
       },
       {
         id: 'customer-complaint',
+        vehicleId: 'onix',
         module: 'Situação-problema',
         eyebrow: 'Situação 4/5',
         title: 'Um cliente voltou após a {{primaryService}}',
-        situation: 'O cliente percebeu uma área abaixo do padrão combinado na sua {{primaryService}}. A solução precisa equilibrar responsabilidade, reputação e custo.',
+        situation: 'O cliente do {{vehicle}} percebeu uma área abaixo do padrão combinado na sua {{primaryService}}. A solução precisa equilibrar responsabilidade, reputação e custo.',
         mentorTip: 'O objetivo não é agradar a qualquer custo, mas ter um processo claro para verificar, corrigir e registrar falhas.',
         animation: 'complaint',
         choices: [

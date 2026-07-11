@@ -167,3 +167,62 @@
 .equipmentChecks label { color: var(--muted); font-size: .76rem; }
 @media (max-width: 760px) { .sourceRow { grid-template-columns: 1fr 110px 38px; } .sourceRow input:nth-child(3), .sourceRow input:nth-child(4) { grid-column: span 1; } }
 @media (max-width: 520px) { .sourceRow { grid-template-columns: 1fr 38px; } .sourceRow input { grid-column: 1; } .removeSource { grid-column: 2; grid-row: 1; } }
+
+.validationSummary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .65rem;
+  margin-bottom: 1rem;
+}
+
+.validationSummary span {
+  display: grid;
+  gap: .15rem;
+  padding: .8rem;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  color: var(--muted);
+  background: var(--surface-2);
+  font-size: .75rem;
+}
+
+.validationSummary strong {
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.balanceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .65rem;
+  margin-top: 1rem;
+}
+
+.balanceGrid article {
+  display: grid;
+  gap: .25rem;
+  padding: .85rem;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface-2);
+}
+
+.balanceGrid small,
+.balanceGrid span {
+  color: var(--muted);
+  font-size: .75rem;
+}
+
+@media (max-width: 760px) {
+  .validationSummary,
+  .balanceGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .validationSummary,
+  .balanceGrid {
+    grid-template-columns: 1fr;
+  }
+}

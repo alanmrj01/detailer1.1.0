@@ -1,0 +1,18 @@
+import { describe, expect, it } from 'vitest';
+import { defaultConfig } from '../data/defaultConfig';
+import { parseConfigJson, serializeConfig } from './configTransfer';
+import { validateConfig } from './configValidation';
+
+describe('configuração do criador', () => {
+  it('exporta e importa a configuração sem perder dados', () => {
+    const serialized = serializeConfig(defaultConfig);
+    const imported = parseConfigJson(serialized);
+
+    expect(imported).toEqual(defaultConfig);
+    expect(validateConfig(imported).filter((issue) => issue.level === 'error')).toHaveLength(0);
+  });
+
+  it('recusa JSON sem a estrutura do aplicativo', () => {
+    expect(() => parseConfigJson('{"nome":"arquivo inválido"}')).toThrow(/estrutura esperada/i);
+  });
+});
