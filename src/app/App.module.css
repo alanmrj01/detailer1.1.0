@@ -1,14 +1,16 @@
 .app {
   min-height: 100vh;
+  padding-bottom: 72px;
 }
 
 .viewTransition {
-  animation: viewIn 260ms ease;
+  animation: viewIn 240ms ease;
 }
 
 @keyframes viewIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
+  from { opacity: 0; transform: translateY(6px); }
+}
+
+@media (max-width: 900px) {
+  .app { padding-bottom: 64px; }
 }

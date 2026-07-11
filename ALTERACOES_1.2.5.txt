@@ -1,0 +1,19 @@
+Detailer Business 1.2.5
+
+Alterações visuais cirúrgicas realizadas sobre a versão 1.2.4:
+
+- Nova disposição geral baseada no print de referência enviado.
+- Tela inicial em formato de game, com ilustração 3D em destaque, CTA e indicadores inferiores.
+- Fase 1 - Estratégia e Fase 1 - Desafio reorganizadas em uma única tela de jogo.
+- Cena 3D principal em destaque, pergunta objetiva e cards de escolhas abaixo.
+- Cards das escolhas com ilustrações diferentes, preço, contexto e impactos FIN/REP/OPE/CLI.
+- Resultado reorganizado com estrelas, indicadores, forças, atenções e método.
+- Cards do resultado com Ler mais/Recolher.
+- Histórico das escolhas recolhível.
+- Painel da fase 2 exibido ao clicar em Seguir para fase 2.
+- Navegação inferior com Início, Como jogar, Configurações e Histórico.
+- Toda a lógica de decisões, preços, configurações, pontuação, estrelas e persistência foi preservada.
+
+Validação:
+- npm test: 7 testes aprovados
+- npm run build: concluído
