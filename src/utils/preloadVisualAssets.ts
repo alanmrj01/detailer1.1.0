@@ -7,6 +7,10 @@ import polishingScene from '../assets/scenes/polishing.webp';
 import pricingScene from '../assets/scenes/pricing.webp';
 import complaintScene from '../assets/scenes/complaint.webp';
 import growthScene from '../assets/scenes/growth.webp';
+import resultFragileScene from '../assets/scenes/result-fragile.webp';
+import resultPromisingScene from '../assets/scenes/result-promising.webp';
+import resultSustainableScene from '../assets/scenes/result-sustainable.webp';
+import resultExcellentScene from '../assets/scenes/result-excellent.webp';
 import garageChoice from '../assets/choices/garage.webp';
 import storeChoice from '../assets/choices/store.webp';
 import mobileChoice from '../assets/choices/mobile.webp';
@@ -45,6 +49,10 @@ const visualAssets = [
   pricingScene,
   complaintScene,
   growthScene,
+  resultFragileScene,
+  resultPromisingScene,
+  resultSustainableScene,
+  resultExcellentScene,
   garageChoice,
   storeChoice,
   mobileChoice,

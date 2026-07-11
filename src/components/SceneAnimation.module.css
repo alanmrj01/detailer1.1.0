@@ -26,6 +26,10 @@
 .pricing { --scene-x: 54%; }
 .complaint { --scene-x: 60%; }
 .growth { --scene-x: 62%; }
+.result-fragile { --scene-x: 62%; }
+.result-promising { --scene-x: 62%; }
+.result-sustainable { --scene-x: 62%; }
+.result-excellent { --scene-x: 62%; }
 
 .image {
   position: absolute;
@@ -264,8 +268,7 @@
 .store .strategyPulse,
 .mobile .strategyPulse { display: flex; }
 .washing .waterSpray { display: block; }
-.polishing .polishingGlow,
-.interior .polishingGlow { display: block; }
+.polishing .polishingGlow { display: block; }
 .pricing .priceCards { display: flex; }
 .complaint .alertPulse { display: grid; }
 .growth .rewardStars { display: block; }

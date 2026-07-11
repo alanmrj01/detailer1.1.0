@@ -1,0 +1,22 @@
+Detailer Business 1.2.9 — refinamento final de ilustrações
+
+Base utilizada:
+- detailer1.2.8.zip
+
+Alterações realizadas APENAS nos pontos solicitados:
+1. Remoção da animação circular que parecia loading na cena do desafio de atraso/execução.
+2. Simplificação da informação visual nas telas jogáveis:
+   - removido o badge redundante de etapa;
+   - mantido o indicador principal apenas como progresso no formato X/8.
+3. Ajuste do desafio 4/8 (primeiro orçamento):
+   - ilustrações das três opções refeitas com enquadramentos distintos e mais coerentes com o contexto;
+   - redução da sensação de repetição entre a cena principal e as escolhas.
+4. Tela de resultado final:
+   - ilustração agora é dinâmica conforme a faixa de resultado;
+   - criadas quatro variações visuais: fragile, promising, sustainable e excellent;
+   - removida a repetição direta com outra etapa do jogo.
+5. Dist regenerada após as alterações.
+
+Validação:
+- npm test: 7 testes aprovados
+- npm run build: concluído com sucesso

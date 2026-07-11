@@ -136,7 +136,7 @@ export function GamePage() {
     return (
       <main className={styles.page}>
         <section className={styles.resultHero}>
-          <SceneAnimation scene="growth" />
+          <SceneAnimation scene={getResultScene(result.bandId)} />
           <div className={styles.resultContent}>
             <span className={styles.kicker}>Resultado final da fase 1</span>
             <h1>{band.title}</h1>
@@ -320,13 +320,11 @@ export function GamePage() {
           <div className={styles.storyOverlay}>
             <div className={styles.storyTopbar}>
               <span className={styles.phaseBadge}>{currentPhase}</span>
-              <span className={styles.turnBadge}>Etapa {phaseStep}/{phaseTotal}</span>
             </div>
             <div className={styles.storyProgress}>
-              <small>{run.currentDecisionIndex + 1} / {config.scenario.decisions.length}</small>
+              <small>{run.currentDecisionIndex + 1}/{config.scenario.decisions.length}</small>
               <div><i style={{ width: `${progress}%` }} /></div>
             </div>
-            <span className={styles.kicker}>{currentDecision.eyebrow}</span>
             <h1>{currentDecision.title}</h1>
             <p>{currentDecision.situation}</p>
           </div>
@@ -405,6 +403,20 @@ export function GamePage() {
       )}
     </main>
   );
+}
+
+function getResultScene(bandId: GameResult["bandId"]): "result-fragile" | "result-promising" | "result-sustainable" | "result-excellent" {
+  switch (bandId) {
+    case "excellent":
+      return "result-excellent";
+    case "sustainable":
+      return "result-sustainable";
+    case "promising":
+      return "result-promising";
+    case "fragile":
+    default:
+      return "result-fragile";
+  }
 }
 
 function FeedbackModal({

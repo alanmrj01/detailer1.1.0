@@ -87,7 +87,11 @@ export type AnimationScene =
   | 'interior'
   | 'pricing'
   | 'complaint'
-  | 'growth';
+  | 'growth'
+  | 'result-fragile'
+  | 'result-promising'
+  | 'result-sustainable'
+  | 'result-excellent';
 
 export interface DecisionConfig {
   id: string;

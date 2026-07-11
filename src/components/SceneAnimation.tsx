@@ -7,6 +7,10 @@ import polishingScene from '../assets/scenes/polishing.webp';
 import pricingScene from '../assets/scenes/pricing.webp';
 import complaintScene from '../assets/scenes/complaint.webp';
 import growthScene from '../assets/scenes/growth.webp';
+import resultFragileScene from '../assets/scenes/result-fragile.webp';
+import resultPromisingScene from '../assets/scenes/result-promising.webp';
+import resultSustainableScene from '../assets/scenes/result-sustainable.webp';
+import resultExcellentScene from '../assets/scenes/result-excellent.webp';
 import type { CSSProperties } from 'react';
 import type { AnimationScene } from '../types/config';
 import styles from './SceneAnimation.module.css';
@@ -56,12 +60,28 @@ const sceneMap: Record<AnimationScene, { src: string; alt: string }> = {
     src: growthScene,
     alt: 'Ilustração 3D de crescimento do negócio e conquista de estrelas.',
   },
+  'result-fragile': {
+    src: resultFragileScene,
+    alt: 'Ilustração 3D de resultado final com clima mais cauteloso e necessidade de recompor a operação.',
+  },
+  'result-promising': {
+    src: resultPromisingScene,
+    alt: 'Ilustração 3D de resultado final com sinais positivos, mas ainda pedindo ajustes para estabilizar o negócio.',
+  },
+  'result-sustainable': {
+    src: resultSustainableScene,
+    alt: 'Ilustração 3D de resultado final com equilíbrio operacional e crescimento sustentável.',
+  },
+  'result-excellent': {
+    src: resultExcellentScene,
+    alt: 'Ilustração 3D de resultado final com excelente desempenho e forte sensação de progresso.',
+  },
 };
 
 export function SceneAnimation({ scene }: SceneAnimationProps) {
   const current = sceneMap[scene] ?? sceneMap.garage;
 
-  const style = { '--scene-image': `url(\"${current.src}\")` } as CSSProperties;
+  const style = { '--scene-image': `url("${current.src}")` } as CSSProperties;
 
   return (
     <div className={`${styles.scene} ${styles[scene] ?? ''}`} aria-hidden="true" style={style}>
