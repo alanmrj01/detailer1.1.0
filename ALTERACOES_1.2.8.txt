@@ -1,0 +1,18 @@
+Detailer Business — ajustes cirúrgicos de ilustrações
+
+Base utilizada: detailer1.2.7.zip
+
+Alterações realizadas:
+- nenhuma regra, texto, fase, pontuação, configuração ou fluxo foi alterado;
+- as 27 ilustrações das escolhas foram revisadas;
+- nenhuma ilustração de escolha usa arquivo duplicado;
+- escolhas que antes pareciam repetidas agora usam enquadramento, contexto e elemento visual próprios;
+- imagens de estrutura, equipamentos, serviços, preço, divulgação, reclamação e crescimento foram diferenciadas;
+- mantidos o mesmo formato, proporção, performance e fallback já existentes;
+- pasta dist regenerada com os novos assets.
+
+Validação:
+- npm ci: OK
+- npm test: 7 testes aprovados
+- npm run build: OK
+- 27 arquivos de escolhas verificados, sem hashes duplicados
