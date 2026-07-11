@@ -7,10 +7,11 @@ import polishingScene from '../assets/scenes/polishing.webp';
 import pricingScene from '../assets/scenes/pricing.webp';
 import complaintScene from '../assets/scenes/complaint.webp';
 import growthScene from '../assets/scenes/growth.webp';
-import resultFragileScene from '../assets/scenes/result-fragile.webp';
-import resultPromisingScene from '../assets/scenes/result-promising.webp';
-import resultSustainableScene from '../assets/scenes/result-sustainable.webp';
-import resultExcellentScene from '../assets/scenes/result-excellent.webp';
+import result1StarScene from '../assets/scenes/result-1star.webp';
+import result2StarScene from '../assets/scenes/result-2star.webp';
+import result3StarScene from '../assets/scenes/result-3star.webp';
+import result4StarScene from '../assets/scenes/result-4star.webp';
+import result5StarScene from '../assets/scenes/result-5star.webp';
 import type { CSSProperties } from 'react';
 import type { AnimationScene } from '../types/config';
 import styles from './SceneAnimation.module.css';
@@ -60,21 +61,25 @@ const sceneMap: Record<AnimationScene, { src: string; alt: string }> = {
     src: growthScene,
     alt: 'Ilustração 3D de crescimento do negócio e conquista de estrelas.',
   },
-  'result-fragile': {
-    src: resultFragileScene,
-    alt: 'Ilustração 3D de resultado final com clima mais cauteloso e necessidade de recompor a operação.',
+  'result-1star': {
+    src: result1StarScene,
+    alt: 'Ilustração 3D de resultado de uma estrela, com operação em alerta e necessidade de correção.',
   },
-  'result-promising': {
-    src: resultPromisingScene,
-    alt: 'Ilustração 3D de resultado final com sinais positivos, mas ainda pedindo ajustes para estabilizar o negócio.',
+  'result-2star': {
+    src: result2StarScene,
+    alt: 'Ilustração 3D de resultado de duas estrelas, com estrutura inicial ainda em construção.',
   },
-  'result-sustainable': {
-    src: resultSustainableScene,
-    alt: 'Ilustração 3D de resultado final com equilíbrio operacional e crescimento sustentável.',
+  'result-3star': {
+    src: result3StarScene,
+    alt: 'Ilustração 3D de resultado de três estrelas, com negócio em equilíbrio e decisões comerciais em evolução.',
   },
-  'result-excellent': {
-    src: resultExcellentScene,
-    alt: 'Ilustração 3D de resultado final com excelente desempenho e forte sensação de progresso.',
+  'result-4star': {
+    src: result4StarScene,
+    alt: 'Ilustração 3D de resultado de quatro estrelas, com operação organizada e base sustentável.',
+  },
+  'result-5star': {
+    src: result5StarScene,
+    alt: 'Ilustração 3D de resultado de cinco estrelas, com crescimento forte e excelente desempenho.',
   },
 };
 

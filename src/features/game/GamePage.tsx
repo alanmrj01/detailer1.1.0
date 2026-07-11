@@ -136,7 +136,7 @@ export function GamePage() {
     return (
       <main className={styles.page}>
         <section className={styles.resultHero}>
-          <SceneAnimation scene={getResultScene(result.bandId)} />
+          <SceneAnimation scene={getResultScene(result.stars)} />
           <div className={styles.resultContent}>
             <span className={styles.kicker}>Resultado final da fase 1</span>
             <h1>{band.title}</h1>
@@ -405,18 +405,12 @@ export function GamePage() {
   );
 }
 
-function getResultScene(bandId: GameResult["bandId"]): "result-fragile" | "result-promising" | "result-sustainable" | "result-excellent" {
-  switch (bandId) {
-    case "excellent":
-      return "result-excellent";
-    case "sustainable":
-      return "result-sustainable";
-    case "promising":
-      return "result-promising";
-    case "fragile":
-    default:
-      return "result-fragile";
-  }
+function getResultScene(stars: number): "result-1star" | "result-2star" | "result-3star" | "result-4star" | "result-5star" {
+  if (stars < 1.5) return "result-1star";
+  if (stars < 2.5) return "result-2star";
+  if (stars < 3.5) return "result-3star";
+  if (stars < 4.5) return "result-4star";
+  return "result-5star";
 }
 
 function FeedbackModal({

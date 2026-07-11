@@ -26,10 +26,11 @@
 .pricing { --scene-x: 54%; }
 .complaint { --scene-x: 60%; }
 .growth { --scene-x: 62%; }
-.result-fragile { --scene-x: 62%; }
-.result-promising { --scene-x: 62%; }
-.result-sustainable { --scene-x: 62%; }
-.result-excellent { --scene-x: 62%; }
+.result-1star { --scene-x: 62%; }
+.result-2star { --scene-x: 62%; }
+.result-3star { --scene-x: 62%; }
+.result-4star { --scene-x: 62%; }
+.result-5star { --scene-x: 62%; }
 
 .image {
   position: absolute;

@@ -88,10 +88,11 @@ export type AnimationScene =
   | 'pricing'
   | 'complaint'
   | 'growth'
-  | 'result-fragile'
-  | 'result-promising'
-  | 'result-sustainable'
-  | 'result-excellent';
+  | 'result-1star'
+  | 'result-2star'
+  | 'result-3star'
+  | 'result-4star'
+  | 'result-5star';
 
 export interface DecisionConfig {
   id: string;
