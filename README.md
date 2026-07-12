@@ -29,7 +29,7 @@ Aplicação web educacional configurável para demonstrar a um criador de conte�
   - faixas e mensagens do resultado final;
   - exportação e importação de toda a configuração em JSON.
 - Build de produção incluído em `dist/`.
-- 21 testes unitários/integrados, importação/exportação, varredura automática dos 12.636 caminhos válidos e regressão visual com 21 screenshots de referência.
+- 21 testes unitários/integrados, importação/exportação, varredura automática dos 12.636 caminhos válidos e regressão visual com 26 screenshots de referência.
 
 ## Acesso do criador
 
@@ -179,14 +179,17 @@ Requisitos: Node.js 18.18 ou superior.
 
 Durante as oito decisões, telas de celular passam a usar uma interface própria de jogo, sem alterar o layout desktop:
 
-- HUD compacto com fase, decisão, classificação e três indicadores principais.
-- Painel inferior “Ver todos” para consultar os sete indicadores da operação.
+- HUD compacto com decisão, categoria da etapa, classificação e três indicadores principais.
+- Painel inferior “Ver todos” para consultar os sete indicadores da operação, com tipografia maior e organização em duas colunas.
+- Cena tratada como o foco narrativo: primeiro o contexto visual, depois a pergunta e somente então as escolhas.
+- Informações repetidas de fase e progresso foram removidas no mobile para reduzir poluição.
 - Cena, pergunta e alternativas dimensionadas para ocupar uma única tela em 390×844 e 360×800.
 - Até quatro alternativas totalmente visíveis, sem rolagem do documento principal.
-- Cards com título, descrição e preço redistribuídos para aproveitar melhor a área disponível.
-- Confirmação e feedback em painéis inferiores, com a consequência detalhada revelada somente após confirmar.
+- Cards com título, descrição e preço maiores, melhor contraste e distribuição interna mais clara.
+- Confirmação em painel inferior com apenas escolha, áreas impactadas e ações necessárias.
+- Feedback prioriza a mudança de classificação e três consequências principais; a análise completa fica recolhida em “Entender esta decisão”.
 - Textos de apoio mais objetivos no celular, mantendo os textos configuráveis completos no desktop.
-- Layout horizontal específico para celulares em 844×390.
+- Layout horizontal específico para celulares em 844×390, também sem rolagem.
 - Cabeçalho global ocultado somente durante uma rodada mobile; capa, resultado, configurações e desktop permanecem inalterados.
 
 A regressão visual inclui referências para a primeira decisão, quatro alternativas, indicadores expandidos, confirmação, feedback negativo e orientação horizontal.

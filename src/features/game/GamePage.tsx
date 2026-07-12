@@ -312,7 +312,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
   };
 
   const sectionTitle = run.currentDecisionIndex < STRATEGY_STEPS ? 'Defina seu plano' : 'Resolva o desafio';
-  const mobileSectionTitle = run.currentDecisionIndex < STRATEGY_STEPS ? 'Escolha seu conjunto' : 'Escolha sua resposta';
+  const mobileSectionTitle = 'Escolha uma opção';
   const selectedOriginalChoice = selectedChoice
     ? (decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice)
     : null;
@@ -325,8 +325,8 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
         <div className={styles.mobileHudTop}>
           <div className={styles.mobileBrandMark}>DB</div>
           <div className={styles.mobilePhaseCopy}>
-            <strong>Fase 1</strong>
-            <span>Decisão {run.currentDecisionIndex + 1} de {activeConfig.scenario.decisions.length}</span>
+            <strong>Decisão {run.currentDecisionIndex + 1}/{activeConfig.scenario.decisions.length}</strong>
+            <span>{currentDecision.module}</span>
           </div>
           <div className={styles.mobileRating}>
             <strong>{currentStars.toFixed(1).replace('.', ',')}★</strong>
@@ -487,7 +487,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
                   </span>
                 ))}
               </div>
-              <p>Esta decisão define o ritmo desta etapa da sua operação.</p>
+              <p>O resultado aparece depois da confirmação.</p>
             </div>
             <div className={styles.modalActions}>
               <button className="secondaryButton" type="button" onClick={() => setSelectedChoice(null)}>Voltar</button>
@@ -663,24 +663,27 @@ function FeedbackModal({
             </article>
           ))}
         </div>
-        <div className={styles.mobileFeedbackInsights}>
-          {positiveItems.length ? (
-            <section className={styles.mobileStrengths}>
-              <h3>Fortalezas</h3>
-              <ul>
-                {positiveItems.slice(0, 2).map((item) => <li key={item.key}>{item.description}</li>)}
-              </ul>
-            </section>
-          ) : null}
-          {attentionItems.length ? (
-            <section className={styles.mobileAlerts}>
-              <h3>Atenções</h3>
-              <ul>
-                {attentionItems.slice(0, 2).map((item) => <li key={item.key}>{item.description}</li>)}
-              </ul>
-            </section>
-          ) : null}
-        </div>
+        <details className={styles.mobileFeedbackDetails}>
+          <summary>Entender esta decisão</summary>
+          <div className={styles.mobileFeedbackInsights}>
+            {positiveItems.length ? (
+              <section className={styles.mobileStrengths}>
+                <h3>O que funcionou</h3>
+                <ul>
+                  {positiveItems.slice(0, 2).map((item) => <li key={item.key}>{item.description}</li>)}
+                </ul>
+              </section>
+            ) : null}
+            {attentionItems.length ? (
+              <section className={styles.mobileAlerts}>
+                <h3>O que exige atenção</h3>
+                <ul>
+                  {attentionItems.slice(0, 2).map((item) => <li key={item.key}>{item.description}</li>)}
+                </ul>
+              </section>
+            ) : null}
+          </div>
+        </details>
         <div className={styles.feedbackNote}>
           <strong>Leitura do método</strong>
           <span>{feedback.mentorTip}</span>
