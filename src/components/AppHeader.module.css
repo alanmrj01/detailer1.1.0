@@ -108,3 +108,10 @@
     font-size: 1rem;
   }
 }
+
+
+@media (max-width: 760px), (max-width: 1000px) and (max-height: 500px) and (orientation: landscape) {
+  .header[data-gameplay-active='true'] {
+    display: none;
+  }
+}

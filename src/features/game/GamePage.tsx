@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { ChoiceVisual } from '../../components/ChoiceVisual';
 import { MetricStrip } from '../../components/MetricStrip';
 import { SceneAnimation } from '../../components/SceneAnimation';
 import { StarRating } from '../../components/StarRating';
 import { useAppConfig } from '../../context/AppConfigContext';
-import type { DecisionChoice } from '../../types/config';
+import type { DecisionChoice, MetricKey, NumericMetrics } from '../../types/config';
 import type { GameResult, GameRun, LedgerEntry } from '../../types/game';
 import { formatCurrency } from '../../utils/format';
 import { readJson, storageKeys, writeJson } from '../../utils/storage';
@@ -36,7 +36,11 @@ const STRATEGY_STEPS = 3;
 
 type InsightCard = 'strengths' | 'alerts' | 'method' | null;
 
-export function GamePage() {
+interface GamePageProps {
+  onGameplayStateChange?: (active: boolean) => void;
+}
+
+export function GamePage({ onGameplayStateChange }: GamePageProps) {
   const { config, theme, setTheme } = useAppConfig();
   const [run, setRun] = useState<GameRun | null>(() => {
     const stored = readJson<GameRun>(storageKeys.RUN_KEY);
@@ -48,12 +52,28 @@ export function GamePage() {
   const [expandedResultCard, setExpandedResultCard] = useState<InsightCard>(null);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
   const [showPhaseTwoTeaser, setShowPhaseTwoTeaser] = useState(false);
+  const [mobileMetricsOpen, setMobileMetricsOpen] = useState(false);
   const activeConfig = run ? resolveRunConfig(run, config) : config;
+  const gameplayActive = Boolean(run && run.currentDecisionIndex < activeConfig.scenario.decisions.length);
 
   useEffect(() => {
     if (run) writeJson(storageKeys.RUN_KEY, run);
     else localStorage.removeItem(storageKeys.RUN_KEY);
   }, [run]);
+
+  useEffect(() => {
+    onGameplayStateChange?.(gameplayActive);
+    if (typeof document !== 'undefined') {
+      document.documentElement.dataset.gameplayActive = gameplayActive ? 'true' : 'false';
+    }
+
+    return () => {
+      onGameplayStateChange?.(false);
+      if (typeof document !== 'undefined') {
+        delete document.documentElement.dataset.gameplayActive;
+      }
+    };
+  }, [gameplayActive, onGameplayStateChange]);
 
   const restartRun = () => {
     setSelectedChoice(null);
@@ -62,6 +82,7 @@ export function GamePage() {
     setExpandedResultCard(null);
     setTimelineExpanded(false);
     setShowPhaseTwoTeaser(false);
+    setMobileMetricsOpen(false);
     setRun(createRun(config));
   };
 
@@ -278,6 +299,7 @@ export function GamePage() {
   const animation = resolveAnimation(run, currentDecision.animation);
   const progress = ((run.currentDecisionIndex + 1) / activeConfig.scenario.decisions.length) * 100;
   const currentPhase = `Fase 1 • ${currentDecision.module}`;
+  const currentStars = scoreToStars(calculateScoreFromMetrics(run.metrics, activeConfig));
 
   const confirmChoice = () => {
     if (!selectedChoice) return;
@@ -290,9 +312,44 @@ export function GamePage() {
   };
 
   const sectionTitle = run.currentDecisionIndex < STRATEGY_STEPS ? 'Defina seu plano' : 'Resolva o desafio';
+  const mobileSectionTitle = run.currentDecisionIndex < STRATEGY_STEPS ? 'Escolha seu conjunto' : 'Escolha sua resposta';
+  const selectedOriginalChoice = selectedChoice
+    ? (decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice)
+    : null;
+  const selectedChoiceCost = selectedOriginalChoice ? equipmentCost(selectedOriginalChoice, activeConfig) : 0;
+  const selectedImpacts = selectedChoice ? describeChoiceImpact(selectedChoice.effects) : [];
 
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} ${styles.gameplayPage}`}>
+      <section className={styles.mobileHud} aria-label="Resumo da rodada">
+        <div className={styles.mobileHudTop}>
+          <div className={styles.mobileBrandMark}>DB</div>
+          <div className={styles.mobilePhaseCopy}>
+            <strong>Fase 1</strong>
+            <span>Decisão {run.currentDecisionIndex + 1} de {activeConfig.scenario.decisions.length}</span>
+          </div>
+          <div className={styles.mobileRating}>
+            <strong>{currentStars.toFixed(1).replace('.', ',')}★</strong>
+            <span>classificação</span>
+          </div>
+        </div>
+
+        <div className={styles.mobileMetricsSummary}>
+          <article>
+            <span>Caixa</span>
+            <strong>{formatCurrency(run.metrics.cash, activeConfig.scenario.currency)}</strong>
+          </article>
+          <article>
+            <span>Reputação</span>
+            <strong>{Math.round(run.metrics.reputation)}</strong>
+          </article>
+          <article>
+            <span>Qualidade</span>
+            <strong>{Math.round(run.metrics.quality)}</strong>
+          </article>
+          <button type="button" onClick={() => setMobileMetricsOpen(true)}>Ver todos</button>
+        </div>
+      </section>
       <section className={styles.hudSection}>
         <div className={styles.phaseRail}>
           <article className={`${styles.phaseCard} ${styles.phaseActive}`}>
@@ -310,7 +367,7 @@ export function GamePage() {
         <div className={styles.minorStats}>
           <span>Clientes <strong>{Math.round(run.metrics.customers)}</strong></span>
           <span>Carga <strong>{Math.round(run.metrics.fatigue)}</strong></span>
-          <span>Classificação <strong>{scoreToStars(calculateScoreFromMetrics(run.metrics, activeConfig)).toFixed(1)}★</strong></span>
+          <span>Classificação <strong>{currentStars.toFixed(1)}★</strong></span>
         </div>
       </section>
 
@@ -327,18 +384,25 @@ export function GamePage() {
               <div><i style={{ width: `${progress}%` }} /></div>
             </div>
             <h1>{currentDecision.title}</h1>
-            <p>{currentDecision.situation}</p>
+            <p className={styles.desktopStorySituation}>{currentDecision.situation}</p>
+            <p className={styles.mobileStorySituation}>{getMobileSituation(decisionConfig.id, currentDecision.situation)}</p>
           </div>
         </article>
 
         <section className={styles.decisionPanel}>
           <div className={styles.panelHeader}>
             <span className={styles.commandTag}>Escolha agora</span>
-            <h2>{sectionTitle}</h2>
+            <h2>
+              <span className={styles.desktopSectionTitle}>{sectionTitle}</span>
+              <span className={styles.mobileSectionTitle}>{mobileSectionTitle}</span>
+            </h2>
             <p>Observe a cena, compare as opções e escolha a ação com mais coerência para o seu negócio.</p>
           </div>
 
-          <div className={styles.choiceGrid}>
+          <div
+            className={styles.choiceGrid}
+            style={{ '--mobile-choice-count': currentDecision.choices.length } as CSSProperties}
+          >
             {currentDecision.choices.map((choice) => {
               const originalChoice = decisionConfig.choices.find((item) => item.id === choice.id) ?? choice;
               const availability = choiceAvailability(originalChoice, run, activeConfig, decisionConfig.id);
@@ -368,6 +432,7 @@ export function GamePage() {
                     </div>
                     {!availability.available ? <small className={styles.choiceHint}>{availability.reason}</small> : null}
                   </div>
+                  <span className={styles.choiceChevron} aria-hidden="true">›</span>
                 </button>
               );
             })}
@@ -375,17 +440,54 @@ export function GamePage() {
         </section>
       </section>
 
+      {mobileMetricsOpen ? (
+        <MobileMetricsDrawer
+          metrics={run.metrics}
+          currency={activeConfig.scenario.currency}
+          onClose={() => setMobileMetricsOpen(false)}
+        />
+      ) : null}
+
       {selectedChoice && (
         <div className={styles.modalBackdrop} role="presentation" onMouseDown={() => setSelectedChoice(null)}>
           <section className={styles.modal} role="dialog" aria-modal="true" onMouseDown={(event) => event.stopPropagation()}>
+            <span className={styles.mobileSheetHandle} aria-hidden="true" />
             <span className={styles.kicker}>Confirmar decisão</span>
-            <h2>{selectedChoice.label}</h2>
-            <p>{selectedChoice.description}</p>
+            <h2 className={styles.desktopConfirmationTitle}>{selectedChoice.label}</h2>
+            <h2 className={styles.mobileConfirmationTitle}>Confirmar escolha?</h2>
+            <p className={styles.desktopConfirmationDescription}>{selectedChoice.description}</p>
+            <p className={styles.mobileConfirmationDescription}>Revise sua escolha e os impactos previstos antes de continuar.</p>
+
+            <div className={styles.mobileSelectedChoice}>
+              <ChoiceVisual decisionId={decisionConfig.id} choiceId={selectedChoice.id} />
+              <div>
+                <strong>{selectedChoice.label}</strong>
+                <span>{selectedChoice.description}</span>
+              </div>
+              {selectedChoiceCost > 0 ? (
+                <b>{formatCurrency(selectedChoiceCost, activeConfig.scenario.currency)}</b>
+              ) : null}
+            </div>
+
             <small className={styles.decisionPrivacy}>A consequência completa será revelada depois da confirmação.</small>
             <div className={styles.modalEconomy}>
               <span>Caixa atual <strong>{formatCurrency(run.metrics.cash, activeConfig.scenario.currency)}</strong></span>
               <span>Impacto <strong>{formatCurrency(choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, activeConfig, decisionConfig.id).effectiveCashDelta, activeConfig.scenario.currency)}</strong></span>
               <span>Caixa previsto <strong>{formatCurrency(run.metrics.cash + choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, activeConfig, decisionConfig.id).effectiveCashDelta, activeConfig.scenario.currency)}</strong></span>
+            </div>
+
+            <div className={styles.mobileImpactPreview}>
+              <strong>Impactos previstos</strong>
+              <div>
+                {selectedImpacts.slice(0, 3).map((item) => (
+                  <span key={item.key}>
+                    <i aria-hidden="true">{getMobileMetricIcon(item.key)}</i>
+                    <small>{item.label}</small>
+                    <b>Área impactada</b>
+                  </span>
+                ))}
+              </div>
+              <p>Esta decisão define o ritmo desta etapa da sua operação.</p>
             </div>
             <div className={styles.modalActions}>
               <button className="secondaryButton" type="button" onClick={() => setSelectedChoice(null)}>Voltar</button>
@@ -415,6 +517,100 @@ function getResultScene(stars: number): "result-1star" | "result-2star" | "resul
   return "result-5star";
 }
 
+function MobileMetricsDrawer({
+  metrics,
+  currency,
+  onClose,
+}: {
+  metrics: NumericMetrics;
+  currency: string;
+  onClose: () => void;
+}) {
+  const items: Array<{ key: keyof NumericMetrics; label: string; value: string; icon: string }> = [
+    { key: 'cash', label: 'Caixa', value: formatCurrency(metrics.cash, currency), icon: '▣' },
+    { key: 'reputation', label: 'Reputação', value: Math.round(metrics.reputation).toString(), icon: '★' },
+    { key: 'quality', label: 'Qualidade', value: Math.round(metrics.quality).toString(), icon: '✓' },
+    { key: 'capacity', label: 'Capacidade', value: Math.round(metrics.capacity).toString(), icon: '▱' },
+    { key: 'risk', label: 'Risco', value: Math.round(metrics.risk).toString(), icon: '!' },
+    { key: 'customers', label: 'Clientes', value: Math.round(metrics.customers).toString(), icon: '◉' },
+    { key: 'fatigue', label: 'Carga', value: metrics.fatigue.toFixed(2).replace('.', ','), icon: '◔' },
+  ];
+
+  return (
+    <div className={`${styles.modalBackdrop} ${styles.mobileDrawerBackdrop}`} role="presentation" onMouseDown={onClose}>
+      <section className={styles.mobileMetricsDrawer} role="dialog" aria-modal="true" aria-labelledby="mobile-metrics-title" onMouseDown={(event) => event.stopPropagation()}>
+        <span className={styles.mobileSheetHandle} aria-hidden="true" />
+        <div className={styles.mobileDrawerHeader}>
+          <h2 id="mobile-metrics-title">Indicadores da operação</h2>
+          <button type="button" onClick={onClose} aria-label="Fechar indicadores">×</button>
+        </div>
+        <div className={styles.mobileMetricsGrid}>
+          {items.map((item) => (
+            <article key={item.key} className={item.key === 'fatigue' ? styles.mobileMetricWide : undefined}>
+              <i aria-hidden="true">{item.icon}</i>
+              <span>{item.label}</span>
+              <strong>{item.value}</strong>
+            </article>
+          ))}
+        </div>
+        <p className={styles.mobileDrawerHint}>Feche o painel para continuar a decisão.</p>
+      </section>
+    </div>
+  );
+}
+
+function getMobileMetricIcon(key: MetricKey | string): string {
+  const icons: Record<string, string> = {
+    cash: '▣',
+    reputation: '★',
+    quality: '✓',
+    capacity: '▱',
+    risk: '!',
+    customers: '◉',
+    fatigue: '◔',
+  };
+
+  return icons[key] ?? '•';
+}
+
+function getMobileSituation(decisionId: string, currentSituation: string): string {
+  const defaults: Record<string, { marker: string; copy: string }> = {
+    'operation-model': { marker: 'Você tem pouco capital', copy: 'Escolha uma estrutura compatível com seu caixa e sua capacidade de atrair os primeiros clientes.' },
+    'equipment-plan': { marker: 'Os valores são calculados automaticamente', copy: 'Escolha um conjunto compatível com o serviço de entrada e preserve capital de giro.' },
+    'service-focus': { marker: 'Seu catálogo precisa caber', copy: 'Escolha um serviço que sua estrutura e seus equipamentos consigam entregar bem.' },
+    'first-quote': { marker: 'Um cliente com', copy: 'Defina um preço que comunique valor sem comprometer margem e capacidade de entrega.' },
+    'slow-week': { marker: 'Dois dias se passaram', copy: 'Reaja à agenda vazia sem destruir margem ou posicionamento.' },
+    'execution-pressure': { marker: 'O carro atual exigiu', copy: 'Decida como proteger a entrega quando prazo e qualidade entram em conflito.' },
+    'customer-complaint': { marker: 'O cliente do', copy: 'Resolva a falha sem perder responsabilidade, reputação e controle do custo.' },
+    'growth-choice': { marker: 'A operação já possui histórico', copy: 'Use o caixa restante para crescer sem fragilizar a operação.' },
+  };
+  const preferred = defaults[decisionId];
+  if (preferred && currentSituation.includes(preferred.marker)) return preferred.copy;
+  const firstSentence = currentSituation.split(/(?<=[.!?])\s+/)[0]?.trim();
+  return firstSentence || currentSituation;
+}
+
+function buildMobileFeedbackSummary(
+  items: ReturnType<typeof describeFeedback>,
+  lostClassification: boolean,
+  gainedClassification: boolean,
+): string {
+  const relevant = items.filter((item) => (lostClassification ? !item.positive : item.positive)).slice(0, 2);
+  const labels = relevant.map((item) => getMetricLabel(item.key).toLowerCase());
+
+  if (lostClassification) {
+    if (labels.length >= 2) return `A escolha pressionou ${labels[0]} e ${labels[1]}, reduzindo a projeção da operação.`;
+    if (labels.length === 1) return `A escolha pressionou ${labels[0]} e reduziu a projeção da operação.`;
+    return 'A escolha gerou mais perdas do que ganhos nesta etapa.';
+  }
+  if (gainedClassification) {
+    if (labels.length >= 2) return `A escolha fortaleceu ${labels[0]} e ${labels[1]}, elevando a projeção da operação.`;
+    if (labels.length === 1) return `A escolha fortaleceu ${labels[0]} e elevou a projeção da operação.`;
+    return 'A escolha fortaleceu o equilíbrio da operação nesta etapa.';
+  }
+  return 'Os ganhos e os trade-offs se equilibraram, mantendo a classificação atual.';
+}
+
 function FeedbackModal({
   feedback,
   config,
@@ -430,13 +626,26 @@ function FeedbackModal({
   const lostClassification = stageStarChange < 0;
   const gainedClassification = stageStarChange > 0;
   const projectedStars = scoreToStars(calculateScoreFromMetrics(feedback.entry.after, config));
+  const feedbackItems = describeFeedback(feedback.entry.delta);
+  const positiveItems = feedbackItems.filter((item) => item.positive);
+  const attentionItems = feedbackItems.filter((item) => !item.positive);
+  const mobileStatusTitle = lostClassification
+    ? 'Classificação em queda'
+    : gainedClassification
+      ? 'Classificação em alta'
+      : 'Classificação mantida';
 
   return (
     <div className={styles.modalBackdrop} role="presentation">
       <section className={`${styles.modal} ${styles.feedbackModal}`} role="dialog" aria-modal="true">
+        <span className={styles.mobileSheetHandle} aria-hidden="true" />
         <span className={styles.kicker}>Consequência da escolha</span>
-        <h2>{feedback.entry.title}</h2>
-        <p>{summarizeConsequence(feedback.entry.consequence)}</p>
+        <h2 className={styles.desktopFeedbackTitle}>{feedback.entry.title}</h2>
+        <h2 className={styles.mobileFeedbackTitle}>{mobileStatusTitle}</h2>
+        <p className={`${styles.feedbackConsequence} ${styles.desktopFeedbackConsequence}`}>{summarizeConsequence(feedback.entry.consequence)}</p>
+        <p className={`${styles.feedbackConsequence} ${styles.mobileFeedbackConsequence}`}>
+          {buildMobileFeedbackSummary(feedbackItems, lostClassification, gainedClassification)}
+        </p>
         <div className={`${styles.rewardPanel} ${lostClassification ? styles.rewardLoss : gainedClassification ? styles.rewardGain : styles.rewardNeutral}`}>
           <div className={styles.rewardCopy}>
             <small>{lostClassification ? 'Perda de classificação' : gainedClassification ? 'Ganho de classificação' : 'Classificação mantida'}</small>
@@ -446,13 +655,31 @@ function FeedbackModal({
           <StarRating value={projectedStars} size="md" animated showValue={false} />
         </div>
         <div className={styles.feedbackGrid}>
-          {describeFeedback(feedback.entry.delta).map((item) => (
+          {feedbackItems.map((item) => (
             <article key={item.key} className={`${styles.feedbackStat} ${item.positive ? styles.goodFeedback : styles.badFeedback}`}>
               <small>{item.positive ? '↑' : '↓'} {getMetricLabel(item.key)}</small>
               <strong>{item.title}</strong>
               <span>{item.description}</span>
             </article>
           ))}
+        </div>
+        <div className={styles.mobileFeedbackInsights}>
+          {positiveItems.length ? (
+            <section className={styles.mobileStrengths}>
+              <h3>Fortalezas</h3>
+              <ul>
+                {positiveItems.slice(0, 2).map((item) => <li key={item.key}>{item.description}</li>)}
+              </ul>
+            </section>
+          ) : null}
+          {attentionItems.length ? (
+            <section className={styles.mobileAlerts}>
+              <h3>Atenções</h3>
+              <ul>
+                {attentionItems.slice(0, 2).map((item) => <li key={item.key}>{item.description}</li>)}
+              </ul>
+            </section>
+          ) : null}
         </div>
         <div className={styles.feedbackNote}>
           <strong>Leitura do método</strong>

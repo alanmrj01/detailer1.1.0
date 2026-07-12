@@ -134,3 +134,47 @@ test('proteção visual do feedback com perda de classificação', async ({ page
   await expectPageScreenshot(page, '21-feedback-perda-classificacao.png');
 });
 
+
+test('jogo mobile — quatro escolhas inteiras sem rolagem da página', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openWithState(page, runAt(1));
+  await expect(page.locator('[data-choice-visual]')).toHaveCount(4);
+  await expect(page.getByRole('button', { name: /Comprar o conjunto completo/ })).toBeVisible();
+  const hasDocumentScroll = await page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight + 2);
+  expect(hasDocumentScroll).toBe(false);
+  await expectPageScreenshot(page, '22-mobile-quatro-escolhas-sem-rolagem.png');
+});
+
+test('jogo mobile — painel completo de indicadores', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openWithState(page, runAt(1));
+  await page.getByRole('button', { name: 'Ver todos' }).click();
+  await expect(page.getByRole('dialog', { name: 'Indicadores da operação' })).toBeVisible();
+  await expectPageScreenshot(page, '23-mobile-indicadores-expandidos.png');
+});
+
+test('jogo mobile — confirmação objetiva da escolha', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openWithState(page, runAt(1));
+  await page.getByRole('button', { name: /Essencial de lavagem e aspiração/ }).click();
+  await expect(page.getByRole('heading', { name: 'Confirmar escolha?' })).toBeVisible();
+  await expectPageScreenshot(page, '24-mobile-confirmacao-objetiva.png');
+});
+
+test('jogo mobile — feedback objetivo com perda', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openWithState(page, runAt(6));
+  await page.getByRole('button', { name: /Contestar a reclamação/ }).click();
+  await page.getByRole('button', { name: 'Confirmar escolha' }).click();
+  await expect(page.getByRole('heading', { name: 'Classificação em queda' })).toBeVisible();
+  await expectPageScreenshot(page, '25-mobile-feedback-perda.png');
+});
+
+test('jogo mobile horizontal — decisão completa em uma tela', async ({ page }) => {
+  await page.setViewportSize({ width: 844, height: 390 });
+  await openWithState(page, runAt(1));
+  await expect(page.locator('[data-choice-visual]')).toHaveCount(4);
+  const hasDocumentScroll = await page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight + 2);
+  expect(hasDocumentScroll).toBe(false);
+  await expectPageScreenshot(page, '26-mobile-horizontal.png');
+});

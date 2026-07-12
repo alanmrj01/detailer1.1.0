@@ -174,3 +174,13 @@ a {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+@media (max-width: 760px), (max-width: 1000px) and (max-height: 500px) and (orientation: landscape) {
+  html[data-gameplay-active='true'],
+  html[data-gameplay-active='true'] body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+}

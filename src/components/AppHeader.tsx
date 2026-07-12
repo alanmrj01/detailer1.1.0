@@ -5,6 +5,7 @@ interface AppHeaderProps {
   appName: string;
   logoDataUrl: string;
   activeView: 'game' | 'settings';
+  gameplayActive: boolean;
   onNavigate: (view: 'game' | 'settings') => void;
   theme: ThemeMode;
   onToggleTheme: () => void;
@@ -14,12 +15,13 @@ export function AppHeader({
   appName,
   logoDataUrl,
   activeView,
+  gameplayActive,
   onNavigate,
   theme,
   onToggleTheme,
 }: AppHeaderProps) {
   return (
-    <header className={styles.header}>
+    <header className={styles.header} data-gameplay-active={gameplayActive ? 'true' : 'false'}>
       <button className={styles.brand} type="button" onClick={() => onNavigate('game')}>
         {logoDataUrl ? (
           <img className={styles.logo} src={logoDataUrl} alt={`Logo ${appName}`} />

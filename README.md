@@ -174,3 +174,19 @@ O ZIP desta versão foi preparado com o `package.json` diretamente na raiz, depe
 4. Confirme que `package.json` aparece na raiz do explorador antes de executar os comandos.
 
 Requisitos: Node.js 18.18 ou superior.
+
+## Modo de jogo para celular
+
+Durante as oito decisões, telas de celular passam a usar uma interface própria de jogo, sem alterar o layout desktop:
+
+- HUD compacto com fase, decisão, classificação e três indicadores principais.
+- Painel inferior “Ver todos” para consultar os sete indicadores da operação.
+- Cena, pergunta e alternativas dimensionadas para ocupar uma única tela em 390×844 e 360×800.
+- Até quatro alternativas totalmente visíveis, sem rolagem do documento principal.
+- Cards com título, descrição e preço redistribuídos para aproveitar melhor a área disponível.
+- Confirmação e feedback em painéis inferiores, com a consequência detalhada revelada somente após confirmar.
+- Textos de apoio mais objetivos no celular, mantendo os textos configuráveis completos no desktop.
+- Layout horizontal específico para celulares em 844×390.
+- Cabeçalho global ocultado somente durante uma rodada mobile; capa, resultado, configurações e desktop permanecem inalterados.
+
+A regressão visual inclui referências para a primeira decisão, quatro alternativas, indicadores expandidos, confirmação, feedback negativo e orientação horizontal.

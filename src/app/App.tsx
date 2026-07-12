@@ -10,6 +10,7 @@ import styles from './App.module.css';
 export function App() {
   const { config, theme, setTheme } = useAppConfig();
   const [view, setView] = useState<'game' | 'settings'>('game');
+  const [gameplayActive, setGameplayActive] = useState(false);
 
   useEffect(() => {
     preloadVisualAssets();
@@ -26,12 +27,19 @@ export function App() {
         appName={config.brand.appName}
         logoDataUrl={config.brand.logoDataUrl}
         activeView={view}
+        gameplayActive={view === 'game' && gameplayActive}
         onNavigate={setView}
         theme={theme}
         onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       />
       <div key={view} className={styles.viewTransition}>
-        {view === 'game' ? <GameErrorBoundary><GamePage /></GameErrorBoundary> : <SettingsPage />}
+        {view === 'game' ? (
+          <GameErrorBoundary>
+            <GamePage onGameplayStateChange={setGameplayActive} />
+          </GameErrorBoundary>
+        ) : (
+          <SettingsPage />
+        )}
       </div>
     </div>
   );

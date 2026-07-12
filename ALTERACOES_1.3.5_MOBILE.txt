@@ -1,0 +1,58 @@
+DETAILER BUSINESS — CONSOLIDAÇÃO MOBILE EM FORMATO DE JOGO
+
+Base utilizada
+- Projeto completo Detailer Business 1.3.4.
+- Motor, conteúdo, pontuação, configurações, assets e experiência desktop preservados.
+
+Alterações realizadas
+1. Interface mobile em tela única durante as decisões
+- O documento principal passa a ocupar 100dvh e não possui rolagem durante o desafio.
+- Cabeçalho geral é ocultado apenas enquanto uma rodada está ativa em celular.
+- Capa, resultado, prévia da fase 2 e configurações mantêm o comportamento anterior.
+
+2. HUD compacto
+- Fase, decisão atual e classificação na primeira linha.
+- Caixa, reputação e qualidade sempre visíveis.
+- Botão “Ver todos” abre os sete indicadores em painel inferior.
+
+3. Storytelling objetivo
+- Cena, progresso, pergunta e tensão da decisão permanecem no mesmo campo visual.
+- Textos padrão recebem uma síntese mobile curta; configurações personalizadas continuam usando seu próprio conteúdo.
+- A experiência desktop continua exibindo o texto completo anterior.
+
+4. Alternativas
+- Até quatro escolhas completas cabem na tela sem rolagem.
+- Imagem à esquerda, título no topo, descrição no centro e preço na parte inferior direita.
+- Espaços vazios dos cards foram eliminados sem inventar novas informações.
+- Áreas afetadas continuam disponíveis na confirmação, não poluindo a leitura inicial.
+
+5. Confirmação
+- Painel inferior com escolha selecionada, miniatura, descrição, preço e áreas impactadas.
+- Consequência final continua protegida até a confirmação.
+
+6. Feedback
+- Estado claro de classificação em alta, queda ou manutenção.
+- Variação de estrelas, indicadores principais, fortalezas e atenções coerentes com a consequência.
+- Conteúdo objetivo e instrucional, sem caráter punitivo.
+
+7. Orientação horizontal
+- Cena e narrativa à esquerda.
+- Alternativas à direita.
+- Toda a decisão permanece em uma única tela em 844×390.
+
+8. Proteção visual
+- Novas referências:
+  19-celular-primeira-decisao.png
+  22-mobile-quatro-escolhas-sem-rolagem.png
+  23-mobile-indicadores-expandidos.png
+  24-mobile-confirmacao-objetiva.png
+  25-mobile-feedback-perda.png
+  26-mobile-horizontal.png
+- Testes verificam também que a página não cria rolagem vertical nas decisões mobile.
+
+Validações realizadas
+- npm ci com registro público: aprovado.
+- TypeScript + Vite build: aprovado.
+- 21 testes unitários/integrados: aprovados.
+- 12.636 caminhos válidos do jogo: analisados pelos testes existentes.
+- Verificação real do bundle em 390×844, 360×800 e 844×390: sem rolagem do documento.

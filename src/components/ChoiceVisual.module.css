@@ -58,3 +58,25 @@ button:hover .visual {
     width: 100%;
   }
 }
+
+@media (max-width: 760px), (max-width: 1000px) and (max-height: 500px) and (orientation: landscape) {
+  .visual {
+    width: 54px;
+    height: 100%;
+    min-height: 52px;
+    aspect-ratio: auto;
+    border-radius: 10px;
+  }
+
+  .focusRing {
+    inset: 3px;
+    border-radius: 7px;
+  }
+}
+
+@media (max-width: 1000px) and (orientation: landscape) and (max-height: 500px) {
+  .visual {
+    width: 70px;
+    min-height: 48px;
+  }
+}
