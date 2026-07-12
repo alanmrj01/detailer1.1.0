@@ -6,7 +6,7 @@ import type {
   NumericMetrics,
 } from '../../types/config';
 import type { GameResult, GameRun } from '../../types/game';
-import { clamp } from '../../utils/format';
+import { clamp, formatCurrency } from '../../utils/format';
 
 const boundedMetrics: MetricKey[] = ['reputation', 'quality', 'risk', 'fatigue'];
 const balanceCache = new WeakMap<AppConfig, GameBalanceAnalysis>();
@@ -55,8 +55,18 @@ export function createRun(config: AppConfig): GameRun {
     flags: [],
     choices: {},
     ledger: [],
-    phase2Unlocked: false,
+    scenarioSnapshot: structuredClone(config.scenario),
   };
+}
+
+export function ensureRunScenarioSnapshot(run: GameRun, config: AppConfig): GameRun {
+  if (run.scenarioSnapshot) return run;
+  return { ...run, scenarioSnapshot: structuredClone(config.scenario) };
+}
+
+export function resolveRunConfig(run: GameRun, currentConfig: AppConfig): AppConfig {
+  if (!run.scenarioSnapshot) return currentConfig;
+  return { ...currentConfig, scenario: run.scenarioSnapshot };
 }
 
 export function equipmentCost(choice: DecisionChoice, config: AppConfig): number {
@@ -111,7 +121,7 @@ export function choiceAvailability(
   if (run.metrics.cash + effectiveCashDelta < minimumCash) {
     return {
       available: false,
-      reason: `A escolha deixaria o caixa abaixo da reserva mínima de R$ ${minimumCash.toFixed(2)}.`,
+      reason: `A escolha deixaria o caixa abaixo da reserva mínima de ${formatCurrency(minimumCash, config.scenario.currency)}.`,
       effectiveCashDelta,
     };
   }
@@ -198,14 +208,14 @@ export function scoreToStars(score: number): number {
   return Math.round(clamp((score / 100) * 5, 0, 5) * 10) / 10;
 }
 
-export function calculateStepStarGain(
+export function calculateStepStarChange(
   before: NumericMetrics,
   after: NumericMetrics,
   config: AppConfig,
 ): number {
   const beforeStars = scoreToStars(calculateScoreFromMetrics(before, config));
   const afterStars = scoreToStars(calculateScoreFromMetrics(after, config));
-  return Math.max(0, Math.round((afterStars - beforeStars) * 10) / 10);
+  return Math.round((afterStars - beforeStars) * 10) / 10;
 }
 
 export function calculateResult(run: GameRun, config: AppConfig): GameResult {
@@ -215,30 +225,52 @@ export function calculateResult(run: GameRun, config: AppConfig): GameResult {
   const breakdown = calculateScoreBreakdown(run.metrics, config);
   const diagnostics = buildDiagnostics(breakdown);
 
-  const strengths = diagnostics
+  const strengthDiagnostics = diagnostics
     .filter((item) => item.score >= 70)
     .sort((a, b) => b.score - a.score)
-    .slice(0, 3)
-    .map((item) => item.strength);
+    .slice(0, 3);
 
   const attentionThreshold = band.id === 'excellent' ? 75 : band.id === 'sustainable' ? 65 : 60;
-  let attentions = diagnostics
+  const attentionDiagnostics = diagnostics
     .filter((item) => item.score < attentionThreshold)
     .sort((a, b) => a.score - b.score)
-    .slice(0, band.id === 'excellent' ? 2 : 3)
-    .map((item) => band.id === 'excellent' ? item.refinement : item.warning);
+    .slice(0, band.id === 'excellent' ? 2 : 3);
 
-  if (!attentions.length) {
+  const strengths = strengthDiagnostics.map((item) => item.strength);
+  const strengthMetricKeys = strengthDiagnostics.map((item) => item.key);
+  let attentions = attentionDiagnostics.map((item) => band.id === 'excellent' ? item.refinement : item.warning);
+  let alertMetricKeys = attentionDiagnostics.map((item) => item.key);
+
+  if (stars >= 5) {
+    attentions = [
+      'Você atingiu 5 estrelas: mantenha os padrões que criaram este equilíbrio e acompanhe-os para repetir o resultado.',
+    ];
+    alertMetricKeys = [];
+  } else if (!attentions.length) {
     const nextRefinement = [...diagnostics].sort((a, b) => a.score - b.score)[0];
-    if (nextRefinement) attentions = [nextRefinement.refinement];
+    if (nextRefinement) {
+      attentions = [nextRefinement.refinement];
+      alertMetricKeys = [nextRefinement.key];
+    }
   }
 
   if (!strengths.length) {
     const strongest = [...diagnostics].sort((a, b) => b.score - a.score)[0];
-    if (strongest) strengths.push(strongest.strength);
+    if (strongest) {
+      strengths.push(strongest.strength);
+      strengthMetricKeys.push(strongest.key);
+    }
   }
 
-  return { score, stars, bandId: band.id, strengths, alerts: attentions };
+  return {
+    score,
+    stars,
+    bandId: band.id,
+    strengths,
+    alerts: attentions,
+    strengthMetricKeys,
+    alertMetricKeys,
+  };
 }
 
 export function enumerateValidGamePaths(config: AppConfig): EnumeratedGamePath[] {
@@ -316,6 +348,7 @@ export function getDecisionVehicle(
 }
 
 interface DiagnosticItem {
+  key: Exclude<MetricKey, 'customers'>;
   score: number;
   strength: string;
   warning: string;
@@ -325,36 +358,42 @@ interface DiagnosticItem {
 function buildDiagnostics(breakdown: ScoreBreakdown): DiagnosticItem[] {
   return [
     {
+      key: 'cash',
       score: breakdown.cash,
       strength: 'O caixa preservado oferece margem para absorver ajustes e manter a operação estável.',
       warning: 'O caixa ficou pressionado; reveja decisões que consumiram reserva antes de validar a demanda.',
       refinement: 'Para se aproximar de 5 estrelas, preserve ainda mais folga de caixa para os próximos ciclos.',
     },
     {
+      key: 'reputation',
       score: breakdown.reputation,
       strength: 'A reputação avançou de forma consistente, reforçando confiança e percepção de profissionalismo.',
       warning: 'A confiança do cliente ainda precisa de mais consistência entre promessa, prazo e entrega.',
       refinement: 'Para se aproximar de 5 estrelas, transforme a boa percepção em rotina de indicação e recorrência.',
     },
     {
+      key: 'quality',
       score: breakdown.quality,
       strength: 'O padrão de qualidade sustentou a percepção de valor e reduziu a chance de retrabalho.',
       warning: 'A qualidade oscilou em escolhas importantes; priorize padrão antes de acelerar o volume.',
       refinement: 'Para se aproximar de 5 estrelas, documente o padrão de execução e torne-o repetível.',
     },
     {
+      key: 'capacity',
       score: breakdown.capacity,
       strength: 'A capacidade operacional ficou compatível com a demanda construída ao longo da fase.',
       warning: 'A capacidade não acompanhou o ritmo das decisões comerciais e pode gerar atrasos.',
       refinement: 'Para se aproximar de 5 estrelas, aumente capacidade somente onde a demanda já estiver comprovada.',
     },
     {
+      key: 'risk',
       score: breakdown.risk,
       strength: 'Os riscos operacionais ficaram bem controlados, preservando caixa, prazo e confiança.',
       warning: 'O risco terminou elevado; observe onde pressa, desconto ou improviso criaram custo oculto.',
       refinement: 'Para se aproximar de 5 estrelas, mantenha o risco baixo mesmo ao buscar mais crescimento.',
     },
     {
+      key: 'fatigue',
       score: breakdown.fatigue,
       strength: 'A carga de trabalho permaneceu sustentável e menos dependente de esforço excessivo.',
       warning: 'A rotina ficou pesada demais; busque processo, agenda e capacidade mais equilibrados.',

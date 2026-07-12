@@ -71,6 +71,13 @@
   border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
+.introTagline {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
 .kicker {
   color: var(--accent);
   font-size: 0.76rem;
@@ -427,6 +434,24 @@
 .rewardCopy span {
   color: var(--muted);
   font-size: 0.82rem;
+}
+
+.rewardGain {
+  border-color: color-mix(in srgb, #22c55e 34%, transparent);
+  background: color-mix(in srgb, #22c55e 9%, var(--surface-2));
+}
+
+.rewardLoss {
+  border-color: color-mix(in srgb, #ef4444 34%, transparent);
+  background: color-mix(in srgb, #ef4444 9%, var(--surface-2));
+}
+
+.rewardLoss .rewardCopy strong {
+  color: #fca5a5;
+}
+
+.rewardNeutral {
+  border-color: var(--border);
 }
 
 .feedbackGrid {

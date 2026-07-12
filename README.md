@@ -7,28 +7,29 @@ Aplicação web educacional configurável para demonstrar a um criador de conte�
 - React + Vite + TypeScript + CSS Modules.
 - Tema claro e escuro.
 - Interface responsiva para celular e desktop.
-- Oito decisões encadeadas nos primeiros 90 dias de uma estética automotiva.
+- Oito decisões encadeadas em uma simulação com duração configurável — 90 dias na configuração padrão.
 - Motor determinístico com:
   - impactos em caixa, reputação, qualidade, capacidade, risco, clientes e fadiga;
   - requisitos de equipamento;
   - bloqueio de compras que violam a reserva mínima;
   - limites de indicadores entre 0 e 100;
   - rastro/auditoria de todas as decisões;
+  - snapshot imutável do cenário usado em cada partida;
   - cálculo final por pesos configuráveis e régua absoluta de desempenho;
   - todas as faixas de resultado alcançáveis;
   - caminho recomendado calibrado para aproximadamente 4,5 estrelas.
 - Ilustrações 3D em WebP com animações e efeitos leves para garagem, lavagem, polimento, interior, reclamação e crescimento.
 - Painel protegido do criador para editar:
-  - nome, método, textos, cor e logo;
+  - nome, método, tagline, textos, cor e logo;
   - PIN local;
-  - capital e indicadores iniciais;
+  - duração, moeda, capital e indicadores iniciais;
   - preços e fontes de mercado;
   - veículos vinculados às situações, com fatores de tamanho, sujeira e segmento aplicados pelo motor;
   - todas as situações, escolhas, consequências e impactos;
   - faixas e mensagens do resultado final;
   - exportação e importação de toda a configuração em JSON.
 - Build de produção incluído em `dist/`.
-- Testes unitários, importação/exportação, varredura automática dos 12.636 caminhos válidos e regressão visual por screenshots.
+- 21 testes unitários/integrados, importação/exportação, varredura automática dos 12.636 caminhos válidos e regressão visual com 21 screenshots de referência.
 
 ## Acesso do criador
 
@@ -54,7 +55,7 @@ npm run build
 
 ### Testes visuais
 
-Os screenshots de referência ficam em `visual-tests/__screenshots__/` e cobrem capa, oito etapas, cinco resultados, fase 2 e painel de validação.
+Os screenshots de referência ficam em `visual-tests/__screenshots__/` e cobrem capa, oito etapas, cinco resultados, prévia da fase 2, painel de validação, celular, modal de confirmação e feedback com perda de classificação.
 
 Na primeira execução local:
 
@@ -84,12 +85,14 @@ A versão atual usa uma régua absoluta: cada indicador é comparado com patamar
 - a régua permanece fixa entre 0 e 100 pontos;
 - os caminhos atuais ocupam de 38 a 92 pontos;
 - todas as quatro faixas de resultado são alcançáveis;
+- a dificuldade padrão é moderada: 8,4% dos caminhos são frágeis, 49,2% instáveis, 40,2% sustentáveis e 2,2% formam uma base sólida;
 - o caminho recomendado termina em 90 pontos e 4,5 estrelas;
-- as atenções de resultados altos são apresentadas como refinamentos para buscar 5 estrelas;
+- Fortalezas e Atenções usam os mesmos indicadores do diagnóstico principal;
+- resultados exatamente com 5 estrelas recebem orientação de manutenção do padrão;
 - pesos, benchmarks e faixas podem ser revisados em **Configurações → Resultados**;
 - alterações no painel podem ser verificadas em **Configurações → Dados e validação**.
 
-A mesma área permite exportar e importar a configuração em JSON e restaurar a configuração original.
+A mesma área permite exportar e importar a configuração em JSON, restaurar a configuração original e verificar se a distribuição voltou a ficar permissiva demais. Cada partida preserva o cenário com que começou; mudanças feitas no painel passam a valer somente em novas rodadas.
 
 ## Uso em iframe
 
@@ -144,7 +147,7 @@ src/
 
 ## Limites intencionais do MVP
 
-- Dados salvos apenas no `localStorage` do navegador.
+- Dados salvos apenas no `localStorage` do navegador; cada rodada guarda seu próprio snapshot de cenário.
 - Não possui login de alunos, checkout, certificados ou painel remoto.
 - O PIN não é segurança real.
 - Valores de serviços são hipóteses educacionais configuráveis; não são apresentados como média nacional.
@@ -157,7 +160,7 @@ src/
 - Configuração por parceiro no banco.
 - Webhook Hotmart/Kiwify para liberar e revogar acesso.
 - Histórico de alunos e analytics de conclusão.
-- Editor de novos cenários e publicação versionada.
+- Editor de novos cenários e publicação versionada entre parceiros e alunos.
 - Domínios e identidade por criador.
 
 

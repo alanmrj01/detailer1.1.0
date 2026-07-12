@@ -46,8 +46,59 @@ export function migrateConfig(config: AppConfig): AppConfig {
   }
 
   migrated.scenario.scoreBenchmarks ??= structuredClone(DEFAULT_SCORE_BENCHMARKS);
-  migrated.version = 4;
+
+  if (migrated.version < 5) {
+    migrateScenarioTokens(migrated);
+    migrateDefaultDifficultyBands(migrated);
+  }
+
+  migrated.version = 5;
   return migrated;
+}
+
+function migrateScenarioTokens(config: AppConfig): void {
+  const migrateText = (text: string) => {
+    const withDuration = text.replace(/\b90 dias\b/gi, '{{durationDays}} dias');
+    return withDuration.replace(/R\$\s*([\d.]+(?:,\d{1,2})?)/g, (_, rawValue: string) => {
+      const value = Number(rawValue.replace(/\./g, '').replace(',', '.'));
+      if (!Number.isFinite(value)) return `R$ ${rawValue}`;
+      if (Math.abs(value - config.scenario.initialMetrics.cash) < 0.001) {
+        return '{{initialCashFormatted}}';
+      }
+      return `{{money:${value}}}`;
+    });
+  };
+
+  config.brand.tagline = migrateText(config.brand.tagline);
+  config.brand.introTitle = migrateText(config.brand.introTitle);
+  config.brand.introDescription = migrateText(config.brand.introDescription);
+  config.brand.supportText = migrateText(config.brand.supportText);
+
+  config.scenario.decisions.forEach((decision) => {
+    decision.title = migrateText(decision.title);
+    decision.situation = migrateText(decision.situation);
+    decision.mentorTip = migrateText(decision.mentorTip);
+    decision.choices.forEach((choice) => {
+      choice.label = migrateText(choice.label);
+      choice.description = migrateText(choice.description);
+      choice.consequence = migrateText(choice.consequence);
+    });
+  });
+}
+
+function migrateDefaultDifficultyBands(config: AppConfig): void {
+  const oldRanges = [[0, 44], [45, 64], [65, 79], [80, 100]];
+  const isOriginalDistribution = config.scenario.resultBands.length === oldRanges.length &&
+    config.scenario.resultBands.every((band, index) =>
+      band.minScore === oldRanges[index][0] && band.maxScore === oldRanges[index][1],
+    );
+  if (!isOriginalDistribution) return;
+
+  const newRanges = [[0, 54], [55, 69], [70, 84], [85, 100]];
+  config.scenario.resultBands.forEach((band, index) => {
+    band.minScore = newRanges[index][0];
+    band.maxScore = newRanges[index][1];
+  });
 }
 
 function isAppConfig(value: unknown): value is AppConfig {

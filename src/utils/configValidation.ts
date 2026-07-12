@@ -20,6 +20,16 @@ export function validateConfig(config: AppConfig): ValidationIssue[] {
     issues.push({ level: 'error', message: 'A cor de destaque precisa estar no formato hexadecimal #RRGGBB.' });
   }
 
+  if (!Number.isFinite(config.scenario.durationDays) || config.scenario.durationDays < 1) {
+    issues.push({ level: 'error', message: 'A duração simulada precisa ser de pelo menos um dia.' });
+  }
+
+  try {
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: config.scenario.currency }).format(1);
+  } catch {
+    issues.push({ level: 'error', message: 'O código da moeda precisa seguir o padrão ISO, como BRL, USD ou EUR.' });
+  }
+
   if (!/^\d{4,12}$/.test(config.security.creatorPin)) {
     issues.push({ level: 'warning', message: 'Use um PIN numérico entre 4 e 12 dígitos.' });
   }
@@ -129,6 +139,16 @@ export function validateConfig(config: AppConfig): ValidationIssue[] {
           issues.push({ level: 'warning', message: `A faixa “${band.title}” não é alcançável por nenhum caminho válido.` });
         }
       });
+      const sustainableShare = balance.totalPaths
+        ? (balance.bandCounts.sustainable ?? 0) / balance.totalPaths
+        : 0;
+      if (sustainableShare > 0.5) {
+        issues.push({
+          level: 'warning',
+          message: `${(sustainableShare * 100).toFixed(1)}% dos caminhos terminam como sustentáveis; acima de 50% a experiência pode ficar permissiva demais.`,
+        });
+      }
+
       if (balance.recommendedStars === null) {
         issues.push({ level: 'warning', message: 'O caminho recomendado está incompleto ou contém uma escolha indisponível.' });
       } else if (balance.recommendedStars < 4.3 || balance.recommendedStars > 4.7) {

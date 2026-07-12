@@ -12,11 +12,13 @@ import {
   applyChoice,
   calculateResult,
   calculateScoreFromMetrics,
-  calculateStepStarGain,
+  calculateStepStarChange,
   choiceAvailability,
   createRun,
+  ensureRunScenarioSnapshot,
   equipmentCost,
   resolveAnimation,
+  resolveRunConfig,
   scoreToStars,
 } from './gameEngine';
 import {
@@ -25,6 +27,7 @@ import {
   explainResultCard,
   getMetricLabel,
   personalizeDecision,
+  personalizeScenarioCopy,
   summarizeConsequence,
 } from './narrative';
 import styles from './GamePage.module.css';
@@ -35,13 +38,17 @@ type InsightCard = 'strengths' | 'alerts' | 'method' | null;
 
 export function GamePage() {
   const { config, theme, setTheme } = useAppConfig();
-  const [run, setRun] = useState<GameRun | null>(() => readJson<GameRun>(storageKeys.RUN_KEY));
+  const [run, setRun] = useState<GameRun | null>(() => {
+    const stored = readJson<GameRun>(storageKeys.RUN_KEY);
+    return stored ? ensureRunScenarioSnapshot(stored, config) : null;
+  });
   const [selectedChoice, setSelectedChoice] = useState<DecisionChoice | null>(null);
   const [feedback, setFeedback] = useState<{ entry: LedgerEntry; mentorTip: string } | null>(null);
   const [openInsight, setOpenInsight] = useState<InsightCard>(null);
   const [expandedResultCard, setExpandedResultCard] = useState<InsightCard>(null);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
   const [showPhaseTwoTeaser, setShowPhaseTwoTeaser] = useState(false);
+  const activeConfig = run ? resolveRunConfig(run, config) : config;
 
   useEffect(() => {
     if (run) writeJson(storageKeys.RUN_KEY, run);
@@ -70,11 +77,12 @@ export function GamePage() {
             ) : (
               <div className={styles.logoBadge}>DB</div>
             )}
-            <h1>{config.brand.introTitle}</h1>
-            <p>{config.brand.introDescription}</p>
+            <span className={styles.introTagline}>{personalizeScenarioCopy(config.brand.tagline, config)}</span>
+            <h1>{personalizeScenarioCopy(config.brand.introTitle, config)}</h1>
+            <p>{personalizeScenarioCopy(config.brand.introDescription, config)}</p>
 
             <div className={styles.introStats}>
-              <span><strong>Fase 1</strong> estratégia + desafios</span>
+              <span><strong>{config.scenario.durationDays}</strong> dias de simulação</span>
               <span><strong>3</strong> definições de estratégia</span>
               <span><strong>5</strong> situações-problema</span>
             </div>
@@ -85,15 +93,15 @@ export function GamePage() {
                 Tema {theme === 'dark' ? 'claro' : 'escuro'}
               </button>
             </div>
-            <small>{config.brand.supportText}</small>
+            <small>{personalizeScenarioCopy(config.brand.supportText, config)}</small>
           </div>
         </section>
       </main>
     );
   }
 
-  const completed = run.currentDecisionIndex >= config.scenario.decisions.length;
-  const result: GameResult | null = completed ? calculateResult(run, config) : null;
+  const completed = run.currentDecisionIndex >= activeConfig.scenario.decisions.length;
+  const result: GameResult | null = completed ? calculateResult(run, activeConfig) : null;
 
   if (completed && showPhaseTwoTeaser) {
     return (
@@ -101,11 +109,11 @@ export function GamePage() {
         <section className={styles.phaseBreakHero}>
           <SceneAnimation scene="growth" />
           <div className={styles.phaseBreakContent}>
-            <span className={styles.kicker}>Fase 2</span>
-            <h1>Próximo módulo em desenvolvimento</h1>
+            <span className={styles.kicker}>Prévia de expansão futura</span>
+            <h1>A fase 1 termina aqui — a fase 2 é uma possibilidade futura</h1>
             <p>
-              A fase 2 do jogo será desenvolvida conforme o método de ensino abordado,
-              trazendo novos cenários, decisões e aprofundamentos práticos para o criador.
+              Esta tela apresenta apenas a direção planejada para uma próxima evolução do produto.
+              Ela não faz parte da rodada atual e poderá receber novos cenários conforme o método do criador.
             </p>
             <div className={styles.phaseBreakSummary}>
               <StarRating value={result?.stars ?? 0} size="md" label="Classificação da fase 1" />
@@ -122,11 +130,11 @@ export function GamePage() {
   }
 
   if (completed && result) {
-    const band = config.scenario.resultBands.find((item) => item.id === result.bandId)!;
+    const band = activeConfig.scenario.resultBands.find((item) => item.id === result.bandId)!;
     const insightData = {
-      strengths: explainResultCard('strengths', run),
-      alerts: explainResultCard('alerts', run),
-      method: explainResultCard('method', run),
+      strengths: explainResultCard('strengths', run, activeConfig, result),
+      alerts: explainResultCard('alerts', run, activeConfig, result),
+      method: explainResultCard('method', run, activeConfig, result),
     };
     const improvementGuide = buildImprovementGuide(run, result);
 
@@ -149,8 +157,8 @@ export function GamePage() {
               </div>
             </div>
             <div className={styles.resultActions}>
-              <button className="primaryButton" type="button" onClick={() => setShowPhaseTwoTeaser(true)}>Ir para a fase 2</button>
-              <button className="secondaryButton" type="button" onClick={restartRun}>Jogar novamente</button>
+              <button className="primaryButton" type="button" onClick={restartRun}>Jogar novamente</button>
+              <button className="secondaryButton" type="button" onClick={() => setShowPhaseTwoTeaser(true)}>Ver prévia da fase 2</button>
               <button className="secondaryButton" type="button" onClick={() => { setShowPhaseTwoTeaser(false); setRun(null); }}>Voltar para capa</button>
             </div>
           </div>
@@ -173,7 +181,7 @@ export function GamePage() {
                 <ul className={styles.insightList}>
                   {result.strengths.map((item) => <li key={item} className={styles.positive}>{item}</li>)}
                 </ul>
-                {openInsight === 'strengths' ? <InsightPopover title="Escolhas que fortaleceram este resultado" lines={insightData.strengths} /> : null}
+                {openInsight === 'strengths' ? <InsightPopover title="Decisões que mais influenciaram estas fortalezas" lines={insightData.strengths} /> : null}
               </div>
               <button
                 className={styles.readMoreButton}
@@ -187,11 +195,11 @@ export function GamePage() {
             <article className={`${styles.resultCard} panel ${cardIsExpanded('alerts') ? styles.resultCardExpanded : styles.resultCardCollapsed}`}>
               <button className={styles.infoButton} type="button" onClick={() => setOpenInsight(openInsight === 'alerts' ? null : 'alerts')}>!</button>
               <div className={styles.resultCardBody}>
-                <span className="eyebrow">Atenções</span>
+                <span className="eyebrow">{result.stars >= 5 ? 'Manutenção do padrão' : 'Atenções'}</span>
                 <ul className={styles.insightList}>
-                  {result.alerts.map((item) => <li key={item} className={styles.negative}>{item}</li>)}
+                  {result.alerts.map((item) => <li key={item} className={result.stars >= 5 ? styles.positive : styles.negative}>{item}</li>)}
                 </ul>
-                {openInsight === 'alerts' ? <InsightPopover title="Escolhas que puxaram o resultado para baixo" lines={insightData.alerts} /> : null}
+                {openInsight === 'alerts' ? <InsightPopover title={result.stars >= 5 ? 'Como preservar o resultado máximo' : 'Trade-offs ligados a estas atenções'} lines={insightData.alerts} /> : null}
               </div>
               <button
                 className={styles.readMoreButton}
@@ -265,24 +273,16 @@ export function GamePage() {
     );
   }
 
-  const decisionConfig = config.scenario.decisions[run.currentDecisionIndex];
-  const currentDecision = personalizeDecision(decisionConfig, run, config);
+  const decisionConfig = activeConfig.scenario.decisions[run.currentDecisionIndex];
+  const currentDecision = personalizeDecision(decisionConfig, run, activeConfig);
   const animation = resolveAnimation(run, currentDecision.animation);
-  const progress = ((run.currentDecisionIndex + 1) / config.scenario.decisions.length) * 100;
-  const currentPhase = run.currentDecisionIndex < STRATEGY_STEPS
-    ? 'Fase 1 • Definição de estratégia'
-    : 'Fase 1 • Situações-problema';
-  const phaseStep = run.currentDecisionIndex < STRATEGY_STEPS
-    ? run.currentDecisionIndex + 1
-    : run.currentDecisionIndex - STRATEGY_STEPS + 1;
-  const phaseTotal = run.currentDecisionIndex < STRATEGY_STEPS
-    ? STRATEGY_STEPS
-    : config.scenario.decisions.length - STRATEGY_STEPS;
+  const progress = ((run.currentDecisionIndex + 1) / activeConfig.scenario.decisions.length) * 100;
+  const currentPhase = `Fase 1 • ${currentDecision.module}`;
 
   const confirmChoice = () => {
     if (!selectedChoice) return;
     const originalChoice = decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice;
-    const nextRun = applyChoice(run, decisionConfig.id, originalChoice, config);
+    const nextRun = applyChoice(run, decisionConfig.id, originalChoice, activeConfig);
     const latestEntry = nextRun.ledger[nextRun.ledger.length - 1] ?? null;
     setRun(nextRun);
     setSelectedChoice(null);
@@ -301,16 +301,16 @@ export function GamePage() {
             <span>8 decisões jogáveis</span>
           </article>
           <article className={styles.phaseCard}>
-            <small>Fase 2</small>
-            <strong>Próximo módulo</strong>
-            <span>em desenvolvimento</span>
+            <small>Expansão futura</small>
+            <strong>Fase 2 • prévia</strong>
+            <span>não faz parte desta rodada</span>
           </article>
         </div>
-        <MetricStrip values={run.metrics} currency={config.scenario.currency} delta={feedback?.entry.delta} />
+        <MetricStrip values={run.metrics} currency={activeConfig.scenario.currency} delta={feedback?.entry.delta} />
         <div className={styles.minorStats}>
           <span>Clientes <strong>{Math.round(run.metrics.customers)}</strong></span>
           <span>Carga <strong>{Math.round(run.metrics.fatigue)}</strong></span>
-          <span>Classificação <strong>{scoreToStars(calculateScoreFromMetrics(run.metrics, config)).toFixed(1)}★</strong></span>
+          <span>Classificação <strong>{scoreToStars(calculateScoreFromMetrics(run.metrics, activeConfig)).toFixed(1)}★</strong></span>
         </div>
       </section>
 
@@ -320,9 +320,10 @@ export function GamePage() {
           <div className={styles.storyOverlay}>
             <div className={styles.storyTopbar}>
               <span className={styles.phaseBadge}>{currentPhase}</span>
+              <span className={styles.turnBadge}>{currentDecision.eyebrow}</span>
             </div>
             <div className={styles.storyProgress}>
-              <small>{run.currentDecisionIndex + 1}/{config.scenario.decisions.length}</small>
+              <small>{run.currentDecisionIndex + 1}/{activeConfig.scenario.decisions.length}</small>
               <div><i style={{ width: `${progress}%` }} /></div>
             </div>
             <h1>{currentDecision.title}</h1>
@@ -340,8 +341,8 @@ export function GamePage() {
           <div className={styles.choiceGrid}>
             {currentDecision.choices.map((choice) => {
               const originalChoice = decisionConfig.choices.find((item) => item.id === choice.id) ?? choice;
-              const availability = choiceAvailability(originalChoice, run, config, decisionConfig.id);
-              const cost = equipmentCost(originalChoice, config);
+              const availability = choiceAvailability(originalChoice, run, activeConfig, decisionConfig.id);
+              const cost = equipmentCost(originalChoice, activeConfig);
               const impactPreview = describeChoiceImpact(choice.effects);
               return (
                 <button
@@ -355,7 +356,7 @@ export function GamePage() {
                   <div className={styles.choiceBody}>
                     <div className={styles.choiceHeader}>
                       <h3>{choice.label}</h3>
-                      {cost > 0 ? <strong className={styles.choiceCost}>{formatCurrency(cost, config.scenario.currency)}</strong> : null}
+                      {cost > 0 ? <strong className={styles.choiceCost}>{formatCurrency(cost, activeConfig.scenario.currency)}</strong> : null}
                     </div>
                     <p>{choice.description}</p>
                     <div className={styles.impactRow}>
@@ -382,9 +383,9 @@ export function GamePage() {
             <p>{selectedChoice.description}</p>
             <small className={styles.decisionPrivacy}>A consequência completa será revelada depois da confirmação.</small>
             <div className={styles.modalEconomy}>
-              <span>Caixa atual <strong>{formatCurrency(run.metrics.cash)}</strong></span>
-              <span>Impacto <strong>{formatCurrency(choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, config, decisionConfig.id).effectiveCashDelta)}</strong></span>
-              <span>Caixa previsto <strong>{formatCurrency(run.metrics.cash + choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, config, decisionConfig.id).effectiveCashDelta)}</strong></span>
+              <span>Caixa atual <strong>{formatCurrency(run.metrics.cash, activeConfig.scenario.currency)}</strong></span>
+              <span>Impacto <strong>{formatCurrency(choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, activeConfig, decisionConfig.id).effectiveCashDelta, activeConfig.scenario.currency)}</strong></span>
+              <span>Caixa previsto <strong>{formatCurrency(run.metrics.cash + choiceAvailability(decisionConfig.choices.find((item) => item.id === selectedChoice.id) ?? selectedChoice, run, activeConfig, decisionConfig.id).effectiveCashDelta, activeConfig.scenario.currency)}</strong></span>
             </div>
             <div className={styles.modalActions}>
               <button className="secondaryButton" type="button" onClick={() => setSelectedChoice(null)}>Voltar</button>
@@ -397,9 +398,9 @@ export function GamePage() {
       {feedback && (
         <FeedbackModal
           feedback={feedback}
-          config={config}
+          config={activeConfig}
           onClose={() => setFeedback(null)}
-          completed={run.currentDecisionIndex >= config.scenario.decisions.length}
+          completed={run.currentDecisionIndex >= activeConfig.scenario.decisions.length}
         />
       )}
     </main>
@@ -425,7 +426,9 @@ function FeedbackModal({
   onClose: () => void;
   completed: boolean;
 }) {
-  const stageStars = calculateStepStarGain(feedback.entry.before, feedback.entry.after, config);
+  const stageStarChange = calculateStepStarChange(feedback.entry.before, feedback.entry.after, config);
+  const lostClassification = stageStarChange < 0;
+  const gainedClassification = stageStarChange > 0;
   const projectedStars = scoreToStars(calculateScoreFromMetrics(feedback.entry.after, config));
 
   return (
@@ -434,11 +437,11 @@ function FeedbackModal({
         <span className={styles.kicker}>Consequência da escolha</span>
         <h2>{feedback.entry.title}</h2>
         <p>{summarizeConsequence(feedback.entry.consequence)}</p>
-        <div className={styles.rewardPanel}>
+        <div className={`${styles.rewardPanel} ${lostClassification ? styles.rewardLoss : gainedClassification ? styles.rewardGain : styles.rewardNeutral}`}>
           <div className={styles.rewardCopy}>
-            <small>Mini estrelas da etapa</small>
-            <strong>+{stageStars.toFixed(1)}★</strong>
-            <span>Projeção atual: {projectedStars.toFixed(1)} / 5.0 estrelas</span>
+            <small>{lostClassification ? 'Perda de classificação' : gainedClassification ? 'Ganho de classificação' : 'Classificação mantida'}</small>
+            <strong>{formatStarChange(stageStarChange)}</strong>
+            <span>{lostClassification ? 'A projeção caiu para' : gainedClassification ? 'A projeção subiu para' : 'A projeção permanece em'} {projectedStars.toFixed(1)} / 5.0 estrelas</span>
           </div>
           <StarRating value={projectedStars} size="md" animated showValue={false} />
         </div>
@@ -476,7 +479,21 @@ function InsightPopover({ title, lines }: { title: string; lines: string[] }) {
   );
 }
 
+function formatStarChange(value: number): string {
+  if (value > 0) return `+${value.toFixed(1)}★`;
+  if (value < 0) return `−${Math.abs(value).toFixed(1)}★`;
+  return '0.0★';
+}
+
 function buildImprovementGuide(run: GameRun, result: GameResult): string[] {
+  if (result.stars >= 5) {
+    return [
+      'Você atingiu o teto da régua atual; o próximo desafio é repetir esse padrão em novas rodadas.',
+      'Registre os processos que equilibraram caixa, qualidade, capacidade e experiência do cliente.',
+      'Use o resultado máximo como referência de consistência, não como motivo para acelerar sem validação.',
+    ];
+  }
+
   const guide: string[] = [];
 
   if (run.metrics.cash < 3500) {

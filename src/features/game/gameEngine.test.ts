@@ -5,11 +5,14 @@ import {
   applyChoice,
   calculateResult,
   calculateScoreFromMetrics,
+  calculateStepStarChange,
   choiceAvailability,
   createRun,
   enumerateValidGamePaths,
   equipmentCost,
+  resolveRunConfig,
 } from './gameEngine';
+import { explainResultCard } from './narrative';
 
 describe('gameEngine', () => {
   it('calcula o custo de equipamentos diretamente pelo catálogo configurável', () => {
@@ -101,6 +104,13 @@ describe('gameEngine', () => {
       expect(balance.reachableBandIds).toContain(band.id);
       expect(balance.bandCounts[band.id]).toBeGreaterThan(0);
     });
+    expect(balance.bandCounts).toEqual({
+      fragile: 1060,
+      promising: 6213,
+      sustainable: 5079,
+      excellent: 284,
+    });
+    expect(balance.bandCounts.sustainable / balance.totalPaths).toBeLessThan(0.5);
   });
 
   it('mantém a nota de uma mesma operação independente dos demais caminhos', () => {
@@ -155,6 +165,65 @@ describe('gameEngine', () => {
     result.alerts.forEach((message) => {
       expect(message).toMatch(/^Para se aproximar de 5 estrelas,/);
     });
+  });
+
+  it('mantém a configuração da rodada imutável mesmo após alterações no painel', () => {
+    const run = createRun(defaultConfig);
+    const editedConfig = structuredClone(defaultConfig);
+    editedConfig.scenario.initialMetrics.cash = 12000;
+    editedConfig.scenario.decisions[0].choices[0].effects.cash = -5000;
+
+    const runConfig = resolveRunConfig(run, editedConfig);
+    expect(runConfig.scenario.initialMetrics.cash).toBe(6000);
+    expect(runConfig.scenario.decisions[0].choices[0].effects.cash).toBe(-450);
+    expect(runConfig.scenario).toEqual(run.scenarioSnapshot);
+  });
+
+  it('comunica perda de classificação quando uma decisão reduz a nota', () => {
+    let run = createRun(defaultConfig);
+    const selectedIds = ['garage', 'essential', 'wash', 'balanced-price', 'content-routine', 'preserve-quality'];
+    selectedIds.forEach((choiceId, index) => {
+      const decision = defaultConfig.scenario.decisions[index];
+      const choice = decision.choices.find((item) => item.id === choiceId)!;
+      run = applyChoice(run, decision.id, choice, defaultConfig);
+    });
+
+    const complaint = defaultConfig.scenario.decisions.find((item) => item.id === 'customer-complaint')!;
+    const contest = complaint.choices.find((item) => item.id === 'contest')!;
+    const next = applyChoice(run, complaint.id, contest, defaultConfig);
+    expect(calculateStepStarChange(run.metrics, next.metrics, defaultConfig)).toBeLessThan(0);
+  });
+
+  it('usa nos detalhes das atenções os mesmos indicadores do diagnóstico principal', () => {
+    let run = createRun(defaultConfig);
+    defaultConfig.scenario.decisions.forEach((decision) => {
+      run = applyChoice(run, decision.id, decision.choices.find((choice) => choice.recommended)!, defaultConfig);
+    });
+    const result = calculateResult(run, defaultConfig);
+    const details = explainResultCard('alerts', run, defaultConfig, result);
+
+    expect(result.alertMetricKeys).toEqual(['fatigue']);
+    expect(details.length).toBeGreaterThan(0);
+    details.forEach((line) => expect(line).toMatch(/trade-off em Carga|equilíbrio acumulado/));
+  });
+
+  it('não orienta a se aproximar de cinco estrelas quando a nota já é máxima', () => {
+    const run = createRun(defaultConfig);
+    run.metrics = {
+      cash: 5400,
+      reputation: 50,
+      quality: 55,
+      capacity: 13,
+      risk: 0,
+      customers: 10,
+      fatigue: 8,
+    };
+    const result = calculateResult(run, defaultConfig);
+
+    expect(result.stars).toBe(5);
+    expect(result.alertMetricKeys).toEqual([]);
+    expect(result.alerts.join(' ')).toMatch(/atingiu 5 estrelas/i);
+    expect(result.alerts.join(' ')).not.toMatch(/se aproximar de 5 estrelas/i);
   });
 
   it('usa fatores do veículo para ajustar esforço e risco da situação vinculada', () => {

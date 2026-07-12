@@ -1,4 +1,4 @@
-import type { MetricKey, NumericMetrics } from './config';
+import type { MetricKey, NumericMetrics, ScenarioConfig } from './config';
 
 export interface LedgerEntry {
   id: string;
@@ -20,7 +20,8 @@ export interface GameRun {
   flags: string[];
   choices: Record<string, string>;
   ledger: LedgerEntry[];
-  phase2Unlocked?: boolean;
+  /** Cópia imutável do cenário usado ao iniciar a rodada. */
+  scenarioSnapshot?: ScenarioConfig;
 }
 
 export interface GameResult {
@@ -29,4 +30,6 @@ export interface GameResult {
   bandId: string;
   strengths: string[];
   alerts: string[];
+  strengthMetricKeys: MetricKey[];
+  alertMetricKeys: MetricKey[];
 }

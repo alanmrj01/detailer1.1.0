@@ -2,14 +2,14 @@ import type { AppConfig } from '../types/config';
 import { DEFAULT_SCORE_BENCHMARKS } from './scoringDefaults';
 
 export const defaultConfig: AppConfig = {
-  version: 4,
+  version: 5,
   brand: {
     appName: 'Detailer Business',
     creatorName: 'Método de especialista',
-    tagline: 'Primeiros 90 dias do seu negócio de estética automotiva',
-    introTitle: 'Primeiros 90 dias da sua estética automotiva',
+    tagline: 'Primeiros {{durationDays}} dias do seu negócio de estética automotiva',
+    introTitle: 'Primeiros {{durationDays}} dias da sua estética automotiva',
     introDescription:
-      'Você tem R$ 6.000, conhecimento técnico básico e 90 dias para construir uma operação sustentável. Escolha sua estrutura, monte sua oferta e reaja a situações reais do mercado.',
+      'Você tem {{initialCashFormatted}}, conhecimento técnico básico e {{durationDays}} dias para construir uma operação sustentável. Escolha sua estrutura, monte sua oferta e reaja a situações reais do mercado.',
     logoDataUrl: '',
     accentColor: '#66d0ff',
     supportText:
@@ -111,7 +111,7 @@ export const defaultConfig: AppConfig = {
         module: 'Definição de estratégia',
         eyebrow: 'Estratégia 1/3',
         title: 'Onde sua operação vai começar?',
-        situation: 'Você tem pouco capital e precisa escolher uma estrutura compatível com sua capacidade de atrair clientes nos primeiros 90 dias.',
+        situation: 'Você tem pouco capital e precisa escolher uma estrutura compatível com sua capacidade de atrair clientes nos primeiros {{durationDays}} dias.',
         mentorTip: 'Estrutura maior aumenta percepção e capacidade, mas também eleva o risco antes da demanda estar comprovada.',
         animation: 'garage',
         choices: [
@@ -160,9 +160,9 @@ export const defaultConfig: AppConfig = {
         mentorTip: 'Os valores desta etapa podem ser ajustados pelo criador. O objetivo é mostrar como o preço da {{primaryService}} altera margem, demanda e risco.',
         animation: 'pricing',
         choices: [
-          { id: 'low', label: 'Cobrar preço de entrada', description: 'Cobrar R$ 260 para aumentar a chance de fechamento.', consequence: 'A conversão aumenta, mas a margem e a folga para retrabalho ficam perigosamente pequenas.', effects: { cash: 290, customers: 4, reputation: 2, quality: -2, fatigue: 6, risk: 7 } },
-          { id: 'balanced-price', label: 'Preço sustentável', description: 'Cobrar R$ 520 com escopo e prazo claros.', consequence: 'Você equilibra fechamento, margem e capacidade de entregar o que prometeu.', effects: { cash: 520, customers: 2, reputation: 5, quality: 2, fatigue: 3, risk: -1 }, recommended: true },
-          { id: 'premium-price', label: 'Cobrar preço premium', description: 'Cobrar R$ 760 com inspeção e entrega detalhada.', consequence: 'A margem cresce, mas a exigência de acabamento e comunicação também aumenta.', effects: { cash: 720, customers: 1, reputation: 4, quality: 5, fatigue: 4, risk: 5 } },
+          { id: 'low', label: 'Cobrar preço de entrada', description: 'Cobrar {{money:260}} para aumentar a chance de fechamento.', consequence: 'A conversão aumenta, mas a margem e a folga para retrabalho ficam perigosamente pequenas.', effects: { cash: 290, customers: 4, reputation: 2, quality: -2, fatigue: 6, risk: 7 } },
+          { id: 'balanced-price', label: 'Preço sustentável', description: 'Cobrar {{money:520}} com escopo e prazo claros.', consequence: 'Você equilibra fechamento, margem e capacidade de entregar o que prometeu.', effects: { cash: 520, customers: 2, reputation: 5, quality: 2, fatigue: 3, risk: -1 }, recommended: true },
+          { id: 'premium-price', label: 'Cobrar preço premium', description: 'Cobrar {{money:760}} com inspeção e entrega detalhada.', consequence: 'A margem cresce, mas a exigência de acabamento e comunicação também aumenta.', effects: { cash: 720, customers: 1, reputation: 4, quality: 5, fatigue: 4, risk: 5 } },
         ],
       },
       {
@@ -217,10 +217,10 @@ export const defaultConfig: AppConfig = {
         mentorTip: 'Crescimento sustentável exige que demanda, capacidade e padrão avancem juntos.',
         animation: 'growth',
         choices: [
-          { id: 'marketing', label: 'Campanha local e conteúdo', description: 'Investir R$ 450 em presença digital e oferta de entrada.', consequence: 'Mais pessoas chegam, mas a operação sente pressão se ainda não estiver padronizada.', effects: { cash: -450, customers: 5, reputation: 3, capacity: -1, risk: 4 } },
+          { id: 'marketing', label: 'Campanha local e conteúdo', description: 'Investir {{money:450}} em presença digital e oferta de entrada.', consequence: 'Mais pessoas chegam, mas a operação sente pressão se ainda não estiver padronizada.', effects: { cash: -450, customers: 5, reputation: 3, capacity: -1, risk: 4 } },
           { id: 'reserve', label: 'Proteger capital de giro', description: 'Manter caixa e melhorar rotina sem grande compra.', consequence: 'O crescimento é mais lento, porém a operação ganha estabilidade para enfrentar oscilações.', effects: { customers: 1, risk: -8, fatigue: -1 }, recommended: true },
-          { id: 'training', label: 'Treinamento e padronização', description: 'Investir R$ 600 em processo, técnica e checklist.', consequence: 'Você reduz falhas e melhora produtividade, mas adia parte da expansão comercial.', effects: { cash: -600, quality: 8, capacity: 2, risk: -6, reputation: 2 }, requirements: { minCashAfter: 300 } },
-          { id: 'helper', label: 'Contratar um ajudante', description: 'Reservar R$ 900 para integração e primeiro ciclo.', consequence: 'A capacidade cresce, mas supervisão, custo e padronização viram novas responsabilidades.', effects: { cash: -900, capacity: 5, fatigue: -8, risk: 5, reputation: 2 }, requirements: { minCashAfter: 300 } },
+          { id: 'training', label: 'Treinamento e padronização', description: 'Investir {{money:600}} em processo, técnica e checklist.', consequence: 'Você reduz falhas e melhora produtividade, mas adia parte da expansão comercial.', effects: { cash: -600, quality: 8, capacity: 2, risk: -6, reputation: 2 }, requirements: { minCashAfter: 300 } },
+          { id: 'helper', label: 'Contratar um ajudante', description: 'Reservar {{money:900}} para integração e primeiro ciclo.', consequence: 'A capacidade cresce, mas supervisão, custo e padronização viram novas responsabilidades.', effects: { cash: -900, capacity: 5, fatigue: -8, risk: 5, reputation: 2 }, requirements: { minCashAfter: 300 } },
         ],
       },
     ],
@@ -234,10 +234,10 @@ export const defaultConfig: AppConfig = {
       fatigue: 0.1,
     },
     resultBands: [
-      { id: 'fragile', minScore: 0, maxScore: 44, title: 'Operação financeiramente frágil', summary: 'Você conseguiu iniciar, mas acumulou riscos que tornam o negócio vulnerável a falhas, oscilações e retrabalho.', methodFeedback: 'Pelo método do especialista, o próximo passo é reduzir variedade, recompor caixa e padronizar uma oferta antes de tentar crescer.' },
-      { id: 'promising', minScore: 45, maxScore: 64, title: 'Boa técnica, negócio ainda instável', summary: 'Há sinais de mercado e competência, porém capacidade, caixa e processo ainda não avançam no mesmo ritmo.', methodFeedback: 'Pelo método do especialista, você deve escolher uma prioridade clara: margem, processo ou aquisição — sem tentar corrigir tudo ao mesmo tempo.' },
-      { id: 'sustainable', minScore: 65, maxScore: 79, title: 'Operação sustentável em formação', summary: 'Suas decisões preservaram padrão, caixa e confiança suficientes para continuar aprendendo sem colocar o negócio em risco excessivo.', methodFeedback: 'Pelo método do especialista, é hora de repetir o que funcionou, registrar indicadores e expandir somente a capacidade comprovadamente necessária.' },
-      { id: 'excellent', minScore: 80, maxScore: 100, title: 'Base sólida para crescer', summary: 'Você equilibrou investimento, posicionamento, execução e relacionamento, criando uma operação com boa resiliência.', methodFeedback: 'Pelo método do especialista, o próximo ciclo deve transformar boas decisões em processos replicáveis, metas e rotina de acompanhamento.' },
+      { id: 'fragile', minScore: 0, maxScore: 54, title: 'Operação financeiramente frágil', summary: 'Você conseguiu iniciar, mas acumulou riscos que tornam o negócio vulnerável a falhas, oscilações e retrabalho.', methodFeedback: 'Pelo método do especialista, o próximo passo é reduzir variedade, recompor caixa e padronizar uma oferta antes de tentar crescer.' },
+      { id: 'promising', minScore: 55, maxScore: 69, title: 'Boa técnica, negócio ainda instável', summary: 'Há sinais de mercado e competência, porém capacidade, caixa e processo ainda não avançam no mesmo ritmo.', methodFeedback: 'Pelo método do especialista, você deve escolher uma prioridade clara: margem, processo ou aquisição — sem tentar corrigir tudo ao mesmo tempo.' },
+      { id: 'sustainable', minScore: 70, maxScore: 84, title: 'Operação sustentável em formação', summary: 'Suas decisões preservaram padrão, caixa e confiança suficientes para continuar aprendendo sem colocar o negócio em risco excessivo.', methodFeedback: 'Pelo método do especialista, é hora de repetir o que funcionou, registrar indicadores e expandir somente a capacidade comprovadamente necessária.' },
+      { id: 'excellent', minScore: 85, maxScore: 100, title: 'Base sólida para crescer', summary: 'Você equilibrou investimento, posicionamento, execução e relacionamento, criando uma operação com boa resiliência.', methodFeedback: 'Pelo método do especialista, o próximo ciclo deve transformar boas decisões em processos replicáveis, metas e rotina de acompanhamento.' },
     ],
   },
 };

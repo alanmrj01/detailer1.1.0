@@ -1,0 +1,61 @@
+Detailer Business 1.3.3 — diagnóstico unificado, rodada versionada e proteção visual ampliada
+
+Base utilizada:
+- detailer1.3.2(2).zip
+
+Alterações realizadas:
+1. Fortalezas e Atenções coerentes com o diagnóstico
+- os detalhes agora usam exatamente os indicadores selecionados pelo diagnóstico principal;
+- cada decisão é ordenada pela contribuição ponderada que teve nesses indicadores;
+- escolhas positivas com algum custo deixam de ser tratadas como decisões ruins e aparecem como trade-offs específicos;
+- resultados máximos não exibem falsas atenções.
+
+2. Resultado de 5 estrelas
+- resultados exatamente com 5,0 estrelas recebem orientação de manutenção do padrão;
+- removidos textos que sugeriam “aproximar-se de 5 estrelas” após o teto já ter sido atingido;
+- o bloco Atenções passa a se chamar “Manutenção do padrão” nesse caso.
+
+3. Dificuldade recalibrada
+- mantidos todos os efeitos, escolhas e 12.636 caminhos válidos;
+- alteradas somente as faixas finais para uma experiência moderadamente mais exigente;
+- frágil: 0–54; instável: 55–69; sustentável: 70–84; base sólida: 85–100;
+- distribuição padrão: 8,4% frágil, 49,2% instável, 40,2% sustentável e 2,2% base sólida;
+- caminho recomendado preservado em 90 pontos / 4,5 estrelas;
+- o painel alerta caso mais de 50% dos caminhos voltem a cair na faixa sustentável.
+
+4. Ganho e perda de classificação
+- o feedback de cada decisão agora comunica ganho, manutenção ou perda de estrelas;
+- perdas aparecem com valor negativo, texto e tratamento visual próprios;
+- a projeção antes/depois continua baseada na mesma régua absoluta do resultado final.
+
+5. Configurações conectadas
+- tagline passa a aparecer na abertura;
+- duração, capital inicial e moeda podem ser usados em textos por tokens dinâmicos;
+- valores monetários das escolhas respeitam a moeda configurada;
+- módulo e marcador temporal de cada decisão passam a aparecer na cena;
+- estados internos sem uso foram removidos;
+- configurações antigas são migradas automaticamente para a versão 5.
+
+6. Rodadas imutáveis
+- cada nova partida salva uma cópia do cenário usado no momento em que começou;
+- alterações posteriores no painel só afetam novas partidas;
+- partidas antigas sem snapshot recebem uma cópia da configuração atual ao serem abertas.
+
+7. Regressão visual ampliada
+- suíte Playwright ampliada para 18 testes e 21 screenshots de referência;
+- adicionada cobertura da capa e primeira decisão em celular;
+- adicionada cobertura do modal de confirmação;
+- adicionada cobertura do feedback com perda de classificação;
+- referências existentes foram atualizadas para refletir somente as alterações aprovadas.
+
+8. Fase 2 reposicionada
+- o resultado encerra claramente a fase 1;
+- a ação principal agora é jogar novamente;
+- a fase 2 aparece apenas como “prévia de expansão futura”;
+- a tela deixa explícito que o módulo não faz parte da rodada atual.
+
+Validação executada:
+- 21 testes unitários/integrados aprovados;
+- varredura completa dos 12.636 caminhos válidos;
+- TypeScript e build de produção aprovados;
+- 21 referências visuais revisadas, incluindo celular, modal e feedback negativo.

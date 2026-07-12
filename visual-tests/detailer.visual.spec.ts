@@ -98,7 +98,7 @@ for (const [index, resultCase] of resultCases.entries()) {
 
 test('fase 2 e painel de validação', async ({ page }) => {
   await openWithState(page, runAt(8, resultCases[3].metrics));
-  await page.getByRole('button', { name: 'Ir para a fase 2' }).click();
+  await page.getByRole('button', { name: 'Ver prévia da fase 2' }).click();
   await expectPageScreenshot(page, '16-fase-2.png');
 
   await page.getByRole('button', { name: 'Configurações' }).click();
@@ -108,3 +108,29 @@ test('fase 2 e painel de validação', async ({ page }) => {
   await expect(page.getByText(/régua absoluta/i)).toBeVisible();
   await expectPageScreenshot(page, '17-configuracoes-validacao.png');
 });
+
+test('proteção visual em celular — capa e primeira decisão', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openWithState(page, null, 'dark');
+  await expectPageScreenshot(page, '18-celular-capa.png');
+
+  await page.getByRole('button', { name: 'Iniciar desafio' }).click();
+  await page.waitForFunction(() => Array.from(document.images).every((image) => image.complete));
+  await expectPageScreenshot(page, '19-celular-primeira-decisao.png');
+});
+
+test('proteção visual do modal de confirmação', async ({ page }) => {
+  await openWithState(page, runAt(0));
+  await page.getByRole('button', { name: /Adaptar a garagem/ }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expectPageScreenshot(page, '20-modal-confirmacao.png');
+});
+
+test('proteção visual do feedback com perda de classificação', async ({ page }) => {
+  await openWithState(page, runAt(6));
+  await page.getByRole('button', { name: /Contestar a reclamação/ }).click();
+  await page.getByRole('button', { name: 'Confirmar escolha' }).click();
+  await expect(page.getByText('Perda de classificação')).toBeVisible();
+  await expectPageScreenshot(page, '21-feedback-perda-classificacao.png');
+});
+

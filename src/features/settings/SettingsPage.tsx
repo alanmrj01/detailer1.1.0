@@ -341,6 +341,7 @@ function ResultSettings({ config, updateConfig }: SharedProps) {
 
   return (
     <SettingsModule title="Faixas e conclusão final" description="Configure a conclusão que o aluno recebe e alinhe a orientação ao método individual do criador.">
+      <p className={styles.productionNote}>A calibração padrão usa dificuldade moderada: a operação só entra na faixa sustentável a partir de 70 pontos, e a base sólida começa em 85.</p>
       <h3 className={styles.subheading}>Pesos da pontuação</h3>
       <div className={styles.metricEditor}>{(['cash','reputation','quality','capacity','risk','fatigue'] as const).map((metric) => <Field key={metric} label={metricName(metric)}><input type="number" min="0" max="1" step="0.01" value={config.scenario.scoreWeights[metric]} onChange={(e) => updateConfig((current) => ({ ...current, scenario: { ...current.scenario, scoreWeights: { ...current.scenario.scoreWeights, [metric]: Number(e.target.value) } } }))} /></Field>)}</div>
       <h3 className={styles.subheading}>Régua absoluta dos indicadores</h3>
@@ -454,7 +455,7 @@ function DataSettings({
               <article key={band.id}>
                 <small>{band.minScore}–{band.maxScore} pontos</small>
                 <strong>{band.title}</strong>
-                <span>{(balance.bandCounts[band.id] ?? 0).toLocaleString('pt-BR')} caminhos</span>
+                <span>{(balance.bandCounts[band.id] ?? 0).toLocaleString('pt-BR')} caminhos · {(((balance.bandCounts[band.id] ?? 0) / balance.totalPaths) * 100).toFixed(1)}%</span>
               </article>
             ))}
           </div>

@@ -1,5 +1,7 @@
 import type { AppConfig, DecisionChoice, DecisionConfig, MetricKey } from '../../types/config';
-import type { GameRun, LedgerEntry } from '../../types/game';
+import type { GameResult, GameRun, LedgerEntry } from '../../types/game';
+import { formatCurrency } from '../../utils/format';
+import { calculateScoreBreakdown } from './gameEngine';
 
 const metricLabels: Record<MetricKey, string> = {
   cash: 'Caixa',
@@ -45,6 +47,24 @@ export function getOperationLabel(run: GameRun): string {
   }
 }
 
+export function personalizeScenarioCopy(text: string, config: AppConfig): string {
+  const withMoney = text.replace(/\{\{money:([-+]?\d+(?:\.\d+)?)\}\}/g, (_, rawValue: string) =>
+    formatCurrency(Number(rawValue), config.scenario.currency),
+  );
+  const contextMap: Record<string, string> = {
+    '{{durationDays}}': String(config.scenario.durationDays),
+    '{{initialCash}}': String(config.scenario.initialMetrics.cash),
+    '{{initialCashFormatted}}': formatCurrency(config.scenario.initialMetrics.cash, config.scenario.currency),
+    '{{currency}}': config.scenario.currency,
+    '{{currencyCode}}': config.scenario.currency,
+  };
+
+  return Object.entries(contextMap).reduce(
+    (current, [token, value]) => current.replaceAll(token, value),
+    withMoney,
+  );
+}
+
 export function personalizeText(
   text: string,
   run: GameRun,
@@ -52,6 +72,7 @@ export function personalizeText(
   vehicleId?: string,
 ): string {
   const primaryService = getPrimaryServiceLabel(run);
+  const scenarioText = personalizeScenarioCopy(text, config);
   const operationModel = getOperationLabel(run);
   const vehicle = vehicleId
     ? config.scenario.cars.find((item) => item.id === vehicleId)
@@ -61,14 +82,13 @@ export function personalizeText(
     '{{primaryService}}': primaryService,
     '{{primaryServiceCap}}': capitalize(primaryService),
     '{{operationModel}}': operationModel,
-    '{{currency}}': config.scenario.currency,
     '{{vehicle}}': vehicleLabel,
     '{{vehicleModel}}': vehicle?.model ?? 'veículo',
   };
 
   return Object.entries(contextMap).reduce(
     (current, [token, value]) => current.replaceAll(token, value),
-    text,
+    scenarioText,
   );
 }
 
@@ -126,36 +146,86 @@ export function describeFeedback(delta: Partial<Record<MetricKey, number>>): Arr
     });
 }
 
-export function explainResultCard(kind: 'strengths' | 'alerts' | 'method', run: GameRun): string[] {
+export function explainResultCard(
+  kind: 'strengths' | 'alerts' | 'method',
+  run: GameRun,
+  config: AppConfig,
+  result: GameResult,
+): string[] {
+  const relevantMetrics = kind === 'strengths'
+    ? result.strengthMetricKeys
+    : kind === 'alerts'
+      ? result.alertMetricKeys
+      : (['cash', 'reputation', 'quality', 'capacity', 'risk', 'fatigue'] as MetricKey[]);
+
+  if (kind === 'alerts' && relevantMetrics.length === 0) {
+    return ['Nenhuma decisão reduziu o diagnóstico final: a prioridade agora é manter o padrão alcançado.'];
+  }
+
   const lines = run.ledger
-    .map((entry) => ({ entry, score: scoreEntry(entry, kind) }))
-    .filter((item) => item.score > 0)
+    .map((entry) => ({ entry, score: scoreEntry(entry, kind, config, relevantMetrics) }))
+    .filter((item) => item.score > 0.0001)
     .sort((a, b) => b.score - a.score)
     .slice(0, 4)
-    .map(({ entry }) => `${entry.title}: ${entry.consequence}`);
+    .map(({ entry }) => describeEntryInfluence(entry, kind, config, relevantMetrics));
 
-  if (kind === 'method' && lines.length === 0) {
+  if (lines.length) return lines;
+
+  if (kind === 'alerts') {
+    return ['Este ponto de atenção veio do equilíbrio acumulado da rodada, sem uma única escolha negativa isolada.'];
+  }
+  if (kind === 'method') {
     return run.ledger.slice(-3).map((entry) => `${entry.title}: ${entry.consequence}`);
   }
-
-  return lines;
+  return ['A fortaleza foi construída pelo conjunto das decisões, sem depender de uma única escolha isolada.'];
 }
 
-function scoreEntry(entry: LedgerEntry, kind: 'strengths' | 'alerts' | 'method') {
-  if (kind === 'method') {
-    return Object.values(entry.delta).reduce((total, value) => total + Math.abs(value ?? 0), 0);
-  }
+function describeEntryInfluence(
+  entry: LedgerEntry,
+  kind: 'strengths' | 'alerts' | 'method',
+  config: AppConfig,
+  relevantMetrics: MetricKey[],
+): string {
+  if (kind === 'method') return `${entry.title}: ${entry.consequence}`;
 
-  return Object.entries(entry.delta).reduce((total, [key, value]) => {
-    const amount = value ?? 0;
-    if (key === 'risk' || key === 'fatigue') {
-      const benefit = amount < 0 ? Math.abs(amount) : 0;
-      const penalty = amount > 0 ? amount : 0;
-      return total + (kind === 'strengths' ? benefit : penalty);
-    }
-    const benefit = amount > 0 ? amount : 0;
-    const penalty = amount < 0 ? Math.abs(amount) : 0;
-    return total + (kind === 'strengths' ? benefit : penalty);
+  const before = calculateScoreBreakdown(entry.before, config);
+  const after = calculateScoreBreakdown(entry.after, config);
+  const influencedMetrics = relevantMetrics.filter((key) => {
+    if (key === 'customers') return false;
+    const delta = after[key] - before[key];
+    return kind === 'strengths' ? delta > 0.0001 : delta < -0.0001;
+  });
+  const labels = influencedMetrics.map((key) => getMetricLabel(key));
+  const joined = joinLabels(labels);
+
+  if (kind === 'strengths') {
+    return `${entry.title}: contribuiu positivamente para ${joined} no diagnóstico final.`;
+  }
+  return `${entry.title}: trouxe um trade-off em ${joined}, ponto que merece acompanhamento no resultado final.`;
+}
+
+function joinLabels(labels: string[]): string {
+  if (labels.length <= 1) return labels[0] ?? 'o equilíbrio da operação';
+  return `${labels.slice(0, -1).join(', ')} e ${labels.at(-1)}`;
+}
+
+function scoreEntry(
+  entry: LedgerEntry,
+  kind: 'strengths' | 'alerts' | 'method',
+  config: AppConfig,
+  relevantMetrics: MetricKey[],
+): number {
+  const before = calculateScoreBreakdown(entry.before, config);
+  const after = calculateScoreBreakdown(entry.after, config);
+  const weights = config.scenario.scoreWeights;
+
+  return relevantMetrics.reduce((total, key) => {
+    if (key === 'customers') return total;
+    const delta = after[key] - before[key];
+    const weightedDelta = delta * weights[key];
+    if (kind === 'strengths') return total + Math.max(0, weightedDelta);
+    if (kind === 'alerts') return total + Math.max(0, -weightedDelta);
+    return total + Math.abs(weightedDelta);
   }, 0);
 }
 
