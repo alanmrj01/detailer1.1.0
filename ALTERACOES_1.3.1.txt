@@ -1,0 +1,18 @@
+Detailer Business 1.3.1 — correções visuais cirúrgicas
+
+Base preservada:
+- versão 1.3.0 com motor calibrado, 14 testes e validação de todos os 12.636 caminhos.
+
+Alterações realizadas APENAS nos pontos solicitados:
+1. Tema claro:
+   - título principal das cenas mantido em cor clara com sombra de contraste;
+   - nenhuma cor global ou layout foi alterado.
+2. Cena de polimento/atraso:
+   - removido definitivamente o elemento circular animado que parecia loading;
+   - demais animações e ilustrações preservadas.
+3. Dist regenerada.
+
+Validação:
+- npm ci: OK
+- npm test: 14 testes aprovados
+- npm run build: OK

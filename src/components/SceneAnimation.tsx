@@ -108,7 +108,6 @@ export function SceneAnimation({ scene }: SceneAnimationProps) {
 
       <div className={styles.strategyPulse}><i /><i /><i /></div>
       <div className={styles.waterSpray}><i /><i /><i /><i /></div>
-      <div className={styles.polishingGlow}><i /><i /></div>
       <div className={styles.priceCards}><i /><i /><i /></div>
       <div className={styles.alertPulse}>!</div>
       <div className={styles.rewardStars}><i>★</i><i>★</i><i>★</i></div>

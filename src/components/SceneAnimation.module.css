@@ -56,7 +56,6 @@
 .floorGlow,
 .strategyPulse,
 .waterSpray,
-.polishingGlow,
 .priceCards,
 .alertPulse,
 .rewardStars,
@@ -190,29 +189,6 @@
 .waterSpray i:nth-child(3) { left: 110px; top: 45px; animation-delay: -1.1s; }
 .waterSpray i:nth-child(4) { left: 140px; top: 27px; animation-delay: -1.65s; }
 
-.polishingGlow {
-  display: none;
-  right: 19%;
-  top: 35%;
-  width: 92px;
-  height: 92px;
-  border-radius: 50%;
-  border: 4px solid rgba(103, 232, 249, 0.42);
-  box-shadow: 0 0 26px rgba(103, 232, 249, 0.24), inset 0 0 22px rgba(103, 232, 249, 0.1);
-  animation: polishOrbit 1.55s linear infinite;
-}
-.polishingGlow i {
-  position: absolute;
-  display: block;
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.68);
-}
-.polishingGlow i:first-child { left: -5px; top: 37px; }
-.polishingGlow i:last-child { right: 7px; bottom: 4px; }
-
 .priceCards {
   display: none;
   right: 8%;
@@ -269,7 +245,6 @@
 .store .strategyPulse,
 .mobile .strategyPulse { display: flex; }
 .washing .waterSpray { display: block; }
-.polishing .polishingGlow { display: block; }
 .pricing .priceCards { display: flex; }
 .complaint .alertPulse { display: grid; }
 .growth .rewardStars { display: block; }
@@ -303,10 +278,6 @@
 @keyframes bubbleRise {
   0%, 100% { transform: translateY(4px) scale(.88); opacity: .35; }
   50% { transform: translateY(-12px) scale(1.08); opacity: .9; }
-}
-
-@keyframes polishOrbit {
-  to { transform: rotate(360deg); }
 }
 
 @keyframes priceFloat {
@@ -345,7 +316,6 @@
   .strategyPulse i,
   .waterSpray::before,
   .waterSpray i,
-  .polishingGlow,
   .priceCards i,
   .alertPulse,
   .rewardStars i {

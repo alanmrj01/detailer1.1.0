@@ -89,6 +89,13 @@
   letter-spacing: -0.05em;
 }
 
+/* O título da cena fica sobre uma ilustração escura nos dois temas.
+   A cor fixa clara evita perda de contraste no tema claro sem alterar o restante da interface. */
+.storyOverlay h1 {
+  color: #f8fafc;
+  text-shadow: 0 3px 18px rgba(2, 6, 23, 0.82);
+}
+
 .introContent p,
 .storyOverlay p,
 .resultContent p,
