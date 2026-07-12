@@ -1,0 +1,13 @@
+CORREÇÃO DE DEPLOY NETLIFY
+
+O package-lock.json continha quatro URLs resolvidas para um registro npm interno do ambiente de desenvolvimento.
+Essas URLs foram substituídas pelas URLs públicas equivalentes do registry.npmjs.org.
+
+Configuração do Netlify:
+- Diretório base: vazio
+- Comando de construção: npm run build
+- Diretório de publicação: dist
+- Diretório de funções: vazio
+- Node: 20
+
+Nenhum código, estilo, conteúdo ou comportamento do aplicativo foi alterado.
