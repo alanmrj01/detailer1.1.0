@@ -1,7 +1,8 @@
 import type { AppConfig } from '../types/config';
+import { DEFAULT_SCORE_BENCHMARKS } from './scoringDefaults';
 
 export const defaultConfig: AppConfig = {
-  version: 3,
+  version: 4,
   brand: {
     appName: 'Detailer Business',
     creatorName: 'Método de especialista',
@@ -223,6 +224,7 @@ export const defaultConfig: AppConfig = {
         ],
       },
     ],
+    scoreBenchmarks: structuredClone(DEFAULT_SCORE_BENCHMARKS),
     scoreWeights: {
       cash: 0.22,
       reputation: 0.2,

@@ -330,11 +330,35 @@ function ResultSettings({ config, updateConfig }: SharedProps) {
     const resultBands = [...current.scenario.resultBands]; resultBands[index] = next;
     return { ...current, scenario: { ...current.scenario, resultBands } };
   });
+  const benchmarkRows = [
+    { key: 'cashReserveRatio' as const, label: 'Reserva de caixa (proporção do capital inicial)', step: 0.01 },
+    { key: 'reputation' as const, label: 'Reputação', step: 1 },
+    { key: 'quality' as const, label: 'Qualidade', step: 1 },
+    { key: 'capacity' as const, label: 'Capacidade', step: 1 },
+    { key: 'risk' as const, label: 'Risco', step: 1 },
+    { key: 'fatigue' as const, label: 'Carga/Fadiga', step: 1 },
+  ];
 
   return (
     <SettingsModule title="Faixas e conclusão final" description="Configure a conclusão que o aluno recebe e alinhe a orientação ao método individual do criador.">
       <h3 className={styles.subheading}>Pesos da pontuação</h3>
       <div className={styles.metricEditor}>{(['cash','reputation','quality','capacity','risk','fatigue'] as const).map((metric) => <Field key={metric} label={metricName(metric)}><input type="number" min="0" max="1" step="0.01" value={config.scenario.scoreWeights[metric]} onChange={(e) => updateConfig((current) => ({ ...current, scenario: { ...current.scenario, scoreWeights: { ...current.scenario.scoreWeights, [metric]: Number(e.target.value) } } }))} /></Field>)}</div>
+      <h3 className={styles.subheading}>Régua absoluta dos indicadores</h3>
+      <p className={styles.productionNote}>A nota compara cada indicador com estes patamares fixos. Alterar escolhas ou adicionar caminhos não muda retroativamente a nota de uma mesma operação.</p>
+      <div className={styles.stack}>
+        {benchmarkRows.map((row) => {
+          const benchmark = config.scenario.scoreBenchmarks[row.key];
+          return (
+            <article className={styles.editorCardStatic} key={row.key}>
+              <div className={styles.rangeHeader}><strong>{row.label}</strong><span>frágil → excelente</span></div>
+              <div className={styles.formGrid}>
+                <Field label="Patamar frágil"><input type="number" step={row.step} value={benchmark.poor} onChange={(e) => updateConfig((current) => ({ ...current, scenario: { ...current.scenario, scoreBenchmarks: { ...current.scenario.scoreBenchmarks, [row.key]: { ...current.scenario.scoreBenchmarks[row.key], poor: Number(e.target.value) } } } }))} /></Field>
+                <Field label="Patamar excelente"><input type="number" step={row.step} value={benchmark.excellent} onChange={(e) => updateConfig((current) => ({ ...current, scenario: { ...current.scenario, scoreBenchmarks: { ...current.scenario.scoreBenchmarks, [row.key]: { ...current.scenario.scoreBenchmarks[row.key], excellent: Number(e.target.value) } } } }))} /></Field>
+              </div>
+            </article>
+          );
+        })}
+      </div>
       <h3 className={styles.subheading}>Faixas de conclusão</h3>
       <div className={styles.stack}>
         {config.scenario.resultBands.map((band, index) => (
@@ -419,7 +443,7 @@ function DataSettings({
           <span><strong>{balance?.recommendedStars?.toFixed(1) ?? '—'}★</strong> caminho recomendado</span>
         </div>
         <div className={styles.issueList}>
-          {!issues.length ? <div className={styles.okIssue}>Configuração válida: todas as faixas são alcançáveis e o caminho recomendado está calibrado.</div> : null}
+          {!issues.length ? <div className={styles.okIssue}>Configuração válida: a régua absoluta está coerente, todas as faixas são alcançáveis e o caminho recomendado está calibrado.</div> : null}
           {issues.map((issue, index) => (
             <div key={`${issue.level}-${index}`} className={issue.level === 'error' ? styles.errorIssue : styles.warningIssue}>{issue.message}</div>
           ))}

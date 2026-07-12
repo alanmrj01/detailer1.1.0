@@ -14,7 +14,7 @@ Aplicação web educacional configurável para demonstrar a um criador de conte�
   - bloqueio de compras que violam a reserva mínima;
   - limites de indicadores entre 0 e 100;
   - rastro/auditoria de todas as decisões;
-  - cálculo final por pesos configuráveis e calibração automática contra todos os caminhos válidos;
+  - cálculo final por pesos configuráveis e régua absoluta de desempenho;
   - todas as faixas de resultado alcançáveis;
   - caminho recomendado calibrado para aproximadamente 4,5 estrelas.
 - Ilustrações 3D em WebP com animações e efeitos leves para garagem, lavagem, polimento, interior, reclamação e crescimento.
@@ -28,7 +28,7 @@ Aplicação web educacional configurável para demonstrar a um criador de conte�
   - faixas e mensagens do resultado final;
   - exportação e importação de toda a configuração em JSON.
 - Build de produção incluído em `dist/`.
-- Testes de regressão, importação/exportação e varredura automática dos 12.636 caminhos válidos do jogo.
+- Testes unitários, importação/exportação, varredura automática dos 12.636 caminhos válidos e regressão visual por screenshots.
 
 ## Acesso do criador
 
@@ -52,15 +52,41 @@ npm run test
 npm run build
 ```
 
+### Testes visuais
+
+Os screenshots de referência ficam em `visual-tests/__screenshots__/` e cobrem capa, oito etapas, cinco resultados, fase 2 e painel de validação.
+
+Na primeira execução local:
+
+```bash
+npx playwright install chromium
+npm run test:visual
+```
+
+Para atualizar os screenshots somente após aprovar uma alteração visual:
+
+```bash
+npm run test:visual:update
+```
+
+Para executar toda a suíte:
+
+```bash
+npm run test:all
+```
+
 
 ## Balanceamento e validação
 
-A versão atual recalibra a pontuação considerando todos os caminhos completos permitidos pelas regras configuradas. Com a configuração padrão:
+A versão atual usa uma régua absoluta: cada indicador é comparado com patamares fixos de operação frágil e excelente. A nota de uma mesma operação não muda quando escolhas ou caminhos são adicionados ou removidos. Com a configuração padrão:
 
 - 12.636 caminhos válidos são testados automaticamente;
-- a escala ocupa de 0 a 100 pontos;
+- a régua permanece fixa entre 0 e 100 pontos;
+- os caminhos atuais ocupam de 38 a 92 pontos;
 - todas as quatro faixas de resultado são alcançáveis;
-- o caminho recomendado termina próximo de 4,5 estrelas;
+- o caminho recomendado termina em 90 pontos e 4,5 estrelas;
+- as atenções de resultados altos são apresentadas como refinamentos para buscar 5 estrelas;
+- pesos, benchmarks e faixas podem ser revisados em **Configurações → Resultados**;
 - alterações no painel podem ser verificadas em **Configurações → Dados e validação**.
 
 A mesma área permite exportar e importar a configuração em JSON e restaurar a configuração original.

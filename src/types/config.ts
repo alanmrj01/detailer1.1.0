@@ -115,6 +115,21 @@ export interface ResultBand {
   methodFeedback: string;
 }
 
+
+export interface ScoreBenchmark {
+  poor: number;
+  excellent: number;
+}
+
+export interface ScoreBenchmarks {
+  cashReserveRatio: ScoreBenchmark;
+  reputation: ScoreBenchmark;
+  quality: ScoreBenchmark;
+  capacity: ScoreBenchmark;
+  risk: ScoreBenchmark;
+  fatigue: ScoreBenchmark;
+}
+
 export interface ScoreWeights {
   cash: number;
   reputation: number;
@@ -133,6 +148,7 @@ export interface ScenarioConfig {
   cars: CarModel[];
   resultBands: ResultBand[];
   scoreWeights: ScoreWeights;
+  scoreBenchmarks: ScoreBenchmarks;
 }
 
 export interface SecurityConfig {

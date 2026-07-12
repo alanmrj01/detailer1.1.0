@@ -12,6 +12,17 @@ describe('configuração do criador', () => {
     expect(validateConfig(imported).filter((issue) => issue.level === 'error')).toHaveLength(0);
   });
 
+  it('migra configurações anteriores para a régua absoluta', () => {
+    const legacy = structuredClone(defaultConfig) as any;
+    legacy.version = 3;
+    delete legacy.scenario.scoreBenchmarks;
+
+    const imported = parseConfigJson(JSON.stringify(legacy));
+    expect(imported.version).toBe(4);
+    expect(imported.scenario.scoreBenchmarks.cashReserveRatio).toEqual({ poor: 0.15, excellent: 0.9 });
+    expect(validateConfig(imported).filter((issue) => issue.level === 'error')).toHaveLength(0);
+  });
+
   it('recusa JSON sem a estrutura do aplicativo', () => {
     expect(() => parseConfigJson('{"nome":"arquivo inválido"}')).toThrow(/estrutura esperada/i);
   });

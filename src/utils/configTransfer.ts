@@ -1,4 +1,5 @@
 import type { AppConfig } from '../types/config';
+import { DEFAULT_SCORE_BENCHMARKS } from '../data/scoringDefaults';
 
 export function serializeConfig(config: AppConfig): string {
   return JSON.stringify(config, null, 2);
@@ -30,22 +31,22 @@ export function downloadConfig(config: AppConfig): void {
 }
 
 
-function migrateConfig(config: AppConfig): AppConfig {
+export function migrateConfig(config: AppConfig): AppConfig {
   const migrated = structuredClone(config);
-  if (migrated.version >= 3) return migrated;
 
-  const firstQuote = migrated.scenario.decisions.find((decision) => decision.id === 'first-quote');
-  if (firstQuote) {
-    firstQuote.vehicleId ??= 't-cross';
-    firstQuote.situation = firstQuote.situation.replace('Volkswagen T-Cross', '{{vehicle}}');
+  if (migrated.version < 3) {
+    const firstQuote = migrated.scenario.decisions.find((decision) => decision.id === 'first-quote');
+    if (firstQuote) {
+      firstQuote.vehicleId ??= 't-cross';
+      firstQuote.situation = firstQuote.situation.replace('Volkswagen T-Cross', '{{vehicle}}');
+    }
+
+    const complaint = migrated.scenario.decisions.find((decision) => decision.id === 'customer-complaint');
+    if (complaint) complaint.vehicleId ??= 'onix';
   }
 
-  const complaint = migrated.scenario.decisions.find((decision) => decision.id === 'customer-complaint');
-  if (complaint) {
-    complaint.vehicleId ??= 'onix';
-  }
-
-  migrated.version = 3;
+  migrated.scenario.scoreBenchmarks ??= structuredClone(DEFAULT_SCORE_BENCHMARKS);
+  migrated.version = 4;
   return migrated;
 }
 

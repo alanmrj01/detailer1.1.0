@@ -2,6 +2,7 @@ import { createContext, useContext, useMemo, useState, type ReactNode } from 're
 import { defaultConfig } from '../data/defaultConfig';
 import type { AppConfig, ThemeMode } from '../types/config';
 import { readJson, storageKeys, writeJson } from '../utils/storage';
+import { migrateConfig } from '../utils/configTransfer';
 
 interface AppConfigContextValue {
   config: AppConfig;
@@ -15,7 +16,10 @@ interface AppConfigContextValue {
 const AppConfigContext = createContext<AppConfigContextValue | null>(null);
 
 export function AppConfigProvider({ children }: { children: ReactNode }) {
-  const [config, setConfigState] = useState<AppConfig>(() => readJson<AppConfig>(storageKeys.CONFIG_KEY) ?? defaultConfig);
+  const [config, setConfigState] = useState<AppConfig>(() => {
+    const stored = readJson<AppConfig>(storageKeys.CONFIG_KEY);
+    return stored ? migrateConfig(stored) : structuredClone(defaultConfig);
+  });
   const [theme, setThemeState] = useState<ThemeMode>(() => readJson<ThemeMode>(storageKeys.THEME_KEY) ?? 'dark');
 
   const setConfig = (next: AppConfig) => {

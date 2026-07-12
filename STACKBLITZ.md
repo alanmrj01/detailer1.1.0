@@ -9,5 +9,8 @@ Passos:
    npm run dev
 
 Observações:
-- O package-lock.json foi removido de propósito para o próprio StackBlitz gerar um lockfile compatível com o ambiente dele.
+- O `package-lock.json` está incluído e foi validado com `npm ci`.
 - O package.json está na raiz do projeto.
+
+
+Testes visuais com Playwright devem ser executados localmente ou no GitHub Actions, pois o StackBlitz não fornece um navegador Chromium completo para comparação de screenshots.

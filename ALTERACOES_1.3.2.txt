@@ -1,0 +1,35 @@
+Detailer Business 1.3.2 — régua absoluta, narrativa coerente e regressão visual
+
+Base utilizada:
+- detailer1.3.1(1).zip
+
+Alterações realizadas:
+1. Pontuação absoluta
+- removida a normalização baseada no pior e no melhor caminho disponível;
+- cada indicador agora é comparado com benchmarks fixos de operação frágil e excelente;
+- a mesma operação mantém a mesma nota mesmo que escolhas/caminhos sejam adicionados ou removidos;
+- pesos continuam configuráveis e são normalizados pelo total informado;
+- benchmarks absolutos podem ser editados em Configurações > Resultados;
+- configurações antigas são migradas automaticamente para a versão 4.
+
+2. Coerência narrativa
+- fortalezas e atenções agora usam os mesmos componentes da pontuação;
+- resultados excelentes apresentam pontos restantes como refinamentos para buscar 5 estrelas;
+- o caminho recomendado termina em 90 pontos / 4,5 estrelas sem mensagens contraditórias;
+- as atenções do caminho recomendado começam com “Para se aproximar de 5 estrelas”.
+
+3. Consolidação visual
+- removidos definitivamente os quatro pontos ambientais flutuantes;
+- removidos definitivamente os cartões/círculos flutuantes da estratégia;
+- preservados apenas efeitos contextuais úteis (água, preços, alerta e estrelas);
+- adicionados atributos estáveis para testes das cenas e miniaturas.
+
+4. Testes
+- 17 testes unitários/integrados;
+- varredura automática dos 12.636 caminhos válidos;
+- teste que prova que a nota é independente dos demais caminhos;
+- teste de coerência narrativa do caminho recomendado;
+- 15 testes Playwright com 17 screenshots de referência;
+- cobertura visual de capa clara/escura, 8 etapas, 5 resultados, fase 2 e painel de validação;
+- verificação de miniaturas distintas em todas as escolhas;
+- workflow do GitHub Actions para testes, build e regressão visual.

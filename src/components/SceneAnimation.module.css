@@ -54,12 +54,10 @@
 .lightSweep,
 .frameGlow,
 .floorGlow,
-.strategyPulse,
 .waterSpray,
 .priceCards,
 .alertPulse,
-.rewardStars,
-.ambientParticles {
+.rewardStars {
   position: absolute;
   pointer-events: none;
 }
@@ -109,50 +107,6 @@
   background: radial-gradient(ellipse at center, rgba(78, 220, 255, 0.15) 0%, rgba(78, 220, 255, 0.05) 42%, rgba(78, 220, 255, 0) 78%);
   filter: blur(9px);
 }
-
-.ambientParticles {
-  right: 8%;
-  bottom: 11%;
-  width: 180px;
-  height: 150px;
-  opacity: 0.68;
-}
-
-.ambientParticles i {
-  position: absolute;
-  display: block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(186, 230, 253, 0.8);
-  box-shadow: 0 0 16px rgba(103, 232, 249, 0.52);
-  animation: ambientFloat 4.2s ease-in-out infinite;
-}
-
-.ambientParticles i:nth-child(1) { left: 8%; bottom: 14%; }
-.ambientParticles i:nth-child(2) { left: 36%; top: 12%; animation-delay: -1s; }
-.ambientParticles i:nth-child(3) { right: 12%; bottom: 28%; animation-delay: -2s; }
-.ambientParticles i:nth-child(4) { right: 34%; top: 40%; animation-delay: -3s; }
-
-.strategyPulse {
-  display: none;
-  right: 7%;
-  bottom: 16%;
-  gap: 0.58rem;
-}
-
-.strategyPulse i {
-  display: block;
-  width: 54px;
-  height: 72px;
-  border-radius: 16px;
-  border: 1px solid rgba(103, 232, 249, 0.22);
-  background: linear-gradient(180deg, rgba(103, 232, 249, 0.1), rgba(15, 23, 42, 0.08));
-  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.18), inset 0 0 18px rgba(103, 232, 249, 0.04);
-  animation: cardHover 3.3s ease-in-out infinite;
-}
-.strategyPulse i:nth-child(2) { animation-delay: -1.1s; }
-.strategyPulse i:nth-child(3) { animation-delay: -2.2s; }
 
 .waterSpray {
   display: none;
@@ -241,9 +195,6 @@
 .rewardStars i:nth-child(2) { left: 60px; top: 2px; font-size: 2.8rem; animation-delay: -.8s; }
 .rewardStars i:nth-child(3) { right: 4px; bottom: 22px; font-size: 1.9rem; animation-delay: -1.6s; }
 
-.garage .strategyPulse,
-.store .strategyPulse,
-.mobile .strategyPulse { display: flex; }
 .washing .waterSpray { display: block; }
 .pricing .priceCards { display: flex; }
 .complaint .alertPulse { display: grid; }
@@ -257,16 +208,6 @@
 @keyframes sweep {
   0%, 100% { transform: translateX(-16%) skewX(-18deg); opacity: 0.18; }
   50% { transform: translateX(30%) skewX(-18deg); opacity: 0.38; }
-}
-
-@keyframes ambientFloat {
-  0%, 100% { transform: translateY(0) scale(.92); opacity: .42; }
-  50% { transform: translateY(-17px) scale(1.08); opacity: .92; }
-}
-
-@keyframes cardHover {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
 }
 
 @keyframes sprayFlow {
@@ -312,8 +253,6 @@
 @media (prefers-reduced-motion: reduce) {
   .image,
   .lightSweep,
-  .ambientParticles i,
-  .strategyPulse i,
   .waterSpray::before,
   .waterSpray i,
   .priceCards i,

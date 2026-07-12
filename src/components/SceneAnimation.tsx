@@ -89,7 +89,7 @@ export function SceneAnimation({ scene }: SceneAnimationProps) {
   const style = { '--scene-image': `url("${current.src}")` } as CSSProperties;
 
   return (
-    <div className={`${styles.scene} ${styles[scene] ?? ''}`} aria-hidden="true" style={style}>
+    <div className={`${styles.scene} ${styles[scene] ?? ''}`} aria-hidden="true" data-scene={scene} style={style}>
       <img
         className={styles.image}
         src={current.src}
@@ -104,9 +104,6 @@ export function SceneAnimation({ scene }: SceneAnimationProps) {
       <div className={styles.lightSweep} />
       <div className={styles.frameGlow} />
       <div className={styles.floorGlow} />
-      <div className={styles.ambientParticles}><i /><i /><i /><i /></div>
-
-      <div className={styles.strategyPulse}><i /><i /><i /></div>
       <div className={styles.waterSpray}><i /><i /><i /><i /></div>
       <div className={styles.priceCards}><i /><i /><i /></div>
       <div className={styles.alertPulse}>!</div>

@@ -57,6 +57,20 @@ export function validateConfig(config: AppConfig): ValidationIssue[] {
     issues.push({ level: 'warning', message: `Os pesos do resultado somam ${weightTotal.toFixed(2)}; o recomendado é 1,00.` });
   }
 
+  Object.entries(config.scenario.scoreBenchmarks).forEach(([key, benchmark]) => {
+    if (!Number.isFinite(benchmark.poor) || !Number.isFinite(benchmark.excellent)) {
+      issues.push({ level: 'error', message: `A régua absoluta de ${key} contém um valor inválido.` });
+      return;
+    }
+    if (Math.abs(benchmark.excellent - benchmark.poor) <= 0.0001) {
+      issues.push({ level: 'error', message: `A régua absoluta de ${key} precisa ter patamares frágil e excelente diferentes.` });
+    }
+  });
+  const cashBenchmark = config.scenario.scoreBenchmarks.cashReserveRatio;
+  if (cashBenchmark.poor < 0 || cashBenchmark.excellent < 0) {
+    issues.push({ level: 'error', message: 'Os patamares de reserva de caixa não podem ser negativos.' });
+  }
+
   config.scenario.decisions.forEach((decision) => {
     if (decisionIds.has(decision.id)) {
       issues.push({ level: 'error', message: `ID de decisão duplicado: ${decision.id}.` });

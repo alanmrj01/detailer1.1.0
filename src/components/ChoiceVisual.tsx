@@ -84,7 +84,7 @@ export function ChoiceVisual({ decisionId, choiceId }: { decisionId: string; cho
   };
 
   return (
-    <div className={styles.visual} aria-hidden="true" style={style}>
+    <div className={styles.visual} aria-hidden="true" data-choice-visual={choiceId} style={style}>
       <img
         className={styles.image}
         src={src}

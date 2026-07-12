@@ -4,6 +4,7 @@ import {
   analyzeGameBalance,
   applyChoice,
   calculateResult,
+  calculateScoreFromMetrics,
   choiceAvailability,
   createRun,
   enumerateValidGamePaths,
@@ -91,15 +92,45 @@ describe('gameEngine', () => {
     });
   });
 
-  it('mantém todas as faixas de resultado alcançáveis', () => {
+  it('mantém todas as faixas de resultado alcançáveis com régua absoluta', () => {
     const balance = analyzeGameBalance(defaultConfig);
 
-    expect(balance.minScore).toBe(0);
-    expect(balance.maxScore).toBe(100);
+    expect(balance.minScore).toBe(38);
+    expect(balance.maxScore).toBe(92);
     defaultConfig.scenario.resultBands.forEach((band) => {
       expect(balance.reachableBandIds).toContain(band.id);
       expect(balance.bandCounts[band.id]).toBeGreaterThan(0);
     });
+  });
+
+  it('mantém a nota de uma mesma operação independente dos demais caminhos', () => {
+    const metrics = {
+      cash: 4200,
+      reputation: 42,
+      quality: 50,
+      capacity: 11,
+      risk: 18,
+      customers: 8,
+      fatigue: 24,
+    };
+    const alteredConfig = structuredClone(defaultConfig);
+    alteredConfig.scenario.decisions[0].choices[0].effects = {
+      cash: -5000,
+      reputation: -50,
+      quality: -50,
+      risk: 90,
+    };
+    alteredConfig.scenario.decisions.at(-1)!.choices.push({
+      id: 'extra-path-for-test',
+      label: 'Caminho adicional',
+      description: 'Caminho criado apenas para provar que a régua não muda.',
+      consequence: 'Não altera a nota da operação usada no teste.',
+      effects: { cash: 9000, reputation: 80, quality: 80, capacity: 30, risk: -80, fatigue: -20 },
+    });
+
+    expect(calculateScoreFromMetrics(metrics, alteredConfig)).toBe(
+      calculateScoreFromMetrics(metrics, defaultConfig),
+    );
   });
 
   it('faz o caminho recomendado terminar próximo de 4,5 estrelas', () => {
@@ -107,8 +138,23 @@ describe('gameEngine', () => {
 
     expect(balance.recommendedChoiceIds).toHaveLength(defaultConfig.scenario.decisions.length);
     expect(balance.recommendedStars).not.toBeNull();
-    expect(balance.recommendedStars!).toBeGreaterThanOrEqual(4.4);
-    expect(balance.recommendedStars!).toBeLessThanOrEqual(4.6);
+    expect(balance.recommendedStars).toBe(4.5);
+  });
+
+  it('mantém o diagnóstico do caminho recomendado coerente com 4,5 estrelas', () => {
+    let run = createRun(defaultConfig);
+    defaultConfig.scenario.decisions.forEach((decision) => {
+      const choice = decision.choices.find((item) => item.recommended)!;
+      run = applyChoice(run, decision.id, choice, defaultConfig);
+    });
+
+    const result = calculateResult(run, defaultConfig);
+    expect(result.stars).toBe(4.5);
+    expect(result.strengths.length).toBeGreaterThanOrEqual(3);
+    expect(result.alerts.length).toBeGreaterThanOrEqual(1);
+    result.alerts.forEach((message) => {
+      expect(message).toMatch(/^Para se aproximar de 5 estrelas,/);
+    });
   });
 
   it('usa fatores do veículo para ajustar esforço e risco da situação vinculada', () => {

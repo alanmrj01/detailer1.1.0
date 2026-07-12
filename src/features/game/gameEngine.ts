@@ -9,8 +9,6 @@ import type { GameResult, GameRun } from '../../types/game';
 import { clamp } from '../../utils/format';
 
 const boundedMetrics: MetricKey[] = ['reputation', 'quality', 'risk', 'fatigue'];
-const SCORE_CURVE_EXPONENT = 1.8;
-const calibrationCache = new WeakMap<AppConfig, ScoreCalibration>();
 const balanceCache = new WeakMap<AppConfig, GameBalanceAnalysis>();
 
 interface SimulationState {
@@ -18,15 +16,6 @@ interface SimulationState {
   flags: string[];
   choices: Record<string, string>;
   choiceIds: string[];
-}
-
-interface RawPathSnapshot extends SimulationState {
-  rawScore: number;
-}
-
-interface ScoreCalibration {
-  minRawScore: number;
-  maxRawScore: number;
 }
 
 export interface EnumeratedGamePath {
@@ -46,6 +35,15 @@ export interface GameBalanceAnalysis {
   recommendedChoiceIds: string[];
   reachableBandIds: string[];
   bandCounts: Record<string, number>;
+}
+
+export interface ScoreBreakdown {
+  cash: number;
+  reputation: number;
+  quality: number;
+  capacity: number;
+  risk: number;
+  fatigue: number;
 }
 
 export function createRun(config: AppConfig): GameRun {
@@ -162,14 +160,38 @@ export function applyChoice(
 }
 
 /**
- * Pontuação calibrada contra todos os caminhos válidos da configuração atual.
- * Isso preserva os pesos editáveis do criador, mas garante que o pior e o melhor
- * conjunto de decisões ocupem a escala completa de 0 a 100.
+ * Pontuação absoluta: cada indicador é comparado com benchmarks fixos do método.
+ * A nota de uma mesma operação permanece igual mesmo que escolhas ou caminhos
+ * sejam adicionados/removidos da configuração.
  */
 export function calculateScoreFromMetrics(metrics: NumericMetrics, config: AppConfig): number {
-  const rawScore = calculateRawScoreFromMetrics(metrics, config);
-  const calibration = getScoreCalibration(config);
-  return normalizeRawScore(rawScore, calibration);
+  const breakdown = calculateScoreBreakdown(metrics, config);
+  const weights = config.scenario.scoreWeights;
+  const totalWeight = Object.values(weights).reduce((total, value) => total + value, 0);
+  if (totalWeight <= 0) return 0;
+
+  const weightedScore =
+    breakdown.cash * weights.cash +
+    breakdown.reputation * weights.reputation +
+    breakdown.quality * weights.quality +
+    breakdown.capacity * weights.capacity +
+    breakdown.risk * weights.risk +
+    breakdown.fatigue * weights.fatigue;
+
+  return Math.round(clamp(weightedScore / totalWeight, 0, 100));
+}
+
+export function calculateScoreBreakdown(metrics: NumericMetrics, config: AppConfig): ScoreBreakdown {
+  const benchmarks = config.scenario.scoreBenchmarks;
+  const initialCash = Math.max(1, config.scenario.initialMetrics.cash);
+  return {
+    cash: normalizeAgainstBenchmark(metrics.cash / initialCash, benchmarks.cashReserveRatio),
+    reputation: normalizeAgainstBenchmark(metrics.reputation, benchmarks.reputation),
+    quality: normalizeAgainstBenchmark(metrics.quality, benchmarks.quality),
+    capacity: normalizeAgainstBenchmark(metrics.capacity, benchmarks.capacity),
+    risk: normalizeAgainstBenchmark(metrics.risk, benchmarks.risk),
+    fatigue: normalizeAgainstBenchmark(metrics.fatigue, benchmarks.fatigue),
+  };
 }
 
 export function scoreToStars(score: number): number {
@@ -187,48 +209,41 @@ export function calculateStepStarGain(
 }
 
 export function calculateResult(run: GameRun, config: AppConfig): GameResult {
-  const initial = config.scenario.initialMetrics;
   const score = calculateScoreFromMetrics(run.metrics, config);
   const stars = scoreToStars(score);
   const band = findResultBand(score, config);
+  const breakdown = calculateScoreBreakdown(run.metrics, config);
+  const diagnostics = buildDiagnostics(breakdown);
 
-  const strengths: string[] = [];
-  const alerts: string[] = [];
-  if (run.metrics.cash >= initial.cash * 0.65) {
-    strengths.push('Boa reserva de caixa para seguir operando e absorver ajustes da próxima rodada.');
-  } else {
-    alerts.push('Caixa final apertado: vale revisar decisões que tiraram fôlego antes da reta final.');
-  }
-  if (run.metrics.reputation >= 55) {
-    strengths.push('Sua reputação terminou em bom nível, sinal de promessa e entrega mais coerentes.');
-  } else {
-    alerts.push('A reputação ainda pede mais consistência entre oferta, prazo e experiência do cliente.');
-  }
-  if (run.metrics.quality >= 60) {
-    strengths.push('O padrão da entrega ficou acima do ponto de partida e sustentou melhor percepção de valor.');
-  } else {
-    alerts.push('A qualidade foi pressionada em escolhas-chave e merece mais atenção na próxima tentativa.');
-  }
-  if (run.metrics.risk <= 35) {
-    strengths.push('O risco operacional ficou bem controlado, indicando decisões mais seguras.');
-  } else {
-    alerts.push('O risco operacional terminou acima do ideal: observe onde velocidade ou economia cobraram um preço oculto.');
-  }
-  if (run.metrics.fatigue <= 40) {
-    strengths.push('A carga de trabalho segue sustentável, sem depender demais do seu esforço pessoal.');
-  } else {
-    alerts.push('A operação ficou muito dependente do seu esforço pessoal; procure mais equilíbrio operacional.');
+  const strengths = diagnostics
+    .filter((item) => item.score >= 70)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map((item) => item.strength);
+
+  const attentionThreshold = band.id === 'excellent' ? 75 : band.id === 'sustainable' ? 65 : 60;
+  let attentions = diagnostics
+    .filter((item) => item.score < attentionThreshold)
+    .sort((a, b) => a.score - b.score)
+    .slice(0, band.id === 'excellent' ? 2 : 3)
+    .map((item) => band.id === 'excellent' ? item.refinement : item.warning);
+
+  if (!attentions.length) {
+    const nextRefinement = [...diagnostics].sort((a, b) => a.score - b.score)[0];
+    if (nextRefinement) attentions = [nextRefinement.refinement];
   }
 
-  return { score, stars, bandId: band.id, strengths, alerts };
+  if (!strengths.length) {
+    const strongest = [...diagnostics].sort((a, b) => b.score - a.score)[0];
+    if (strongest) strengths.push(strongest.strength);
+  }
+
+  return { score, stars, bandId: band.id, strengths, alerts: attentions };
 }
 
 export function enumerateValidGamePaths(config: AppConfig): EnumeratedGamePath[] {
-  const rawPaths = enumerateRawPaths(config);
-  const calibration = calibrationFromPaths(rawPaths);
-
-  return rawPaths.map((path) => {
-    const score = normalizeRawScore(path.rawScore, calibration);
+  return enumerateSimulationPaths(config).map((path) => {
+    const score = calculateScoreFromMetrics(path.metrics, config);
     return {
       choiceIds: path.choiceIds,
       metrics: path.metrics,
@@ -300,47 +315,65 @@ export function getDecisionVehicle(
   return config.scenario.cars.find((car) => car.id === vehicleId) ?? null;
 }
 
-function calculateRawScoreFromMetrics(metrics: NumericMetrics, config: AppConfig): number {
-  const initial = config.scenario.initialMetrics;
-  const weights = config.scenario.scoreWeights;
-  const cashScore = clamp(((metrics.cash - initial.cash + 3000) / 6000) * 100, 0, 100);
-  const capacityScore = clamp((metrics.capacity / 14) * 100, 0, 100);
-
-  return (
-    cashScore * weights.cash +
-    metrics.reputation * weights.reputation +
-    metrics.quality * weights.quality +
-    capacityScore * weights.capacity +
-    (100 - metrics.risk) * weights.risk +
-    (100 - metrics.fatigue) * weights.fatigue
-  );
+interface DiagnosticItem {
+  score: number;
+  strength: string;
+  warning: string;
+  refinement: string;
 }
 
-function getScoreCalibration(config: AppConfig): ScoreCalibration {
-  const cached = calibrationCache.get(config);
-  if (cached) return cached;
-  const calibration = calibrationFromPaths(enumerateRawPaths(config));
-  calibrationCache.set(config, calibration);
-  return calibration;
+function buildDiagnostics(breakdown: ScoreBreakdown): DiagnosticItem[] {
+  return [
+    {
+      score: breakdown.cash,
+      strength: 'O caixa preservado oferece margem para absorver ajustes e manter a operação estável.',
+      warning: 'O caixa ficou pressionado; reveja decisões que consumiram reserva antes de validar a demanda.',
+      refinement: 'Para se aproximar de 5 estrelas, preserve ainda mais folga de caixa para os próximos ciclos.',
+    },
+    {
+      score: breakdown.reputation,
+      strength: 'A reputação avançou de forma consistente, reforçando confiança e percepção de profissionalismo.',
+      warning: 'A confiança do cliente ainda precisa de mais consistência entre promessa, prazo e entrega.',
+      refinement: 'Para se aproximar de 5 estrelas, transforme a boa percepção em rotina de indicação e recorrência.',
+    },
+    {
+      score: breakdown.quality,
+      strength: 'O padrão de qualidade sustentou a percepção de valor e reduziu a chance de retrabalho.',
+      warning: 'A qualidade oscilou em escolhas importantes; priorize padrão antes de acelerar o volume.',
+      refinement: 'Para se aproximar de 5 estrelas, documente o padrão de execução e torne-o repetível.',
+    },
+    {
+      score: breakdown.capacity,
+      strength: 'A capacidade operacional ficou compatível com a demanda construída ao longo da fase.',
+      warning: 'A capacidade não acompanhou o ritmo das decisões comerciais e pode gerar atrasos.',
+      refinement: 'Para se aproximar de 5 estrelas, aumente capacidade somente onde a demanda já estiver comprovada.',
+    },
+    {
+      score: breakdown.risk,
+      strength: 'Os riscos operacionais ficaram bem controlados, preservando caixa, prazo e confiança.',
+      warning: 'O risco terminou elevado; observe onde pressa, desconto ou improviso criaram custo oculto.',
+      refinement: 'Para se aproximar de 5 estrelas, mantenha o risco baixo mesmo ao buscar mais crescimento.',
+    },
+    {
+      score: breakdown.fatigue,
+      strength: 'A carga de trabalho permaneceu sustentável e menos dependente de esforço excessivo.',
+      warning: 'A rotina ficou pesada demais; busque processo, agenda e capacidade mais equilibrados.',
+      refinement: 'Para se aproximar de 5 estrelas, reduza a dependência do seu esforço pessoal com mais padronização.',
+    },
+  ];
 }
 
-function calibrationFromPaths(paths: RawPathSnapshot[]): ScoreCalibration {
-  if (!paths.length) return { minRawScore: 0, maxRawScore: 100 };
-  return {
-    minRawScore: Math.min(...paths.map((path) => path.rawScore)),
-    maxRawScore: Math.max(...paths.map((path) => path.rawScore)),
-  };
+function normalizeAgainstBenchmark(
+  value: number,
+  benchmark: { poor: number; excellent: number },
+): number {
+  const range = benchmark.excellent - benchmark.poor;
+  if (Math.abs(range) <= 0.0001) return value >= benchmark.excellent ? 100 : 0;
+  return clamp(((value - benchmark.poor) / range) * 100, 0, 100);
 }
 
-function normalizeRawScore(rawScore: number, calibration: ScoreCalibration): number {
-  const range = calibration.maxRawScore - calibration.minRawScore;
-  if (range <= 0.0001) return 50;
-  const ratio = clamp((rawScore - calibration.minRawScore) / range, 0, 1);
-  return Math.round(Math.pow(ratio, SCORE_CURVE_EXPONENT) * 100);
-}
-
-function enumerateRawPaths(config: AppConfig): RawPathSnapshot[] {
-  const paths: RawPathSnapshot[] = [];
+function enumerateSimulationPaths(config: AppConfig): SimulationState[] {
+  const paths: SimulationState[] = [];
   const initialState: SimulationState = {
     metrics: { ...config.scenario.initialMetrics },
     flags: [],
@@ -356,7 +389,6 @@ function enumerateRawPaths(config: AppConfig): RawPathSnapshot[] {
         flags: [...state.flags],
         choices: { ...state.choices },
         choiceIds: [...state.choiceIds],
-        rawScore: calculateRawScoreFromMetrics(state.metrics, config),
       });
       return;
     }
