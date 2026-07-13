@@ -29,7 +29,7 @@ Aplicação web educacional configurável para demonstrar a um criador de conte�
   - faixas e mensagens do resultado final;
   - exportação e importação de toda a configuração em JSON.
 - Build de produção incluído em `dist/`.
-- 21 testes unitários/integrados, importação/exportação, varredura automática dos 12.636 caminhos válidos e regressão visual com 26 screenshots de referência.
+- 28 testes unitários/integrados, incluindo persistência bloqueada e compatibilidade, importação/exportação, varredura automática dos 12.636 caminhos válidos e regressão visual com 26 screenshots de referência.
 
 ## Acesso do criador
 
@@ -147,7 +147,7 @@ src/
 
 ## Limites intencionais do MVP
 
-- Dados salvos apenas no `localStorage` do navegador; cada rodada guarda seu próprio snapshot de cenário.
+- Dados persistidos localmente quando o navegador permite; se o armazenamento estiver bloqueado, a rodada continua em memória durante a sessão. Cada rodada guarda seu próprio snapshot de cenário.
 - Não possui login de alunos, checkout, certificados ou painel remoto.
 - O PIN não é segurança real.
 - Valores de serviços são hipóteses educacionais configuráveis; não são apresentados como média nacional.
@@ -193,3 +193,16 @@ Durante as oito decisões, telas de celular passam a usar uma interface própria
 - Cabeçalho global ocultado somente durante uma rodada mobile; capa, resultado, configurações e desktop permanecem inalterados.
 
 A regressão visual inclui referências para a primeira decisão, quatro alternativas, indicadores expandidos, confirmação, feedback negativo e orientação horizontal.
+## Compatibilidade progressiva
+
+A versão 1.3.7 mantém o bundle moderno para aparelhos atuais e gera uma entrega alternativa para navegadores antigos. A aplicação detecta capacidades, não modelos específicos de celular.
+
+- Fallbacks para APIs JavaScript recentes usadas pelo jogo.
+- Persistência protegida contra bloqueios, modo privado, iframe e WebViews limitados.
+- Continuação da partida em memória quando `localStorage` não está disponível.
+- Validação e descarte seguro de partidas antigas ou corrompidas.
+- Fallbacks visuais para recursos CSS recentes, mantendo contraste e estrutura.
+- Build legado com polyfills carregado somente quando o navegador precisa.
+
+A experiência moderna não é substituída pela versão antiga: navegadores atuais continuam recebendo o bundle otimizado normal.
+

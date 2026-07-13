@@ -1,5 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { storageKeys } from '../utils/storage';
+import { removeJson, storageKeys } from '../utils/storage';
 import styles from './GameErrorBoundary.module.css';
 
 interface Props {
@@ -23,7 +23,7 @@ export class GameErrorBoundary extends Component<Props, State> {
   }
 
   private resetGame = () => {
-    localStorage.removeItem(storageKeys.RUN_KEY);
+    removeJson(storageKeys.RUN_KEY);
     this.setState({ hasError: false, message: '' });
     window.location.reload();
   };

@@ -7,10 +7,12 @@
   justify-content: space-between;
   gap: 1rem;
   min-height: 72px;
+  padding: 0.9rem 1.5rem;
   padding: 0.9rem clamp(1rem, 4vw, 3rem);
   border-bottom: 1px solid var(--border);
   background: rgba(7, 22, 39, 0.96);
   border-bottom-color: rgba(102, 208, 255, 0.16);
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
 }
 
@@ -45,7 +47,9 @@
   place-items: center;
   color: #f8fbff;
   background: linear-gradient(145deg, #17375a, #10223b);
+  border: 1px solid rgba(102, 208, 255, 0.4);
   border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  box-shadow: 0 12px 28px rgba(102, 208, 255, 0.14);
   box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 15%, transparent);
   font-weight: 900;
 }

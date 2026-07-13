@@ -6,7 +6,9 @@
 }
 
 .card {
+  width: 100%;
   width: min(560px, 100%);
+  padding: 1.8rem;
   padding: clamp(1.4rem, 4vw, 2.4rem);
   border: 1px solid var(--border);
   border-radius: 28px;

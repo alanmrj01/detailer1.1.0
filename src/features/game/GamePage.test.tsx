@@ -1,6 +1,7 @@
 import { act, create } from 'react-test-renderer';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defaultConfig } from '../../data/defaultConfig';
+import { removeJson, storageKeys } from '../../utils/storage';
 
 vi.mock('../../context/AppConfigContext', () => ({
   useAppConfig: () => ({
@@ -27,12 +28,45 @@ beforeEach(() => {
     value: new MemoryStorage(),
     configurable: true,
   });
+  removeJson(storageKeys.RUN_KEY);
 });
 
 describe('GamePage', () => {
   it('inicia a partida sem quebrar a ordem dos hooks do React', () => {
     const renderer = startGame();
     expect(renderer.root.findAllByType('h1')[0].children.join('')).toContain('Onde sua operação vai começar?');
+  });
+
+  it('avança da primeira para a segunda decisão mesmo quando o armazenamento é bloqueado', () => {
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem() { throw new Error('blocked'); },
+        setItem() { throw new Error('blocked'); },
+        removeItem() { throw new Error('blocked'); },
+        clear() { throw new Error('blocked'); },
+        key() { return null; },
+        length: 0,
+      },
+    });
+    const renderer = startGame();
+    const choiceButton = renderer.root.findAllByType('button').find((button) =>
+      renderedText(button).includes('Adaptar a garagem'),
+    );
+    act(() => choiceButton!.props.onClick());
+
+    const confirmButton = renderer.root.findAllByType('button').find((button) =>
+      renderedText(button).includes('Confirmar escolha'),
+    );
+    act(() => confirmButton!.props.onClick());
+
+    const continueButton = renderer.root.findAllByType('button').find((button) =>
+      renderedText(button).includes('Continuar'),
+    );
+    expect(continueButton).toBeTruthy();
+    act(() => continueButton!.props.onClick());
+
+    expect(renderer.root.findAllByType('h1')[0].children.join('')).toContain('Qual conjunto de equipamentos comprar?');
   });
 
   it('só revela a consequência completa depois que a decisão é confirmada', () => {

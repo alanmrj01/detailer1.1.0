@@ -12,6 +12,7 @@ import { analyzeGameBalance } from '../game/gameEngine';
 import { downloadConfig, parseConfigJson } from '../../utils/configTransfer';
 import { validateConfig } from '../../utils/configValidation';
 import { formatCurrency } from '../../utils/format';
+import { readSessionValue, writeSessionValue } from '../../utils/storage';
 import styles from './SettingsPage.module.css';
 
 type SettingsTab = 'branding' | 'scenario' | 'market' | 'decisions' | 'results' | 'data';
@@ -20,7 +21,7 @@ const metricKeys: MetricKey[] = ['cash', 'reputation', 'quality', 'capacity', 'r
 
 export function SettingsPage() {
   const { config, setConfig, updateConfig, resetConfig } = useAppConfig();
-  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem('detailer-creator-unlocked') === 'true');
+  const [unlocked, setUnlocked] = useState(() => readSessionValue('detailer-creator-unlocked') === 'true');
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
   const [tab, setTab] = useState<SettingsTab>('branding');
@@ -36,7 +37,7 @@ export function SettingsPage() {
 
   const unlock = () => {
     if (pin === config.security.creatorPin) {
-      sessionStorage.setItem('detailer-creator-unlocked', 'true');
+      writeSessionValue('detailer-creator-unlocked', 'true');
       setUnlocked(true);
       setPinError('');
     } else {

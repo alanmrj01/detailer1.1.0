@@ -1,5 +1,6 @@
 import type { AppConfig } from '../types/config';
 import { DEFAULT_SCORE_BENCHMARKS } from '../data/scoringDefaults';
+import { cloneValue } from './compat';
 
 export function serializeConfig(config: AppConfig): string {
   return JSON.stringify(config, null, 2);
@@ -32,7 +33,7 @@ export function downloadConfig(config: AppConfig): void {
 
 
 export function migrateConfig(config: AppConfig): AppConfig {
-  const migrated = structuredClone(config);
+  const migrated = cloneValue(config);
 
   if (migrated.version < 3) {
     const firstQuote = migrated.scenario.decisions.find((decision) => decision.id === 'first-quote');
@@ -45,7 +46,7 @@ export function migrateConfig(config: AppConfig): AppConfig {
     if (complaint) complaint.vehicleId ??= 'onix';
   }
 
-  migrated.scenario.scoreBenchmarks ??= structuredClone(DEFAULT_SCORE_BENCHMARKS);
+  migrated.scenario.scoreBenchmarks ??= cloneValue(DEFAULT_SCORE_BENCHMARKS);
 
   if (migrated.version < 5) {
     migrateScenarioTokens(migrated);

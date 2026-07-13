@@ -3,6 +3,7 @@ import { defaultConfig } from '../data/defaultConfig';
 import type { AppConfig, ThemeMode } from '../types/config';
 import { readJson, storageKeys, writeJson } from '../utils/storage';
 import { migrateConfig } from '../utils/configTransfer';
+import { cloneValue } from '../utils/compat';
 
 interface AppConfigContextValue {
   config: AppConfig;
@@ -18,7 +19,7 @@ const AppConfigContext = createContext<AppConfigContextValue | null>(null);
 export function AppConfigProvider({ children }: { children: ReactNode }) {
   const [config, setConfigState] = useState<AppConfig>(() => {
     const stored = readJson<AppConfig>(storageKeys.CONFIG_KEY);
-    return stored ? migrateConfig(stored) : structuredClone(defaultConfig);
+    return stored ? migrateConfig(stored) : cloneValue(defaultConfig);
   });
   const [theme, setThemeState] = useState<ThemeMode>(() => readJson<ThemeMode>(storageKeys.THEME_KEY) ?? 'dark');
 
@@ -32,7 +33,7 @@ export function AppConfigProvider({ children }: { children: ReactNode }) {
   };
 
   const resetConfig = () => {
-    setConfig(structuredClone(defaultConfig));
+    setConfig(cloneValue(defaultConfig));
   };
 
   const setTheme = (nextTheme: ThemeMode) => {

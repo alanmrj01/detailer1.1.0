@@ -1,6 +1,7 @@
 import type { AppConfig, DecisionChoice, DecisionConfig, MetricKey } from '../../types/config';
 import type { GameResult, GameRun, LedgerEntry } from '../../types/game';
 import { formatCurrency } from '../../utils/format';
+import { firstClause, lastItem, replaceAllText } from '../../utils/compat';
 import { calculateScoreBreakdown } from './gameEngine';
 
 const metricLabels: Record<MetricKey, string> = {
@@ -60,7 +61,7 @@ export function personalizeScenarioCopy(text: string, config: AppConfig): string
   };
 
   return Object.entries(contextMap).reduce(
-    (current, [token, value]) => current.replaceAll(token, value),
+    (current, [token, value]) => replaceAllText(current, token, value),
     withMoney,
   );
 }
@@ -87,7 +88,7 @@ export function personalizeText(
   };
 
   return Object.entries(contextMap).reduce(
-    (current, [token, value]) => current.replaceAll(token, value),
+    (current, [token, value]) => replaceAllText(current, token, value),
     scenarioText,
   );
 }
@@ -206,7 +207,7 @@ function describeEntryInfluence(
 
 function joinLabels(labels: string[]): string {
   if (labels.length <= 1) return labels[0] ?? 'o equilíbrio da operação';
-  return `${labels.slice(0, -1).join(', ')} e ${labels.at(-1)}`;
+  return `${labels.slice(0, -1).join(', ')} e ${lastItem(labels)}`;
 }
 
 function scoreEntry(
@@ -258,7 +259,7 @@ function negativeCopy(metric: string): string {
 
 export function summarizeConsequence(text: string): string {
   const cleaned = text.trim();
-  const firstChunk = cleaned.split(/(?<=[.!?])\s|,\s|;\s/)[0]?.trim() ?? cleaned;
+  const firstChunk = firstClause(cleaned) || cleaned;
   if (firstChunk.length <= 92) return firstChunk;
   return `${firstChunk.slice(0, 89).trimEnd()}...`;
 }

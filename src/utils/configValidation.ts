@@ -1,5 +1,6 @@
 import type { AppConfig } from '../types/config';
 import { analyzeGameBalance } from '../features/game/gameEngine';
+import { lastItem } from './compat';
 
 export interface ValidationIssue {
   level: 'error' | 'warning';
@@ -118,7 +119,7 @@ export function validateConfig(config: AppConfig): ValidationIssue[] {
   });
 
   const orderedBands = [...config.scenario.resultBands].sort((a, b) => a.minScore - b.minScore);
-  if (!orderedBands.length || orderedBands[0].minScore !== 0 || orderedBands.at(-1)?.maxScore !== 100) {
+  if (!orderedBands.length || orderedBands[0].minScore !== 0 || lastItem(orderedBands)?.maxScore !== 100) {
     issues.push({ level: 'warning', message: 'As faixas de resultado devem cobrir a pontuação de 0 a 100.' });
   }
   orderedBands.forEach((band, index) => {

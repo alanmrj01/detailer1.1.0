@@ -42,6 +42,7 @@
 
 html {
   min-width: 320px;
+  background: var(--background);
   background:
     radial-gradient(circle at 12% 10%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 28%),
     var(--background);
@@ -72,6 +73,7 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 a:focus-visible {
+  outline: 3px solid rgba(102, 208, 255, 0.5);
   outline: 3px solid color-mix(in srgb, var(--accent) 38%, transparent);
   outline-offset: 2px;
 }
@@ -97,6 +99,7 @@ a {
 .primaryButton {
   color: var(--accent-contrast);
   background: var(--accent);
+  box-shadow: 0 12px 28px rgba(102, 208, 255, 0.2);
   box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 24%, transparent);
 }
 
@@ -124,6 +127,7 @@ a {
 }
 
 .panel {
+  padding: 1.2rem;
   padding: clamp(1rem, 3vw, 1.4rem);
   border: 1px solid var(--border);
   border-radius: 20px;

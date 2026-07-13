@@ -12,6 +12,7 @@
   padding: 0.82rem 0.88rem;
   border: 1px solid var(--border);
   border-radius: 18px;
+  background: rgba(17, 24, 39, 0.92);
   background: color-mix(in srgb, var(--surface) 85%, transparent);
   box-shadow: var(--shadow-sm);
 }
@@ -46,6 +47,7 @@
   height: 34px;
   border-radius: 12px;
   color: #08243d;
+  background: linear-gradient(145deg, #a7e8ff, #66d0ff);
   background: linear-gradient(145deg, color-mix(in srgb, var(--accent) 92%, white), color-mix(in srgb, var(--accent) 65%, white));
   font-size: 0.76rem;
   font-weight: 900;
@@ -73,6 +75,7 @@
 
 .pulse {
   animation: metricPulse 460ms ease;
+  border-color: rgba(102, 208, 255, 0.48);
   border-color: color-mix(in srgb, var(--accent) 48%, var(--border));
 }
 

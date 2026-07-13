@@ -1,0 +1,32 @@
+DETAILER BUSINESS 1.3.7 — COMPATIBILIDADE PROGRESSIVA
+
+Objetivo
+- Ampliar a compatibilidade com iPhones/iPads presos em versões antigas do iOS, Androids e WebViews desatualizados, navegadores internos e ambientes com armazenamento limitado.
+- Preservar integralmente a experiência dos aparelhos modernos, o motor do jogo, as oito decisões, o painel do criador e o layout desktop/mobile já aprovado.
+
+Alterações técnicas
+- Bundle moderno preservado para navegadores atuais.
+- Bundle legado e polyfills gerados automaticamente para navegadores antigos por @vitejs/plugin-legacy.
+- Alvos legados incluem iOS/Safari 10+, Chrome 49+ e Android 5+ como camada de melhor esforço.
+- structuredClone, crypto.randomUUID, Array.at, String.replaceAll e regex lookbehind agora possuem alternativas compatíveis.
+- Removida dependência de Object.fromEntries no motor em tempo de execução.
+- Fallbacks de CSS adicionados para dvh, clamp(), min(), max(), color-mix(), backdrop-filter e safe areas.
+- Contraste da capa mobile reforçado em tagline, título, descrição, indicadores e texto de apoio.
+
+Persistência resiliente
+- localStorage e sessionStorage são acessados somente por uma camada protegida.
+- Falhas de leitura, gravação ou remoção não interrompem mais a partida.
+- Quando o armazenamento é bloqueado, o jogo continua em memória durante a sessão atual.
+- Partidas antigas ou corrompidas são validadas antes de serem restauradas.
+- Snapshot, métricas, histórico e índice da decisão são verificados antes do uso.
+
+Validação
+- 28 testes unitários e integrados aprovados.
+- Teste específico avança da primeira para a segunda decisão com localStorage bloqueado.
+- 12.636 caminhos válidos continuam verificados automaticamente.
+- TypeScript e build Vite aprovados.
+- Bundle moderno e bundle legado produzidos no build.
+- package-lock.json usa exclusivamente o registro público do npm.
+
+Observação
+- A confirmação final em um aparelho antigo real continua recomendada, porque simuladores atuais não reproduzem integralmente todas as limitações de versões antigas do WebKit e de WebViews específicos.

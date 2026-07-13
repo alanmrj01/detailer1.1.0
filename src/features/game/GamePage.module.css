@@ -1,5 +1,6 @@
 .page,
 .introPage {
+  width: calc(100% - 2rem);
   width: min(1220px, calc(100% - 2rem));
   margin: 0 auto;
   padding: 1.2rem 0 3rem;
@@ -18,6 +19,7 @@
   position: relative;
   overflow: hidden;
   border: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.96), rgba(24, 33, 47, 0.88));
   background: linear-gradient(135deg, color-mix(in srgb, var(--surface) 94%, transparent), color-mix(in srgb, var(--surface-2) 84%, transparent));
   box-shadow: var(--shadow-lg);
   min-width: 0;
@@ -42,8 +44,11 @@
   flex-direction: column;
   justify-content: center;
   min-height: 640px;
+  width: 46%;
   width: min(540px, 46%);
+  padding: 2.4rem;
   padding: clamp(1.6rem, 5vw, 4rem);
+  background: linear-gradient(90deg, rgba(17, 24, 39, 1) 28%, rgba(17, 24, 39, 0.92) 72%, transparent);
   background: linear-gradient(90deg, var(--surface) 28%, color-mix(in srgb, var(--surface) 92%, transparent) 72%, transparent);
 }
 
@@ -91,6 +96,7 @@
 .resultContent h1,
 .phaseBreakContent h1 {
   margin: 0.75rem 0 0.9rem;
+  font-size: 3rem;
   font-size: clamp(2.1rem, 4vw, 4.4rem);
   line-height: 0.98;
   letter-spacing: -0.05em;
@@ -108,6 +114,7 @@
 .resultContent p,
 .phaseBreakContent p {
   color: var(--muted);
+  font-size: 1.05rem;
   font-size: clamp(1rem, 1.7vw, 1.12rem);
   line-height: 1.62;
 }
@@ -123,6 +130,7 @@
   padding: 0.7rem 0.85rem;
   border: 1px solid var(--border);
   border-radius: 14px;
+  background: rgba(24, 33, 47, 0.86);
   background: color-mix(in srgb, var(--surface-2) 78%, transparent);
   color: var(--muted);
   font-size: 0.78rem;
@@ -214,7 +222,9 @@
   flex-direction: column;
   justify-content: flex-end;
   min-height: 580px;
+  width: 46%;
   width: min(540px, 46%);
+  padding: 1.8rem;
   padding: clamp(1.4rem, 4vw, 2.4rem);
   background: linear-gradient(180deg, transparent 20%, color-mix(in srgb, var(--surface) 82%, transparent) 56%, var(--surface) 100%);
 }
@@ -287,6 +297,7 @@
 
 .panelHeader h2 {
   margin: 0.5rem 0 0.45rem;
+  font-size: 1.65rem;
   font-size: clamp(1.4rem, 2vw, 2rem);
   letter-spacing: -0.04em;
 }
@@ -374,7 +385,9 @@
 }
 
 .modal {
+  width: 100%;
   width: min(560px, 100%);
+  padding: 1.6rem;
   padding: clamp(1.3rem, 4vw, 2rem);
   border: 1px solid var(--border);
   border-radius: 28px;
@@ -383,7 +396,7 @@
   animation: modalIn 220ms ease;
 }
 
-.feedbackModal { width: min(760px, 100%); }
+.feedbackModal { width: 100%; width: min(760px, 100%); }
 .modal h2 { margin: 0.5rem 0; }
 .modal p { color: var(--muted); line-height: 1.6; }
 
@@ -500,7 +513,9 @@
   flex-direction: column;
   justify-content: center;
   min-height: 470px;
+  width: 52%;
   width: min(720px, 52%);
+  padding: 2.1rem;
   padding: clamp(1.6rem, 4vw, 3rem);
   background: linear-gradient(180deg, transparent 10%, color-mix(in srgb, var(--surface) 86%, transparent) 54%, var(--surface) 100%);
 }
@@ -639,6 +654,7 @@
 
 .resultSectionHeader h2 {
   margin: 0.35rem 0 0;
+  font-size: 1.6rem;
   font-size: clamp(1.35rem, 2.2vw, 2rem);
   letter-spacing: -0.04em;
 }
@@ -772,7 +788,7 @@
 
 @media (max-width: 840px) {
   .page,
-  .introPage { width: min(100% - 1rem, 1220px); }
+  .introPage { width: calc(100% - 1rem); width: min(100% - 1rem, 1220px); }
   .phaseRail,
   .resultGrid,
   .feedbackGrid,
@@ -851,6 +867,7 @@
     display: grid;
     grid-template-rows: auto minmax(0, 1fr);
     width: 100%;
+    height: 100vh;
     height: 100dvh;
     margin: 0;
     padding: 0;
@@ -967,6 +984,8 @@
   .gameArena {
     display: grid;
     grid-template-columns: 1fr;
+    grid-template-rows: 270px minmax(0, 1fr);
+    grid-template-rows: clamp(220px, 36vh, 306px) minmax(0, 1fr);
     grid-template-rows: clamp(220px, 36dvh, 306px) minmax(0, 1fr);
     gap: 0;
     min-height: 0;
@@ -1043,6 +1062,7 @@
     max-width: 96%;
     margin: 0 0 0.16rem;
     color: #ffffff;
+    font-size: 1.34rem;
     font-size: clamp(1.18rem, 5.6vw, 1.5rem);
     line-height: 0.98;
     letter-spacing: -0.045em;
@@ -1163,6 +1183,7 @@
     margin: 0;
     overflow: hidden;
     color: #f8fafc;
+    font-size: 0.7rem;
     font-size: clamp(0.65rem, 2.85vw, 0.76rem);
     line-height: 1.08;
     letter-spacing: -0.018em;
@@ -1174,6 +1195,7 @@
     align-self: center;
     margin: 0;
     color: #93a0b2;
+    font-size: 0.57rem;
     font-size: clamp(0.52rem, 2.35vw, 0.62rem);
     line-height: 1.16;
     -webkit-line-clamp: 2;
@@ -1184,6 +1206,7 @@
     justify-self: end;
     align-self: end;
     color: var(--accent);
+    font-size: 0.62rem;
     font-size: clamp(0.56rem, 2.55vw, 0.67rem);
     line-height: 1;
   }
@@ -1221,7 +1244,9 @@
   .mobileMetricsDrawer,
   .modal {
     width: 100%;
+    max-height: 94vh;
     max-height: 94dvh;
+    padding: 0.8rem 0.9rem 0.9rem;
     padding: 0.8rem 0.9rem max(0.9rem, env(safe-area-inset-bottom));
     overflow-y: auto;
     border: 1px solid rgba(102, 208, 255, 0.24);
@@ -1459,7 +1484,7 @@
     white-space: nowrap;
   }
 
-  .feedbackModal { max-height: 100dvh; }
+  .feedbackModal { max-height: 100vh; max-height: 100dvh; }
   .feedbackModal .kicker { display: none; }
 
   .rewardPanel {
@@ -1607,6 +1632,7 @@
 
   .storyOverlay h1 {
     max-width: 96%;
+    font-size: 1.36rem;
     font-size: clamp(1.18rem, 3vw, 1.52rem);
   }
 
@@ -1656,6 +1682,7 @@
 
   .mobileHud {
     gap: 0.3rem;
+    padding: 0.4rem 0.65rem 0.45rem;
     padding: max(0.4rem, env(safe-area-inset-top)) 0.65rem 0.45rem;
     background: linear-gradient(180deg, #071727 0%, #06111f 100%);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
@@ -1718,6 +1745,8 @@
   }
 
   .gameArena {
+    grid-template-rows: 270px minmax(0, 1fr);
+    grid-template-rows: clamp(246px, 34vh, 292px) minmax(0, 1fr);
     grid-template-rows: clamp(246px, 34dvh, 292px) minmax(0, 1fr);
   }
 
@@ -1762,6 +1791,7 @@
   .storyOverlay h1 {
     max-width: 100%;
     margin-bottom: 0.3rem;
+    font-size: 1.62rem;
     font-size: clamp(1.48rem, 6.3vw, 1.75rem);
     line-height: 1.02;
     text-shadow: 0 4px 22px rgba(0, 0, 0, 1);
@@ -1770,6 +1800,7 @@
   .storyOverlay p {
     max-width: 100%;
     color: #e0e8f2;
+    font-size: 0.8rem;
     font-size: clamp(0.75rem, 3.15vw, 0.84rem);
     line-height: 1.3;
     text-shadow: 0 2px 12px rgba(0, 0, 0, 1);
@@ -1777,6 +1808,7 @@
 
   .decisionPanel {
     gap: 0.45rem;
+    padding: 0.5rem 0.58rem 0.55rem;
     padding: 0.5rem 0.58rem max(0.55rem, env(safe-area-inset-bottom));
     background: linear-gradient(180deg, #081522 0%, #06101b 100%);
   }
@@ -1819,6 +1851,7 @@
     display: -webkit-box;
     overflow: hidden;
     color: #ffffff;
+    font-size: 0.8rem;
     font-size: clamp(0.74rem, 3.15vw, 0.84rem);
     line-height: 1.13;
     text-overflow: initial;
@@ -1830,12 +1863,14 @@
   .choiceCard p {
     align-self: center;
     color: #c0cad7;
+    font-size: 0.68rem;
     font-size: clamp(0.64rem, 2.72vw, 0.72rem);
     line-height: 1.2;
   }
 
   .choiceCost {
     color: #72dcff;
+    font-size: 0.72rem;
     font-size: clamp(0.68rem, 2.9vw, 0.78rem);
     font-weight: 900;
   }
@@ -1850,7 +1885,9 @@
 
   .mobileMetricsDrawer,
   .modal {
+    max-height: 92vh;
     max-height: 92dvh;
+    padding: 0.9rem 1rem 1rem;
     padding: 0.9rem 1rem max(1rem, env(safe-area-inset-bottom));
     border-radius: 26px 26px 0 0;
   }
@@ -1971,6 +2008,7 @@
   }
 
   .feedbackModal {
+    max-height: 100vh;
     max-height: 100dvh;
   }
 
@@ -2065,7 +2103,7 @@
 
 @media (max-width: 380px) and (max-height: 820px) {
   .gameplayPage { grid-template-rows: 82px minmax(0, 1fr); }
-  .gameArena { grid-template-rows: clamp(230px, 32.5dvh, 258px) minmax(0, 1fr); }
+  .gameArena { grid-template-rows: 246px minmax(0, 1fr); grid-template-rows: clamp(230px, 32.5vh, 258px) minmax(0, 1fr); grid-template-rows: clamp(230px, 32.5dvh, 258px) minmax(0, 1fr); }
   .storyOverlay h1 { font-size: 1.38rem; }
   .storyOverlay p { font-size: 0.72rem; }
   .choiceCard { grid-template-columns: 58px minmax(0, 1fr) 18px; gap: 0.42rem; }
@@ -2128,6 +2166,7 @@
   .storyOverlay h1 {
     max-width: 98%;
     margin-bottom: 0.28rem;
+    font-size: 1.5rem;
     font-size: clamp(1.35rem, 3.2vw, 1.65rem);
     line-height: 1.02;
   }
@@ -2163,4 +2202,205 @@
 
   .choiceCost { font-size: 0.72rem; }
   .choiceChevron { font-size: 1.35rem; }
+}
+
+
+/* 1.3.7 — contraste da abertura e fallbacks para navegadores antigos. */
+@media (max-width: 760px) {
+  .introPage {
+    width: 100%;
+    min-height: calc(100vh - 64px);
+    padding: 0;
+    place-items: stretch;
+  }
+
+  .introHero {
+    min-height: calc(100vh - 64px);
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+    background: #08111e;
+  }
+
+  .introContent {
+    justify-content: flex-end;
+    width: 100%;
+    min-height: calc(100vh - 64px);
+    padding: 1.15rem 1rem;
+    padding: 1.15rem 1rem max(1.15rem, env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, rgba(3, 9, 18, 0.14) 0%, rgba(3, 9, 18, 0.34) 30%, rgba(3, 9, 18, 0.9) 57%, #050d17 100%);
+  }
+
+  .introContent .kicker {
+    width: fit-content;
+    padding: 0.38rem 0.55rem;
+    border: 1px solid rgba(102, 208, 255, 0.28);
+    border-radius: 999px;
+    color: #9be7ff;
+    background: rgba(3, 16, 29, 0.88);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+  }
+
+  .introLogo,
+  .logoBadge {
+    width: 58px;
+    height: 58px;
+    margin: 0.65rem 0 0.55rem;
+    border-radius: 18px;
+  }
+
+  .introTagline {
+    display: inline-flex;
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.42rem 0.58rem;
+    border-left: 3px solid #66d0ff;
+    border-radius: 8px;
+    color: #e5f5ff;
+    background: rgba(3, 13, 24, 0.86);
+    font-size: 0.78rem;
+    line-height: 1.25;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+  }
+
+  .introContent h1 {
+    margin: 0.62rem 0 0.55rem;
+    color: #ffffff;
+    font-size: 2.3rem;
+    font-size: clamp(2rem, 9vw, 2.65rem);
+    line-height: 0.98;
+    text-shadow: 0 4px 22px rgba(0, 0, 0, 1);
+  }
+
+  .introContent > p {
+    margin: 0;
+    padding: 0.72rem 0.78rem;
+    border: 1px solid rgba(148, 197, 235, 0.18);
+    border-radius: 14px;
+    color: #e2e8f0;
+    background: rgba(5, 16, 29, 0.88);
+    font-size: 0.92rem;
+    line-height: 1.48;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.88);
+  }
+
+  .introStats {
+    gap: 0.45rem;
+    margin: 0.85rem 0;
+  }
+
+  .introStats span {
+    padding: 0.55rem 0.65rem;
+    border-color: rgba(148, 197, 235, 0.2);
+    color: #d8e2ed;
+    background: rgba(11, 27, 44, 0.94);
+    font-size: 0.72rem;
+  }
+
+  .introStats strong {
+    color: #ffffff;
+  }
+
+  .introActions {
+    margin: 0 0 0.75rem;
+  }
+
+  .introContent > small {
+    display: block;
+    padding: 0.62rem 0.7rem;
+    border-radius: 12px;
+    color: #d0dae6;
+    background: rgba(5, 16, 29, 0.84);
+    font-size: 0.73rem;
+    line-height: 1.42;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  }
+}
+
+@supports not (color: color-mix(in srgb, white, black)) {
+  .introHero,
+  .storyStage,
+  .resultHero,
+  .phaseBreakHero {
+    background: linear-gradient(135deg, rgba(17, 24, 39, 0.96), rgba(24, 33, 47, 0.9));
+  }
+
+  .introContent {
+    background: linear-gradient(90deg, var(--surface) 28%, rgba(17, 24, 39, 0.92) 72%, transparent);
+  }
+
+  .logoBadge,
+  .introLogo,
+  .mobileBrandMark {
+    border-color: rgba(102, 208, 255, 0.42);
+  }
+
+  .phaseCard,
+  .decisionPanel,
+  .minorStats span {
+    background: rgba(17, 24, 39, 0.94);
+  }
+
+  .phaseActive {
+    border-color: rgba(102, 208, 255, 0.46);
+    box-shadow: 0 12px 28px rgba(102, 208, 255, 0.12);
+  }
+
+  .storyOverlay,
+  .phaseBreakContent,
+  .resultContent {
+    background: linear-gradient(180deg, transparent 16%, rgba(17, 24, 39, 0.9) 56%, var(--surface) 100%);
+  }
+
+  .phaseBadge,
+  .commandTag,
+  .infoButton {
+    background: linear-gradient(145deg, #a7e8ff, #66d0ff);
+  }
+
+  .storyProgress i {
+    background: linear-gradient(90deg, #9be7ff, #66d0ff);
+  }
+
+  .choiceCard {
+    background: linear-gradient(180deg, rgba(24, 33, 47, 0.94), rgba(17, 24, 39, 0.98));
+  }
+
+  .choiceCard:hover:not(:disabled) {
+    border-color: rgba(102, 208, 255, 0.58);
+  }
+
+  .rewardPanel,
+  .feedbackNote,
+  .readMoreButton,
+  .historyToggle,
+  .impactPill {
+    background: rgba(24, 40, 58, 0.96);
+  }
+
+  .rewardPanel,
+  .impactPill,
+  .historyToggle {
+    border-color: rgba(102, 208, 255, 0.2);
+  }
+
+  .rewardGain {
+    border-color: rgba(34, 197, 94, 0.36);
+    background: rgba(24, 56, 45, 0.96);
+  }
+
+  .rewardLoss {
+    border-color: rgba(239, 68, 68, 0.36);
+    background: rgba(61, 31, 39, 0.96);
+  }
+
+  .resultCardExpanded {
+    border-color: rgba(102, 208, 255, 0.34);
+    box-shadow: 0 18px 36px rgba(102, 208, 255, 0.09);
+  }
+
+  .mobileMetricsSummary button {
+    border-color: rgba(102, 208, 255, 0.56);
+    background: #0b1e31;
+  }
 }

@@ -5,10 +5,13 @@ import type {
   MetricKey,
   NumericMetrics,
 } from '../../types/config';
-import type { GameResult, GameRun } from '../../types/game';
+import type { GameResult, GameRun, LedgerEntry } from '../../types/game';
 import { clamp, formatCurrency } from '../../utils/format';
+import { cloneValue, createUniqueId } from '../../utils/compat';
 
 const boundedMetrics: MetricKey[] = ['reputation', 'quality', 'risk', 'fatigue'];
+const metricKeys: MetricKey[] = ['cash', 'reputation', 'quality', 'capacity', 'risk', 'customers', 'fatigue'];
+
 const balanceCache = new WeakMap<AppConfig, GameBalanceAnalysis>();
 
 interface SimulationState {
@@ -48,20 +51,47 @@ export interface ScoreBreakdown {
 
 export function createRun(config: AppConfig): GameRun {
   return {
-    runId: crypto.randomUUID(),
+    runId: createUniqueId(),
     startedAt: new Date().toISOString(),
     currentDecisionIndex: 0,
     metrics: { ...config.scenario.initialMetrics },
     flags: [],
     choices: {},
     ledger: [],
-    scenarioSnapshot: structuredClone(config.scenario),
+    scenarioSnapshot: cloneValue(config.scenario),
+  };
+}
+
+export function restoreRun(value: unknown, config: AppConfig): GameRun | null {
+  if (!isRecord(value)) return null;
+  if (typeof value.runId !== 'string' || typeof value.startedAt !== 'string') return null;
+  if (!Number.isInteger(value.currentDecisionIndex) || value.currentDecisionIndex < 0) return null;
+  if (!hasValidMetrics(value.metrics)) return null;
+  if (!Array.isArray(value.flags) || !value.flags.every((item) => typeof item === 'string')) return null;
+  if (!isStringRecord(value.choices) || !Array.isArray(value.ledger) || !value.ledger.every(isLedgerEntry)) return null;
+
+  const snapshot = isScenarioSnapshot(value.scenarioSnapshot)
+    ? cloneValue(value.scenarioSnapshot)
+    : cloneValue(config.scenario);
+
+  if (value.currentDecisionIndex > snapshot.decisions.length) return null;
+
+  return {
+    runId: value.runId,
+    startedAt: value.startedAt,
+    completedAt: typeof value.completedAt === 'string' ? value.completedAt : undefined,
+    currentDecisionIndex: value.currentDecisionIndex,
+    metrics: { ...value.metrics },
+    flags: [...value.flags],
+    choices: { ...value.choices },
+    ledger: cloneValue(value.ledger) as GameRun['ledger'],
+    scenarioSnapshot: snapshot,
   };
 }
 
 export function ensureRunScenarioSnapshot(run: GameRun, config: AppConfig): GameRun {
   if (run.scenarioSnapshot) return run;
-  return { ...run, scenarioSnapshot: structuredClone(config.scenario) };
+  return { ...run, scenarioSnapshot: cloneValue(config.scenario) };
 }
 
 export function resolveRunConfig(run: GameRun, currentConfig: AppConfig): AppConfig {
@@ -156,7 +186,7 @@ export function applyChoice(
     ledger: [
       ...run.ledger,
       {
-        id: crypto.randomUUID(),
+        id: createUniqueId(),
         decisionId,
         choiceId: choice.id,
         title: choice.label,
@@ -291,7 +321,10 @@ export function analyzeGameBalance(config: AppConfig): GameBalanceAnalysis {
   if (cached) return cached;
 
   const paths = enumerateValidGamePaths(config);
-  const bandCounts = Object.fromEntries(config.scenario.resultBands.map((band) => [band.id, 0]));
+  const bandCounts = config.scenario.resultBands.reduce<Record<string, number>>((counts, band) => {
+    counts[band.id] = 0;
+    return counts;
+  }, {});
   paths.forEach((path) => {
     bandCounts[path.bandId] = (bandCounts[path.bandId] ?? 0) + 1;
   });
@@ -561,3 +594,70 @@ function findResultBand(score: number, config: AppConfig) {
     config.scenario.resultBands[0]
   );
 }
+function hasValidMetrics(value: unknown): value is NumericMetrics {
+  if (!isRecord(value)) return false;
+  return metricKeys.every((key) => typeof value[key] === 'number' && Number.isFinite(value[key]));
+}
+
+function isScenarioSnapshot(value: unknown): value is AppConfig['scenario'] {
+  if (!isRecord(value)) return false;
+  return hasValidMetrics(value.initialMetrics) &&
+    typeof value.durationDays === 'number' &&
+    typeof value.currency === 'string' &&
+    Array.isArray(value.decisions) &&
+    value.decisions.length > 0 &&
+    value.decisions.every(isStoredDecision) &&
+    Array.isArray(value.equipment) &&
+    Array.isArray(value.cars) &&
+    Array.isArray(value.resultBands) &&
+    value.resultBands.length > 0 &&
+    isRecord(value.scoreWeights) &&
+    isRecord(value.scoreBenchmarks);
+}
+
+function isStoredDecision(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return typeof value.id === 'string' &&
+    typeof value.title === 'string' &&
+    typeof value.module === 'string' &&
+    Array.isArray(value.choices) &&
+    value.choices.length > 0 &&
+    value.choices.every((choice) =>
+      isRecord(choice) &&
+      typeof choice.id === 'string' &&
+      typeof choice.label === 'string' &&
+      typeof choice.consequence === 'string' &&
+      isRecord(choice.effects),
+    );
+}
+
+function isLedgerEntry(value: unknown): value is LedgerEntry {
+  if (!isRecord(value)) return false;
+  return typeof value.id === 'string' &&
+    typeof value.decisionId === 'string' &&
+    typeof value.choiceId === 'string' &&
+    typeof value.title === 'string' &&
+    typeof value.consequence === 'string' &&
+    hasValidMetrics(value.before) &&
+    hasValidMetrics(value.after) &&
+    isNumericMetricDelta(value.delta);
+}
+
+function isNumericMetricDelta(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return Object.keys(value).every((key) =>
+    metricKeys.includes(key as MetricKey) &&
+    typeof value[key] === 'number' &&
+    Number.isFinite(value[key]),
+  );
+}
+
+function isStringRecord(value: unknown): value is Record<string, string> {
+  if (!isRecord(value)) return false;
+  return Object.keys(value).every((key) => typeof value[key] === 'string');
+}
+
+function isRecord(value: unknown): value is Record<string, any> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+

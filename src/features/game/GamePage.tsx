@@ -7,7 +7,8 @@ import { useAppConfig } from '../../context/AppConfigContext';
 import type { DecisionChoice, MetricKey, NumericMetrics } from '../../types/config';
 import type { GameResult, GameRun, LedgerEntry } from '../../types/game';
 import { formatCurrency } from '../../utils/format';
-import { readJson, storageKeys, writeJson } from '../../utils/storage';
+import { firstSentence, lastItem } from '../../utils/compat';
+import { readJson, removeJson, storageKeys, writeJson } from '../../utils/storage';
 import {
   applyChoice,
   calculateResult,
@@ -19,6 +20,7 @@ import {
   equipmentCost,
   resolveAnimation,
   resolveRunConfig,
+  restoreRun,
   scoreToStars,
 } from './gameEngine';
 import {
@@ -43,8 +45,14 @@ interface GamePageProps {
 export function GamePage({ onGameplayStateChange }: GamePageProps) {
   const { config, theme, setTheme } = useAppConfig();
   const [run, setRun] = useState<GameRun | null>(() => {
-    const stored = readJson<GameRun>(storageKeys.RUN_KEY);
-    return stored ? ensureRunScenarioSnapshot(stored, config) : null;
+    const stored = readJson<unknown>(storageKeys.RUN_KEY);
+    if (!stored) return null;
+    const restored = restoreRun(stored, config);
+    if (!restored) {
+      removeJson(storageKeys.RUN_KEY);
+      return null;
+    }
+    return ensureRunScenarioSnapshot(restored, config);
   });
   const [selectedChoice, setSelectedChoice] = useState<DecisionChoice | null>(null);
   const [feedback, setFeedback] = useState<{ entry: LedgerEntry; mentorTip: string } | null>(null);
@@ -58,7 +66,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
 
   useEffect(() => {
     if (run) writeJson(storageKeys.RUN_KEY, run);
-    else localStorage.removeItem(storageKeys.RUN_KEY);
+    else removeJson(storageKeys.RUN_KEY);
   }, [run]);
 
   useEffect(() => {
@@ -286,7 +294,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
             <div className={styles.historyPreview}>
               <span>{run.ledger[0]?.title ?? 'Primeira decisão registrada'}</span>
               <i />
-              <span>{run.ledger.at(-1)?.title ?? 'Última decisão registrada'}</span>
+              <span>{lastItem(run.ledger)?.title ?? 'Última decisão registrada'}</span>
             </div>
           )}
         </section>
@@ -586,8 +594,8 @@ function getMobileSituation(decisionId: string, currentSituation: string): strin
   };
   const preferred = defaults[decisionId];
   if (preferred && currentSituation.includes(preferred.marker)) return preferred.copy;
-  const firstSentence = currentSituation.split(/(?<=[.!?])\s+/)[0]?.trim();
-  return firstSentence || currentSituation;
+  const summary = firstSentence(currentSituation);
+  return summary || currentSituation;
 }
 
 function buildMobileFeedbackSummary(
