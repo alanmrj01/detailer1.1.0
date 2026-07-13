@@ -18,7 +18,7 @@ describe('configuração do criador', () => {
     delete legacy.scenario.scoreBenchmarks;
 
     const imported = parseConfigJson(JSON.stringify(legacy));
-    expect(imported.version).toBe(5);
+    expect(imported.version).toBe(6);
     expect(imported.scenario.scoreBenchmarks.cashReserveRatio).toEqual({ poor: 0.15, excellent: 0.9 });
     expect(imported.scenario.resultBands.map((band) => [band.minScore, band.maxScore])).toEqual([
       [0, 54], [55, 69], [70, 84], [85, 100],

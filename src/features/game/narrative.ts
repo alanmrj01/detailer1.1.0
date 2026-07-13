@@ -28,9 +28,39 @@ export function getPrimaryServiceLabel(run: GameRun): string {
     case 'interior-service':
       return 'higienização interna';
     case 'balanced':
-      return 'catálogo enxuto com pacote premium';
+      return 'pacote combinado de lavagem e cuidados internos';
     default:
       return 'serviço de entrada';
+  }
+}
+
+export function getPrimaryServiceWithArticle(run: GameRun): string {
+  const serviceChoice = run.choices['service-focus'];
+  switch (serviceChoice) {
+    case 'wash':
+      return 'uma lavagem detalhada';
+    case 'polish':
+      return 'um polimento comercial';
+    case 'interior-service':
+      return 'uma higienização interna';
+    case 'balanced':
+      return 'um pacote combinado de lavagem e cuidados internos';
+    default:
+      return 'um serviço de entrada';
+  }
+}
+
+export function getComplaintContext(run: GameRun): string {
+  const pressureChoice = run.choices['execution-pressure'];
+  switch (pressureChoice) {
+    case 'rush':
+      return 'Depois de acelerar uma entrega para cumprir dois horários,';
+    case 'renegotiate':
+      return 'Após reorganizar os prazos da agenda,';
+    case 'preserve-quality':
+      return 'Dias depois, em outro atendimento,';
+    default:
+      return 'Em um atendimento recente,';
   }
 }
 
@@ -73,6 +103,8 @@ export function personalizeText(
   vehicleId?: string,
 ): string {
   const primaryService = getPrimaryServiceLabel(run);
+  const primaryServiceWithArticle = getPrimaryServiceWithArticle(run);
+  const complaintContext = getComplaintContext(run);
   const scenarioText = personalizeScenarioCopy(text, config);
   const operationModel = getOperationLabel(run);
   const vehicle = vehicleId
@@ -82,6 +114,8 @@ export function personalizeText(
   const contextMap: Record<string, string> = {
     '{{primaryService}}': primaryService,
     '{{primaryServiceCap}}': capitalize(primaryService),
+    '{{primaryServiceWithArticle}}': primaryServiceWithArticle,
+    '{{complaintContext}}': complaintContext,
     '{{operationModel}}': operationModel,
     '{{vehicle}}': vehicleLabel,
     '{{vehicleModel}}': vehicle?.model ?? 'veículo',

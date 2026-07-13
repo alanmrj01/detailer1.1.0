@@ -1,0 +1,56 @@
+DETAILER BUSINESS 1.3.8 — NARRATIVA E REFINAMENTOS MOBILE
+
+Objetivo
+- Corrigir inconsistências entre escolhas anteriores e situações posteriores.
+- Simplificar definitivamente a abertura do jogo em celulares.
+- Evitar que o controle externo de fechar da landing cubra a classificação.
+- Dar mais destaque à consequência e à justificativa da escolha sem aumentar a poluição visual.
+
+Narrativa e variáveis
+- A opção "Catálogo equilibrado" agora é referenciada nas etapas seguintes como "pacote combinado de lavagem e cuidados internos".
+- O título "A {{primaryService}} atrasou..." foi substituído por "O serviço se estendeu...", evitando atribuir atraso ao catálogo ou ao tipo de oferta.
+- Artigos e concordância foram tratados por uma variável própria: uma lavagem, um polimento, uma higienização ou um pacote combinado.
+- A reclamação posterior agora considera a decisão tomada sob pressão:
+  - acelerar: relaciona a reclamação à entrega acelerada;
+  - renegociar: contextualiza a reorganização dos prazos;
+  - preservar qualidade: deixa claro que a ocorrência aconteceu em outro atendimento.
+- Textos antigos salvos no painel e em partidas em andamento são migrados apenas quando ainda correspondem aos textos padrão. Personalizações do criador são preservadas.
+- Testes automatizados cobrem as quatro variações de serviço, os três desdobramentos da pressão de execução e tokens não resolvidos.
+
+Abertura mobile
+- Removidos do celular elementos repetidos: segundo logo, tagline repetida, três cards separados, botão duplicado de tema e texto técnico persistente.
+- Mantidos uma promessa, um resumo curto, uma linha compacta com 90 dias / 8 decisões / diagnóstico e um único CTA principal.
+- A explicação sobre preços e valores permanece disponível sob demanda em "Como os valores do jogo são definidos?".
+- Gradiente recalibrado para revelar melhor a ilustração sem reduzir a legibilidade.
+
+HUD incorporado
+- A classificação foi centralizada na barra superior do jogo mobile.
+- O rótulo secundário "classificação" foi removido no celular para evitar sobreposição.
+- O canto superior direito fica reservado para o botão "Fechar" controlado pela landing page.
+- O modo incorporado é detectado por iframe ou pelo parâmetro ?embed=1, sem depender do modelo do aparelho.
+
+Consequência da escolha
+- A consequência dominante passa a ser o título principal da justificativa, por exemplo:
+  - "O risco operacional aumentou";
+  - "O caixa ficou mais pressionado";
+  - "A confiança do cliente aumentou".
+- O título é calculado a partir do impacto ponderado real na pontuação, não de uma frase genérica.
+- A escolha feita e a primeira consequência aparecem juntas em um bloco de alto contraste.
+- Apenas os três impactos mais relevantes ficam visíveis de imediato.
+- Fortalezas e atenções detalhadas continuam disponíveis em "Entender esta decisão".
+- "Leitura do método" foi renomeado para "Por que isso importa".
+
+Preservado
+- Desktop e tablet.
+- Oito decisões e disponibilidade das opções.
+- Efeitos, pontuação, régua absoluta e 12.636 caminhos válidos.
+- Painel do criador e configurações personalizadas.
+- Compatibilidade progressiva e fallback de armazenamento da versão 1.3.7.
+- Integração independente com a landing page.
+
+Validação
+- 30 testes unitários e integrados aprovados.
+- 12.636 caminhos válidos analisados sem alteração de balanceamento.
+- 24 testes de regressão visual e 27 screenshots de referência, incluindo mobile incorporado.
+- Screenshots de referência atualizados para abertura, HUD, confirmação e feedback.
+- TypeScript e build Vite aprovados.

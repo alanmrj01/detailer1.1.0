@@ -206,3 +206,11 @@ A versão 1.3.7 mantém o bundle moderno para aparelhos atuais e gera uma entreg
 
 A experiência moderna não é substituída pela versão antiga: navegadores atuais continuam recebendo o bundle otimizado normal.
 
+
+## Refinamentos 1.3.8 — narrativa e experiência mobile
+
+A versão 1.3.8 revisa a ligação entre as escolhas e os desafios posteriores. Referências ao serviço escolhido agora usam concordância própria, a etapa de pressão não atribui atraso ao catálogo e a reclamação seguinte considera a forma como o jogador lidou com o prazo.
+
+No celular, a abertura foi condensada em uma promessa, um resumo e uma ação principal. Durante a rodada incorporada, a classificação fica centralizada e o canto direito permanece livre para o botão de fechar da landing. A tela de consequência destaca primeiro o efeito dominante da decisão e mantém os detalhes adicionais recolhidos.
+
+As configurações personalizadas do criador não são sobrescritas: a migração altera somente os textos padrão de versões anteriores.

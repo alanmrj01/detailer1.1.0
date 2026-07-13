@@ -12,7 +12,8 @@ import {
   equipmentCost,
   resolveRunConfig,
 } from './gameEngine';
-import { explainResultCard } from './narrative';
+import { explainResultCard, personalizeDecision } from './narrative';
+import { migrateConfig } from '../../utils/configTransfer';
 
 describe('gameEngine', () => {
   it('calcula o custo de equipamentos diretamente pelo catálogo configurável', () => {
@@ -244,4 +245,83 @@ describe('gameEngine', () => {
     expect(demandingResult.metrics.fatigue).toBeGreaterThan(regularResult.metrics.fatigue);
     expect(demandingResult.metrics.risk).toBeGreaterThan(regularResult.metrics.risk);
   });
+
+  it('mantém a narrativa coerente em todas as variações de serviço que alimentam os desafios', () => {
+    const narrativeBranches = [
+      ['garage', 'essential', 'wash', undefined, undefined, 'preserve-quality'],
+      ['garage', 'polishing', 'polish', undefined, undefined, 'rush'],
+      ['garage', 'interior', 'interior-service', undefined, undefined, 'renegotiate'],
+      ['garage', 'essential', 'balanced', undefined, undefined, 'preserve-quality'],
+    ];
+    const forbiddenPatterns = [
+      /catálogo[^.?!]{0,40}(atrasou|atrasado)/i,
+      /a catálogo/i,
+      /sua pacote/i,
+      /sua polimento/i,
+      /sua lavagem/i,
+      /sua higienização/i,
+      /\{\{[^}]+\}\}/,
+    ];
+    const failures: string[] = [];
+
+    for (const branch of narrativeBranches) {
+      let run = createRun(defaultConfig);
+      for (let index = 0; index < defaultConfig.scenario.decisions.length; index += 1) {
+        const decision = defaultConfig.scenario.decisions[index];
+        const personalized = personalizeDecision(decision, run, defaultConfig);
+        const texts = [
+          personalized.title,
+          personalized.situation,
+          personalized.mentorTip,
+          ...personalized.choices.flatMap((choice) => [choice.label, choice.description, choice.consequence]),
+        ];
+
+        for (const text of texts) {
+          const matched = forbiddenPatterns.find((pattern) => pattern.test(text));
+          if (matched) failures.push(`${branch.join(' > ')} | ${decision.id} | ${text}`);
+        }
+
+        const preferredId = branch[index];
+        const choice = preferredId
+          ? decision.choices.find((item) => item.id === preferredId)
+          : decision.choices.find((item) => item.recommended) ?? decision.choices.find((item) => choiceAvailability(item, run, defaultConfig, decision.id).available);
+        expect(choice).toBeTruthy();
+        run = applyChoice(run, decision.id, choice!, defaultConfig);
+      }
+    }
+
+    const complaintDecision = defaultConfig.scenario.decisions.find((item) => item.id === 'customer-complaint')!;
+    const complaintContexts = [
+      { choice: 'rush', expected: 'Depois de acelerar uma entrega para cumprir dois horários' },
+      { choice: 'renegotiate', expected: 'Após reorganizar os prazos da agenda' },
+      { choice: 'preserve-quality', expected: 'Dias depois, em outro atendimento' },
+    ];
+    complaintContexts.forEach(({ choice, expected }) => {
+      const run = createRun(defaultConfig);
+      run.choices['service-focus'] = 'balanced';
+      run.choices['execution-pressure'] = choice;
+      const personalized = personalizeDecision(complaintDecision, run, defaultConfig);
+      expect(personalized.situation).toContain(expected);
+      expect(personalized.situation).toContain('pacote combinado de lavagem e cuidados internos');
+    });
+
+    expect(failures).toEqual([]);
+  });
+
+  it('migra textos narrativos antigos sem sobrescrever personalizações do criador', () => {
+    const oldConfig = structuredClone(defaultConfig);
+    oldConfig.version = 5;
+    const pressure = oldConfig.scenario.decisions.find((item) => item.id === 'execution-pressure')!;
+    pressure.title = 'A {{primaryService}} atrasou e o próximo cliente já chegou';
+    const custom = oldConfig.scenario.decisions.find((item) => item.id === 'slow-week')!;
+    custom.title = 'Título personalizado pelo criador';
+
+    const migrated = migrateConfig(oldConfig);
+    expect(migrated.version).toBe(6);
+    expect(migrated.scenario.decisions.find((item) => item.id === 'execution-pressure')!.title)
+      .toBe('O serviço se estendeu e o próximo cliente já chegou');
+    expect(migrated.scenario.decisions.find((item) => item.id === 'slow-week')!.title)
+      .toBe('Título personalizado pelo criador');
+  });
+
 });

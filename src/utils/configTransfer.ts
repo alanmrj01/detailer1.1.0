@@ -53,7 +53,11 @@ export function migrateConfig(config: AppConfig): AppConfig {
     migrateDefaultDifficultyBands(migrated);
   }
 
-  migrated.version = 5;
+  if (migrated.version < 6) {
+    migrateNarrativeConsistency(migrated);
+  }
+
+  migrated.version = 6;
   return migrated;
 }
 
@@ -99,6 +103,31 @@ function migrateDefaultDifficultyBands(config: AppConfig): void {
   config.scenario.resultBands.forEach((band, index) => {
     band.minScore = newRanges[index][0];
     band.maxScore = newRanges[index][1];
+  });
+}
+
+export function migrateNarrativeConsistency(config: AppConfig): void {
+  const replacements: Record<string, string> = {
+    'Chegou o primeiro orçamento de {{primaryService}}': 'Chegou o primeiro orçamento para {{primaryService}}',
+    'Um cliente com {{vehicle}} quer contratar sua {{primaryService}}. Ele está comparando orçamentos e quer perceber segurança, clareza e valor na sua proposta.':
+      'Um cliente com {{vehicle}} quer contratar {{primaryServiceWithArticle}}. Ele está comparando orçamentos e quer perceber segurança, clareza e valor na sua proposta.',
+    'Os valores desta etapa podem ser ajustados pelo criador. O objetivo é mostrar como o preço da {{primaryService}} altera margem, demanda e risco.':
+      'Os valores desta etapa podem ser ajustados pelo criador. O objetivo é mostrar como o preço escolhido para {{primaryService}} altera margem, demanda e risco.',
+    'A {{primaryService}} atrasou e o próximo cliente já chegou': 'O serviço se estendeu e o próximo cliente já chegou',
+    'O carro atual exigiu mais trabalho que o previsto. Atrasar, correr ou renegociar muda a experiência do cliente e a segurança da entrega.':
+      'Durante a execução de {{primaryService}}, o carro atual exigiu mais trabalho que o previsto. Correr, manter o padrão ou renegociar o prazo muda a experiência do cliente e a segurança da entrega.',
+    'Um cliente voltou após a {{primaryService}}': 'Um cliente voltou após o serviço',
+    'O cliente do {{vehicle}} percebeu uma área abaixo do padrão combinado na sua {{primaryService}}. A solução precisa equilibrar responsabilidade, reputação e custo.':
+      '{{complaintContext}} o cliente do {{vehicle}} percebeu uma área abaixo do padrão combinado na entrega de {{primaryService}}. A solução precisa equilibrar responsabilidade, reputação e custo.',
+    'O cliente do {{vehicle}} percebeu uma área abaixo do padrão combinado na entrega de {{primaryService}}. A solução precisa equilibrar responsabilidade, reputação e custo.':
+      '{{complaintContext}} o cliente do {{vehicle}} percebeu uma área abaixo do padrão combinado na entrega de {{primaryService}}. A solução precisa equilibrar responsabilidade, reputação e custo.',
+  };
+
+  const replaceIfOriginal = (text: string) => replacements[text] ?? text;
+  config.scenario.decisions.forEach((decision) => {
+    decision.title = replaceIfOriginal(decision.title);
+    decision.situation = replaceIfOriginal(decision.situation);
+    decision.mentorTip = replaceIfOriginal(decision.mentorTip);
   });
 }
 

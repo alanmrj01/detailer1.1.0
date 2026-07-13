@@ -12,6 +12,7 @@ import { readJson, removeJson, storageKeys, writeJson } from '../../utils/storag
 import {
   applyChoice,
   calculateResult,
+  calculateScoreBreakdown,
   calculateScoreFromMetrics,
   calculateStepStarChange,
   choiceAvailability,
@@ -108,21 +109,35 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
             )}
             <span className={styles.introTagline}>{personalizeScenarioCopy(config.brand.tagline, config)}</span>
             <h1>{personalizeScenarioCopy(config.brand.introTitle, config)}</h1>
-            <p>{personalizeScenarioCopy(config.brand.introDescription, config)}</p>
+            <p className={styles.introDescription}>{personalizeScenarioCopy(config.brand.introDescription, config)}</p>
+            <p className={styles.mobileIntroDescription}>
+              Você começa com {formatCurrency(config.scenario.initialMetrics.cash, config.scenario.currency)} e toma 8 decisões para construir uma operação sustentável. Cada escolha muda o resultado.
+            </p>
 
             <div className={styles.introStats}>
               <span><strong>{config.scenario.durationDays}</strong> dias de simulação</span>
               <span><strong>3</strong> definições de estratégia</span>
               <span><strong>5</strong> situações-problema</span>
             </div>
+            <div className={styles.mobileIntroMeta} aria-label="Resumo do desafio">
+              <strong>{config.scenario.durationDays} dias</strong>
+              <i aria-hidden="true" />
+              <strong>8 decisões</strong>
+              <i aria-hidden="true" />
+              <strong>diagnóstico final</strong>
+            </div>
 
             <div className={styles.introActions}>
               <button className="primaryButton" type="button" onClick={() => { setShowPhaseTwoTeaser(false); setRun(createRun(config)); }}>Iniciar desafio</button>
-              <button className="secondaryButton" type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+              <button className={`secondaryButton ${styles.introThemeButton}`} type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
                 Tema {theme === 'dark' ? 'claro' : 'escuro'}
               </button>
             </div>
-            <small>{personalizeScenarioCopy(config.brand.supportText, config)}</small>
+            <small className={styles.introSupportText}>{personalizeScenarioCopy(config.brand.supportText, config)}</small>
+            <details className={styles.mobileIntroDetails}>
+              <summary>Como os valores do jogo são definidos?</summary>
+              <small>{personalizeScenarioCopy(config.brand.supportText, config)}</small>
+            </details>
           </div>
         </section>
       </main>
@@ -588,8 +603,8 @@ function getMobileSituation(decisionId: string, currentSituation: string): strin
     'service-focus': { marker: 'Seu catálogo precisa caber', copy: 'Escolha um serviço que sua estrutura e seus equipamentos consigam entregar bem.' },
     'first-quote': { marker: 'Um cliente com', copy: 'Defina um preço que comunique valor sem comprometer margem e capacidade de entrega.' },
     'slow-week': { marker: 'Dois dias se passaram', copy: 'Reaja à agenda vazia sem destruir margem ou posicionamento.' },
-    'execution-pressure': { marker: 'O carro atual exigiu', copy: 'Decida como proteger a entrega quando prazo e qualidade entram em conflito.' },
-    'customer-complaint': { marker: 'O cliente do', copy: 'Resolva a falha sem perder responsabilidade, reputação e controle do custo.' },
+    'execution-pressure': { marker: 'Durante a execução de', copy: 'Decida como proteger a entrega quando prazo e qualidade entram em conflito.' },
+    'customer-complaint': { marker: 'percebeu uma área abaixo do padrão combinado', copy: 'Resolva a falha sem perder responsabilidade, reputação e controle do custo.' },
     'growth-choice': { marker: 'A operação já possui histórico', copy: 'Use o caixa restante para crescer sem fragilizar a operação.' },
   };
   const preferred = defaults[decisionId];
@@ -598,25 +613,44 @@ function getMobileSituation(decisionId: string, currentSituation: string): strin
   return summary || currentSituation;
 }
 
-function buildMobileFeedbackSummary(
-  items: ReturnType<typeof describeFeedback>,
+function buildMobileConsequenceTitle(
+  entry: LedgerEntry,
+  config: ReturnType<typeof useAppConfig>['config'],
   lostClassification: boolean,
   gainedClassification: boolean,
 ): string {
-  const relevant = items.filter((item) => (lostClassification ? !item.positive : item.positive)).slice(0, 2);
-  const labels = relevant.map((item) => getMetricLabel(item.key).toLowerCase());
+  if (!lostClassification && !gainedClassification) {
+    return 'Ganhos e custos ficaram equilibrados';
+  }
 
-  if (lostClassification) {
-    if (labels.length >= 2) return `A escolha pressionou ${labels[0]} e ${labels[1]}, reduzindo a projeção da operação.`;
-    if (labels.length === 1) return `A escolha pressionou ${labels[0]} e reduziu a projeção da operação.`;
-    return 'A escolha gerou mais perdas do que ganhos nesta etapa.';
-  }
-  if (gainedClassification) {
-    if (labels.length >= 2) return `A escolha fortaleceu ${labels[0]} e ${labels[1]}, elevando a projeção da operação.`;
-    if (labels.length === 1) return `A escolha fortaleceu ${labels[0]} e elevou a projeção da operação.`;
-    return 'A escolha fortaleceu o equilíbrio da operação nesta etapa.';
-  }
-  return 'Os ganhos e os trade-offs se equilibraram, mantendo a classificação atual.';
+  const before = calculateScoreBreakdown(entry.before, config);
+  const after = calculateScoreBreakdown(entry.after, config);
+  const keys: Array<Exclude<MetricKey, 'customers'>> = ['cash', 'reputation', 'quality', 'capacity', 'risk', 'fatigue'];
+  const ranked = keys
+    .map((key) => ({ key, impact: (after[key] - before[key]) * config.scenario.scoreWeights[key] }))
+    .filter((item) => lostClassification ? item.impact < -0.0001 : item.impact > 0.0001)
+    .sort((left, right) => lostClassification ? left.impact - right.impact : right.impact - left.impact);
+  const key = ranked[0]?.key;
+
+  const positiveTitles: Partial<Record<MetricKey, string>> = {
+    cash: 'O caixa ganhou mais fôlego',
+    reputation: 'A confiança do cliente aumentou',
+    quality: 'O padrão da entrega ficou mais forte',
+    capacity: 'A operação ganhou capacidade',
+    risk: 'O risco operacional diminuiu',
+    fatigue: 'A rotina ficou mais sustentável',
+  };
+  const negativeTitles: Partial<Record<MetricKey, string>> = {
+    cash: 'O caixa ficou mais pressionado',
+    reputation: 'A confiança do cliente foi afetada',
+    quality: 'O padrão da entrega ficou exposto',
+    capacity: 'A operação perdeu fôlego',
+    risk: 'O risco operacional aumentou',
+    fatigue: 'A rotina ficou mais pesada',
+  };
+
+  return (lostClassification ? negativeTitles[key ?? 'risk'] : positiveTitles[key ?? 'quality'])
+    ?? (lostClassification ? 'A decisão aumentou a pressão do negócio' : 'A decisão fortaleceu a operação');
 }
 
 function FeedbackModal({
@@ -642,6 +676,7 @@ function FeedbackModal({
     : gainedClassification
       ? 'Classificação em alta'
       : 'Classificação mantida';
+  const mobileConsequenceTitle = buildMobileConsequenceTitle(feedback.entry, config, lostClassification, gainedClassification);
 
   return (
     <div className={styles.modalBackdrop} role="presentation">
@@ -649,11 +684,15 @@ function FeedbackModal({
         <span className={styles.mobileSheetHandle} aria-hidden="true" />
         <span className={styles.kicker}>Consequência da escolha</span>
         <h2 className={styles.desktopFeedbackTitle}>{feedback.entry.title}</h2>
-        <h2 className={styles.mobileFeedbackTitle}>{mobileStatusTitle}</h2>
+        <div className={`${styles.mobileFeedbackHero} ${lostClassification ? styles.mobileFeedbackHeroLoss : gainedClassification ? styles.mobileFeedbackHeroGain : styles.mobileFeedbackHeroNeutral}`}>
+          <span className={styles.mobileFeedbackStatus}>{mobileStatusTitle}</span>
+          <small>Sua escolha: {feedback.entry.title}</small>
+          <h2 className={styles.mobileFeedbackTitle}>{mobileConsequenceTitle}</h2>
+          <p className={styles.mobileFeedbackConsequence}>
+            {firstSentence(feedback.entry.consequence)}
+          </p>
+        </div>
         <p className={`${styles.feedbackConsequence} ${styles.desktopFeedbackConsequence}`}>{summarizeConsequence(feedback.entry.consequence)}</p>
-        <p className={`${styles.feedbackConsequence} ${styles.mobileFeedbackConsequence}`}>
-          {buildMobileFeedbackSummary(feedbackItems, lostClassification, gainedClassification)}
-        </p>
         <div className={`${styles.rewardPanel} ${lostClassification ? styles.rewardLoss : gainedClassification ? styles.rewardGain : styles.rewardNeutral}`}>
           <div className={styles.rewardCopy}>
             <small>{lostClassification ? 'Perda de classificação' : gainedClassification ? 'Ganho de classificação' : 'Classificação mantida'}</small>
@@ -693,7 +732,7 @@ function FeedbackModal({
           </div>
         </details>
         <div className={styles.feedbackNote}>
-          <strong>Leitura do método</strong>
+          <strong>Por que isso importa</strong>
           <span>{feedback.mentorTip}</span>
         </div>
         <div className={styles.modalActions}>

@@ -3,7 +3,7 @@ import { DEFAULT_SCORE_BENCHMARKS } from './scoringDefaults';
 import { cloneValue } from '../utils/compat';
 
 export const defaultConfig: AppConfig = {
-  version: 5,
+  version: 6,
   brand: {
     appName: 'Detailer Business',
     creatorName: 'Método de especialista',
@@ -156,9 +156,9 @@ export const defaultConfig: AppConfig = {
         vehicleId: 't-cross',
         module: 'Situação-problema',
         eyebrow: 'Situação 1/5',
-        title: 'Chegou o primeiro orçamento de {{primaryService}}',
-        situation: 'Um cliente com {{vehicle}} quer contratar sua {{primaryService}}. Ele está comparando orçamentos e quer perceber segurança, clareza e valor na sua proposta.',
-        mentorTip: 'Os valores desta etapa podem ser ajustados pelo criador. O objetivo é mostrar como o preço da {{primaryService}} altera margem, demanda e risco.',
+        title: 'Chegou o primeiro orçamento para {{primaryService}}',
+        situation: 'Um cliente com {{vehicle}} quer contratar {{primaryServiceWithArticle}}. Ele está comparando orçamentos e quer perceber segurança, clareza e valor na sua proposta.',
+        mentorTip: 'Os valores desta etapa podem ser ajustados pelo criador. O objetivo é mostrar como o preço escolhido para {{primaryService}} altera margem, demanda e risco.',
         animation: 'pricing',
         choices: [
           { id: 'low', label: 'Cobrar preço de entrada', description: 'Cobrar {{money:260}} para aumentar a chance de fechamento.', consequence: 'A conversão aumenta, mas a margem e a folga para retrabalho ficam perigosamente pequenas.', effects: { cash: 290, customers: 4, reputation: 2, quality: -2, fatigue: 6, risk: 7 } },
@@ -184,8 +184,8 @@ export const defaultConfig: AppConfig = {
         id: 'execution-pressure',
         module: 'Situação-problema',
         eyebrow: 'Situação 3/5',
-        title: 'A {{primaryService}} atrasou e o próximo cliente já chegou',
-        situation: 'O carro atual exigiu mais trabalho que o previsto. Atrasar, correr ou renegociar muda a experiência do cliente e a segurança da entrega.',
+        title: 'O serviço se estendeu e o próximo cliente já chegou',
+        situation: 'Durante a execução de {{primaryService}}, o carro atual exigiu mais trabalho que o previsto. Correr, manter o padrão ou renegociar o prazo muda a experiência do cliente e a segurança da entrega.',
         mentorTip: 'Capacidade real é limitada pelo processo. Aceitar mais serviços do que a operação suporta transforma faturamento aparente em retrabalho.',
         animation: 'polishing',
         choices: [
@@ -199,8 +199,8 @@ export const defaultConfig: AppConfig = {
         vehicleId: 'onix',
         module: 'Situação-problema',
         eyebrow: 'Situação 4/5',
-        title: 'Um cliente voltou após a {{primaryService}}',
-        situation: 'O cliente do {{vehicle}} percebeu uma área abaixo do padrão combinado na sua {{primaryService}}. A solução precisa equilibrar responsabilidade, reputação e custo.',
+        title: 'Um cliente voltou após o serviço',
+        situation: '{{complaintContext}} o cliente do {{vehicle}} percebeu uma área abaixo do padrão combinado na entrega de {{primaryService}}. A solução precisa equilibrar responsabilidade, reputação e custo.',
         mentorTip: 'O objetivo não é agradar a qualquer custo, mas ter um processo claro para verificar, corrigir e registrar falhas.',
         animation: 'complaint',
         choices: [

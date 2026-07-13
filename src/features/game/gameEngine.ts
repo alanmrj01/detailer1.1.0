@@ -8,6 +8,7 @@ import type {
 import type { GameResult, GameRun, LedgerEntry } from '../../types/game';
 import { clamp, formatCurrency } from '../../utils/format';
 import { cloneValue, createUniqueId } from '../../utils/compat';
+import { migrateNarrativeConsistency } from '../../utils/configTransfer';
 
 const boundedMetrics: MetricKey[] = ['reputation', 'quality', 'risk', 'fatigue'];
 const metricKeys: MetricKey[] = ['cash', 'reputation', 'quality', 'capacity', 'risk', 'customers', 'fatigue'];
@@ -73,6 +74,8 @@ export function restoreRun(value: unknown, config: AppConfig): GameRun | null {
   const snapshot = isScenarioSnapshot(value.scenarioSnapshot)
     ? cloneValue(value.scenarioSnapshot)
     : cloneValue(config.scenario);
+  const snapshotConfig = { ...config, scenario: snapshot };
+  migrateNarrativeConsistency(snapshotConfig);
 
   if (value.currentDecisionIndex > snapshot.decisions.length) return null;
 

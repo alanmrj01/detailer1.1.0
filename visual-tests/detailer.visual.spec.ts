@@ -40,13 +40,13 @@ function baseMetrics() {
   };
 }
 
-async function openWithState(page: Page, run: ReturnType<typeof runAt> | null, theme: 'dark' | 'light' = 'dark') {
+async function openWithState(page: Page, run: ReturnType<typeof runAt> | null, theme: 'dark' | 'light' = 'dark', path = '/') {
   await page.addInitScript(({ runState, selectedTheme, runKey, themeKey }) => {
     localStorage.clear();
     localStorage.setItem(themeKey, JSON.stringify(selectedTheme));
     if (runState) localStorage.setItem(runKey, JSON.stringify(runState));
   }, { runState: run, selectedTheme: theme, runKey: RUN_KEY, themeKey: THEME_KEY });
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.goto(path, { waitUntil: 'domcontentloaded' });
   await page.locator('main').first().waitFor();
   await page.waitForFunction(() => Array.from(document.images).every((image) => image.complete));
 }
@@ -166,7 +166,7 @@ test('jogo mobile — feedback objetivo com perda', async ({ page }) => {
   await openWithState(page, runAt(6));
   await page.getByRole('button', { name: /Contestar a reclamação/ }).click();
   await page.getByRole('button', { name: 'Confirmar escolha' }).click();
-  await expect(page.getByRole('heading', { name: 'Classificação em queda' })).toBeVisible();
+  await expect(page.getByText('Classificação em queda', { exact: true })).toBeVisible();
   await expectPageScreenshot(page, '25-mobile-feedback-perda.png');
 });
 
@@ -177,4 +177,15 @@ test('jogo mobile horizontal — decisão completa em uma tela', async ({ page }
   const hasDocumentScroll = await page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight + 2);
   expect(hasDocumentScroll).toBe(false);
   await expectPageScreenshot(page, '26-mobile-horizontal.png');
+});
+
+
+test('jogo incorporado — classificação centralizada e canto direito livre', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openWithState(page, runAt(0), 'dark', '/?embed=1');
+  const rating = page.locator('[class*="mobileRating"]').first();
+  const box = await rating.boundingBox();
+  expect(box).not.toBeNull();
+  expect(Math.abs((box!.x + box!.width / 2) - 195)).toBeLessThanOrEqual(2);
+  await expectPageScreenshot(page, '27-mobile-incorporado-hud.png');
 });

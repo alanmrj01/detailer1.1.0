@@ -2404,3 +2404,256 @@
     background: #0b1e31;
   }
 }
+
+/* 1.3.8 — refinamentos cirúrgicos de narrativa, abertura e feedback mobile. */
+.mobileIntroDescription,
+.mobileIntroMeta,
+.mobileIntroDetails,
+.mobileFeedbackHero,
+.mobileFeedbackStatus {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  /* Capa mobile: uma única promessa, um único resumo e uma única ação principal. */
+  .introContent {
+    justify-content: flex-end;
+    padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom));
+    background:
+      linear-gradient(180deg, rgba(3, 9, 18, 0.02) 0%, rgba(3, 9, 18, 0.08) 34%, rgba(3, 9, 18, 0.72) 58%, #050d17 88%);
+  }
+
+  .introContent .kicker {
+    padding: 0.34rem 0.52rem;
+    font-size: 0.66rem;
+  }
+
+  .introLogo,
+  .logoBadge,
+  .introTagline,
+  .introDescription,
+  .introStats,
+  .introThemeButton,
+  .introSupportText {
+    display: none !important;
+  }
+
+  .introContent h1 {
+    max-width: 360px;
+    margin: 0.62rem 0 0.48rem;
+    font-size: clamp(2rem, 9vw, 2.5rem);
+    line-height: 0.98;
+  }
+
+  .mobileIntroDescription {
+    display: block;
+    max-width: 390px;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    color: #e2e8f0 !important;
+    background: transparent !important;
+    font-size: 0.9rem !important;
+    line-height: 1.42 !important;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.98);
+  }
+
+  .mobileIntroMeta {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    max-width: 100%;
+    gap: 0.52rem;
+    margin: 0.72rem 0 0.8rem;
+    padding: 0.46rem 0.62rem;
+    border: 1px solid rgba(102, 208, 255, 0.22);
+    border-radius: 999px;
+    color: #dbe9f5;
+    background: rgba(5, 18, 32, 0.88);
+    font-size: 0.66rem;
+    white-space: nowrap;
+  }
+
+  .mobileIntroMeta i {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #66d0ff;
+  }
+
+  .introActions {
+    margin: 0 0 0.56rem;
+  }
+
+  .introActions > button:first-child {
+    min-width: 168px;
+  }
+
+  .mobileIntroDetails {
+    display: block;
+    max-width: 390px;
+    border-top: 1px solid rgba(148, 197, 235, 0.16);
+  }
+
+  .mobileIntroDetails summary {
+    padding: 0.56rem 0 0.16rem;
+    color: #a9b8c8;
+    font-size: 0.69rem;
+    font-weight: 750;
+    cursor: pointer;
+  }
+
+  .mobileIntroDetails small {
+    display: block;
+    padding: 0.42rem 0 0;
+    color: #b8c5d2;
+    font-size: 0.68rem;
+    line-height: 1.4;
+  }
+
+  .mobileIntroDetails:not([open]) > small {
+    display: none;
+  }
+
+  /* O centro do HUD fica reservado para a classificação; o canto direito permanece livre
+     para o controle de fechar exibido pela landing quando o jogo está incorporado. */
+  .mobileHudTop {
+    position: relative;
+    grid-template-columns: 34px minmax(0, 1fr) 96px;
+  }
+
+  .mobilePhaseCopy {
+    max-width: 116px;
+  }
+
+  .mobileRating {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    align-items: center;
+    justify-items: center;
+    min-width: 64px;
+    transform: translate(-50%, -50%);
+  }
+
+  .mobileRating span {
+    display: none;
+  }
+
+  :global(html[data-embedded='true']) .mobileHudTop {
+    padding-right: 82px;
+  }
+
+  /* Feedback: a consequência vira o título da tela; o restante passa a explicar a decisão. */
+  .mobileFeedbackHero {
+    display: grid;
+    gap: 0.28rem;
+    margin: 0.1rem 0 0.7rem;
+    padding: 0.82rem 0.86rem;
+    border: 1px solid rgba(102, 208, 255, 0.28);
+    border-left-width: 4px;
+    border-radius: 18px;
+    background: linear-gradient(145deg, rgba(12, 34, 55, 0.98), rgba(7, 21, 36, 0.98));
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.24);
+  }
+
+  .mobileFeedbackHeroGain {
+    border-left-color: #34d399;
+    background: linear-gradient(145deg, rgba(9, 49, 47, 0.96), rgba(7, 24, 37, 0.98));
+  }
+
+  .mobileFeedbackHeroLoss {
+    border-left-color: #fb7185;
+    background: linear-gradient(145deg, rgba(55, 23, 35, 0.97), rgba(18, 20, 35, 0.98));
+  }
+
+  .mobileFeedbackHeroNeutral {
+    border-left-color: #66d0ff;
+  }
+
+  .mobileFeedbackStatus {
+    display: inline-flex;
+    width: fit-content;
+    padding: 0.24rem 0.46rem;
+    border-radius: 999px;
+    color: #dff6ff;
+    background: rgba(102, 208, 255, 0.14);
+    font-size: 0.62rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .mobileFeedbackHero > small {
+    color: #aebdcb;
+    font-size: 0.68rem;
+    font-weight: 750;
+  }
+
+  .mobileFeedbackHero .mobileFeedbackTitle {
+    margin: 0.08rem 0 0 !important;
+    padding: 0 !important;
+    color: #ffffff;
+    font-size: 1.34rem;
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+  }
+
+  .mobileFeedbackHero .mobileFeedbackConsequence {
+    display: block;
+    margin: 0.1rem 0 0 !important;
+    color: #d4deea !important;
+    font-size: 0.78rem !important;
+    line-height: 1.36 !important;
+  }
+
+  .feedbackModal > .mobileFeedbackTitle,
+  .feedbackModal > .mobileFeedbackConsequence {
+    display: none;
+  }
+
+  .feedbackGrid .feedbackStat:nth-child(n + 4) {
+    display: none;
+  }
+
+  .feedbackNote {
+    display: grid;
+    gap: 0.22rem;
+    margin: 0.5rem 0 0.7rem;
+    padding: 0.72rem 0.78rem;
+    border: 1px solid rgba(102, 208, 255, 0.2);
+    border-radius: 15px;
+    background: rgba(10, 29, 47, 0.86);
+  }
+
+  .feedbackNote strong {
+    color: #8de2ff;
+    font-size: 0.78rem;
+  }
+
+  .feedbackNote span {
+    color: #d0dae6;
+    font-size: 0.7rem;
+    line-height: 1.38;
+  }
+}
+
+@media (max-width: 380px) and (max-height: 820px) {
+  .introContent h1 {
+    font-size: 1.9rem;
+  }
+
+  .mobileIntroDescription {
+    font-size: 0.82rem !important;
+  }
+
+  .mobileIntroMeta {
+    gap: 0.38rem;
+    font-size: 0.61rem;
+  }
+
+  .mobileFeedbackHero .mobileFeedbackTitle {
+    font-size: 1.18rem;
+  }
+}
