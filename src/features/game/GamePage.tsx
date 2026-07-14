@@ -160,8 +160,8 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
               Ela não faz parte da rodada atual e poderá receber novos cenários conforme o método do criador.
             </p>
             <div className={styles.phaseBreakSummary}>
-              <StarRating value={result?.stars ?? 0} size="md" label="Classificação da fase 1" />
-              <span>Fase 1 concluída com <strong>{result?.stars.toFixed(1) ?? '0.0'} / 5.0</strong></span>
+              <StarRating value={result?.stars ?? 0} size="md" label="Saúde da operação na fase 1" />
+              <span>Saúde da operação ao final da fase: <strong>{result?.stars.toFixed(1) ?? '0.0'} / 5.0</strong></span>
             </div>
             <div className={styles.resultActions}>
               <button className="primaryButton" type="button" onClick={() => setShowPhaseTwoTeaser(false)}>Voltar ao resultado da fase 1</button>
@@ -194,10 +194,10 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
             <h1>{band.title}</h1>
             <p>{band.summary}</p>
             <div className={styles.ratingShowcase}>
-              <StarRating value={result.stars} size="xl" animated label="Classificação do jogador" />
+              <StarRating value={result.stars} size="xl" animated label="Saúde da operação" />
               <div className={styles.ratingNote}>
-                <strong>{result.stars.toFixed(1)} / 5.0 estrelas</strong>
-                <span>Seu desempenho final combina caixa, reputação, qualidade, capacidade, risco e carga operacional.</span>
+                <strong>Saúde da operação: {result.stars.toFixed(1)} / 5.0</strong>
+                <span>As estrelas resumem o equilíbrio entre capital de giro, reputação, padrão técnico, capacidade, risco e carga operacional.</span>
               </div>
             </div>
             <div className={styles.resultActions}>
@@ -297,7 +297,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
                     <p>{summarizeConsequence(entry.consequence)}</p>
                   </div>
                   <small>
-                    {describeFeedback(entry.delta)
+                    {describeFeedback(entry.delta, activeConfig.scenario.currency)
                       .slice(0, 3)
                       .map((item) => `${item.positive ? '↑' : '↓'} ${item.title.replace(item.positive ? ' em alta' : ' pressionado', '')}`)
                       .join(' · ')}
@@ -353,7 +353,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
           </div>
           <div className={styles.mobileRating}>
             <strong>{currentStars.toFixed(1).replace('.', ',')}★</strong>
-            <span>classificação</span>
+            <span>saúde da operação</span>
           </div>
         </div>
 
@@ -390,7 +390,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
         <div className={styles.minorStats}>
           <span>Clientes <strong>{Math.round(run.metrics.customers)}</strong></span>
           <span>Carga <strong>{Math.round(run.metrics.fatigue)}</strong></span>
-          <span>Classificação <strong>{currentStars.toFixed(1)}★</strong></span>
+          <span>Saúde da operação <strong>{currentStars.toFixed(1)}★</strong></span>
         </div>
       </section>
 
@@ -668,14 +668,12 @@ function FeedbackModal({
   const lostClassification = stageStarChange < 0;
   const gainedClassification = stageStarChange > 0;
   const projectedStars = scoreToStars(calculateScoreFromMetrics(feedback.entry.after, config));
-  const feedbackItems = describeFeedback(feedback.entry.delta);
-  const positiveItems = feedbackItems.filter((item) => item.positive);
-  const attentionItems = feedbackItems.filter((item) => !item.positive);
+  const feedbackItems = describeFeedback(feedback.entry.delta, config.scenario.currency).slice(0, 3);
   const mobileStatusTitle = lostClassification
-    ? 'Classificação em queda'
+    ? 'Pressão operacional'
     : gainedClassification
-      ? 'Classificação em alta'
-      : 'Classificação mantida';
+      ? 'Ganho operacional'
+      : 'Trade-off equilibrado';
   const mobileConsequenceTitle = buildMobileConsequenceTitle(feedback.entry, config, lostClassification, gainedClassification);
 
   return (
@@ -695,44 +693,23 @@ function FeedbackModal({
         <p className={`${styles.feedbackConsequence} ${styles.desktopFeedbackConsequence}`}>{summarizeConsequence(feedback.entry.consequence)}</p>
         <div className={`${styles.rewardPanel} ${lostClassification ? styles.rewardLoss : gainedClassification ? styles.rewardGain : styles.rewardNeutral}`}>
           <div className={styles.rewardCopy}>
-            <small>{lostClassification ? 'Perda de classificação' : gainedClassification ? 'Ganho de classificação' : 'Classificação mantida'}</small>
+            <small>{lostClassification ? 'Saúde da operação caiu' : gainedClassification ? 'Saúde da operação melhorou' : 'Saúde da operação estável'}</small>
             <strong>{formatStarChange(stageStarChange)}</strong>
-            <span>{lostClassification ? 'A projeção caiu para' : gainedClassification ? 'A projeção subiu para' : 'A projeção permanece em'} {projectedStars.toFixed(1)} / 5.0 estrelas</span>
+            <span>{lostClassification ? 'Novo patamar:' : gainedClassification ? 'Novo patamar:' : 'Patamar mantido:'} {projectedStars.toFixed(1)} / 5.0</span>
           </div>
           <StarRating value={projectedStars} size="md" animated showValue={false} />
         </div>
-        <div className={styles.feedbackGrid}>
+        <div className={styles.feedbackGrid} aria-label="Principais efeitos da decisão">
           {feedbackItems.map((item) => (
             <article key={item.key} className={`${styles.feedbackStat} ${item.positive ? styles.goodFeedback : styles.badFeedback}`}>
-              <small>{item.positive ? '↑' : '↓'} {getMetricLabel(item.key)}</small>
-              <strong>{item.title}</strong>
-              <span>{item.description}</span>
+              <small>{getMetricLabel(item.key)}</small>
+              <strong>{item.deltaLabel}</strong>
+              <span>{item.title}</span>
             </article>
           ))}
         </div>
-        <details className={styles.mobileFeedbackDetails}>
-          <summary>Entender esta decisão</summary>
-          <div className={styles.mobileFeedbackInsights}>
-            {positiveItems.length ? (
-              <section className={styles.mobileStrengths}>
-                <h3>O que funcionou</h3>
-                <ul>
-                  {positiveItems.slice(0, 2).map((item) => <li key={item.key}>{item.description}</li>)}
-                </ul>
-              </section>
-            ) : null}
-            {attentionItems.length ? (
-              <section className={styles.mobileAlerts}>
-                <h3>O que exige atenção</h3>
-                <ul>
-                  {attentionItems.slice(0, 2).map((item) => <li key={item.key}>{item.description}</li>)}
-                </ul>
-              </section>
-            ) : null}
-          </div>
-        </details>
         <div className={styles.feedbackNote}>
-          <strong>Por que isso importa</strong>
+          <strong>Leitura técnica</strong>
           <span>{feedback.mentorTip}</span>
         </div>
         <div className={styles.modalActions}>

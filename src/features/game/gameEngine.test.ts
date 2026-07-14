@@ -57,7 +57,7 @@ describe('gameEngine', () => {
     expect(next.metrics.risk).toBeLessThanOrEqual(100);
   });
 
-  it('conclui um caminho completo com pontuação válida', () => {
+  it('conclui um caminho completo com índice de saúde válido', () => {
     let run = createRun(defaultConfig);
     const selectedIds = ['garage', 'essential', 'wash', 'balanced-price', 'content-routine', 'preserve-quality', 'redo', 'reserve'];
 
@@ -99,17 +99,17 @@ describe('gameEngine', () => {
   it('mantém todas as faixas de resultado alcançáveis com régua absoluta', () => {
     const balance = analyzeGameBalance(defaultConfig);
 
-    expect(balance.minScore).toBe(38);
-    expect(balance.maxScore).toBe(92);
+    expect(balance.minScore).toBe(34);
+    expect(balance.maxScore).toBe(99);
     defaultConfig.scenario.resultBands.forEach((band) => {
       expect(balance.reachableBandIds).toContain(band.id);
       expect(balance.bandCounts[band.id]).toBeGreaterThan(0);
     });
     expect(balance.bandCounts).toEqual({
-      fragile: 1060,
-      promising: 6213,
-      sustainable: 5079,
-      excellent: 284,
+      fragile: 3288,
+      promising: 6655,
+      sustainable: 2621,
+      excellent: 72,
     });
     expect(balance.bandCounts.sustainable / balance.totalPaths).toBeLessThan(0.5);
   });
@@ -144,15 +144,15 @@ describe('gameEngine', () => {
     );
   });
 
-  it('faz o caminho recomendado terminar próximo de 4,5 estrelas', () => {
+  it('faz o caminho recomendado terminar com saúde alta sem atingir o teto', () => {
     const balance = analyzeGameBalance(defaultConfig);
 
     expect(balance.recommendedChoiceIds).toHaveLength(defaultConfig.scenario.decisions.length);
     expect(balance.recommendedStars).not.toBeNull();
-    expect(balance.recommendedStars).toBe(4.5);
+    expect(balance.recommendedStars).toBe(4.4);
   });
 
-  it('mantém o diagnóstico do caminho recomendado coerente com 4,5 estrelas', () => {
+  it('mantém o diagnóstico do caminho recomendado coerente com a saúde da operação', () => {
     let run = createRun(defaultConfig);
     defaultConfig.scenario.decisions.forEach((decision) => {
       const choice = decision.choices.find((item) => item.recommended)!;
@@ -160,11 +160,11 @@ describe('gameEngine', () => {
     });
 
     const result = calculateResult(run, defaultConfig);
-    expect(result.stars).toBe(4.5);
+    expect(result.stars).toBe(4.4);
     expect(result.strengths.length).toBeGreaterThanOrEqual(3);
     expect(result.alerts.length).toBeGreaterThanOrEqual(1);
     result.alerts.forEach((message) => {
-      expect(message).toMatch(/^Para se aproximar de 5 estrelas,/);
+      expect(message).toMatch(/^Para elevar a saúde da operação,/);
     });
   });
 
@@ -180,7 +180,7 @@ describe('gameEngine', () => {
     expect(runConfig.scenario).toEqual(run.scenarioSnapshot);
   });
 
-  it('comunica perda de classificação quando uma decisão reduz a nota', () => {
+  it('comunica queda na saúde quando uma decisão desequilibra a operação', () => {
     let run = createRun(defaultConfig);
     const selectedIds = ['garage', 'essential', 'wash', 'balanced-price', 'content-routine', 'preserve-quality'];
     selectedIds.forEach((choiceId, index) => {
@@ -208,7 +208,7 @@ describe('gameEngine', () => {
     details.forEach((line) => expect(line).toMatch(/trade-off em Carga|equilíbrio acumulado/));
   });
 
-  it('não orienta a se aproximar de cinco estrelas quando a nota já é máxima', () => {
+  it('não orienta a elevar a saúde quando o patamar já é máximo', () => {
     const run = createRun(defaultConfig);
     run.metrics = {
       cash: 5400,
@@ -223,8 +223,8 @@ describe('gameEngine', () => {
 
     expect(result.stars).toBe(5);
     expect(result.alertMetricKeys).toEqual([]);
-    expect(result.alerts.join(' ')).toMatch(/atingiu 5 estrelas/i);
-    expect(result.alerts.join(' ')).not.toMatch(/se aproximar de 5 estrelas/i);
+    expect(result.alerts.join(' ')).toMatch(/saúde da operação atingiu 5,0/i);
+    expect(result.alerts.join(' ')).not.toMatch(/elevar a saúde da operação/i);
   });
 
   it('usa fatores do veículo para ajustar esforço e risco da situação vinculada', () => {
@@ -308,6 +308,32 @@ describe('gameEngine', () => {
     expect(failures).toEqual([]);
   });
 
+  it('mantém 4,9 como patamar alcançável, mas raro', () => {
+    const paths = enumerateValidGamePaths(defaultConfig);
+    const topPaths = paths.filter((path) => path.stars === 4.9);
+    const pathsAtOrAbove43 = paths.filter((path) => path.stars >= 4.3);
+
+    expect(topPaths).toHaveLength(2);
+    expect(pathsAtOrAbove43.length / paths.length).toBeLessThan(0.01);
+  });
+
+  it('distribui os efeitos entre indicadores diferentes conforme o tipo de decisão', () => {
+    const choices = defaultConfig.scenario.decisions.flatMap((decision) => decision.choices);
+    const affectedCounts = choices.reduce<Record<string, number>>((counts, choice) => {
+      Object.entries(choice.effects).forEach(([metric, value]) => {
+        if (value) counts[metric] = (counts[metric] ?? 0) + 1;
+      });
+      return counts;
+    }, {});
+
+    expect(affectedCounts.risk).toBeLessThan(choices.length);
+    expect(affectedCounts.quality).toBeLessThan(affectedCounts.reputation);
+    expect(affectedCounts.customers).toBeGreaterThanOrEqual(12);
+    choices.forEach((choice) => {
+      expect(Object.values(choice.effects).filter(Boolean).length).toBeLessThanOrEqual(5);
+    });
+  });
+
   it('migra textos narrativos antigos sem sobrescrever personalizações do criador', () => {
     const oldConfig = structuredClone(defaultConfig);
     oldConfig.version = 5;
@@ -317,7 +343,7 @@ describe('gameEngine', () => {
     custom.title = 'Título personalizado pelo criador';
 
     const migrated = migrateConfig(oldConfig);
-    expect(migrated.version).toBe(6);
+    expect(migrated.version).toBe(7);
     expect(migrated.scenario.decisions.find((item) => item.id === 'execution-pressure')!.title)
       .toBe('O serviço se estendeu e o próximo cliente já chegou');
     expect(migrated.scenario.decisions.find((item) => item.id === 'slow-week')!.title)

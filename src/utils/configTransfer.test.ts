@@ -18,10 +18,10 @@ describe('configuração do criador', () => {
     delete legacy.scenario.scoreBenchmarks;
 
     const imported = parseConfigJson(JSON.stringify(legacy));
-    expect(imported.version).toBe(6);
-    expect(imported.scenario.scoreBenchmarks.cashReserveRatio).toEqual({ poor: 0.15, excellent: 0.9 });
+    expect(imported.version).toBe(7);
+    expect(imported.scenario.scoreBenchmarks.cashReserveRatio).toEqual({ poor: 0.2, excellent: 0.82 });
     expect(imported.scenario.resultBands.map((band) => [band.minScore, band.maxScore])).toEqual([
-      [0, 54], [55, 69], [70, 84], [85, 100],
+      [0, 59], [60, 74], [75, 89], [90, 100],
     ]);
     expect(imported.brand.introTitle).toContain('{{durationDays}}');
     expect(validateConfig(imported).filter((issue) => issue.level === 'error')).toHaveLength(0);

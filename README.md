@@ -17,7 +17,7 @@ Aplicação web educacional configurável para demonstrar a um criador de conte�
   - snapshot imutável do cenário usado em cada partida;
   - cálculo final por pesos configuráveis e régua absoluta de desempenho;
   - todas as faixas de resultado alcançáveis;
-  - caminho recomendado calibrado para aproximadamente 4,5 estrelas.
+  - caminho recomendado calibrado para saúde da operação alta, sem atingir o teto.
 - Ilustrações 3D em WebP com animações e efeitos leves para garagem, lavagem, polimento, interior, reclamação e crescimento.
 - Painel protegido do criador para editar:
   - nome, método, tagline, textos, cor e logo;
@@ -29,7 +29,7 @@ Aplicação web educacional configurável para demonstrar a um criador de conte�
   - faixas e mensagens do resultado final;
   - exportação e importação de toda a configuração em JSON.
 - Build de produção incluído em `dist/`.
-- 28 testes unitários/integrados, incluindo persistência bloqueada e compatibilidade, importação/exportação, varredura automática dos 12.636 caminhos válidos e regressão visual com 26 screenshots de referência.
+- 32 testes unitários/integrados, incluindo persistência bloqueada e compatibilidade, importação/exportação, varredura automática dos 12.636 caminhos válidos e regressão visual com 27 screenshots de referência.
 
 ## Acesso do criador
 
@@ -55,7 +55,7 @@ npm run build
 
 ### Testes visuais
 
-Os screenshots de referência ficam em `visual-tests/__screenshots__/` e cobrem capa, oito etapas, cinco resultados, prévia da fase 2, painel de validação, celular, modal de confirmação e feedback com perda de classificação.
+Os screenshots de referência ficam em `visual-tests/__screenshots__/` e cobrem capa, oito etapas, cinco resultados, prévia da fase 2, painel de validação, celular, modal de confirmação e feedback com queda na saúde da operação.
 
 Na primeira execução local:
 
@@ -82,13 +82,14 @@ npm run test:all
 A versão atual usa uma régua absoluta: cada indicador é comparado com patamares fixos de operação frágil e excelente. A nota de uma mesma operação não muda quando escolhas ou caminhos são adicionados ou removidos. Com a configuração padrão:
 
 - 12.636 caminhos válidos são testados automaticamente;
-- a régua permanece fixa entre 0 e 100 pontos;
-- os caminhos atuais ocupam de 38 a 92 pontos;
+- o índice permanece absoluto entre 0 e 100;
+- os caminhos atuais ocupam de 34 a 99 pontos;
 - todas as quatro faixas de resultado são alcançáveis;
-- a dificuldade padrão é moderada: 8,4% dos caminhos são frágeis, 49,2% instáveis, 40,2% sustentáveis e 2,2% formam uma base sólida;
-- o caminho recomendado termina em 90 pontos e 4,5 estrelas;
+- a dificuldade padrão exige equilíbrio: 26,0% dos caminhos são frágeis, 52,7% instáveis, 20,7% sustentáveis e 0,6% formam uma base sólida;
+- o caminho recomendado termina em 93 pontos e saúde da operação 4,4;
+- saúde 4,9 continua possível, mas ocorre em apenas 2 dos 12.636 caminhos válidos;
 - Fortalezas e Atenções usam os mesmos indicadores do diagnóstico principal;
-- resultados exatamente com 5 estrelas recebem orientação de manutenção do padrão;
+- resultados exatamente com saúde 5,0 recebem orientação de manutenção do padrão;
 - pesos, benchmarks e faixas podem ser revisados em **Configurações → Resultados**;
 - alterações no painel podem ser verificadas em **Configurações → Dados e validação**.
 
@@ -179,7 +180,7 @@ Requisitos: Node.js 18.18 ou superior.
 
 Durante as oito decisões, telas de celular passam a usar uma interface própria de jogo, sem alterar o layout desktop:
 
-- HUD compacto com decisão, categoria da etapa, classificação e três indicadores principais.
+- HUD compacto com decisão, categoria da etapa, saúde da operação e três indicadores principais.
 - Painel inferior “Ver todos” para consultar os sete indicadores da operação, com tipografia maior e organização em duas colunas.
 - Cena tratada como o foco narrativo: primeiro o contexto visual, depois a pergunta e somente então as escolhas.
 - Informações repetidas de fase e progresso foram removidas no mobile para reduzir poluição.
@@ -187,7 +188,7 @@ Durante as oito decisões, telas de celular passam a usar uma interface própria
 - Até quatro alternativas totalmente visíveis, sem rolagem do documento principal.
 - Cards com título, descrição e preço maiores, melhor contraste e distribuição interna mais clara.
 - Confirmação em painel inferior com apenas escolha, áreas impactadas e ações necessárias.
-- Feedback prioriza a mudança de classificação e três consequências principais; a análise completa fica recolhida em “Entender esta decisão”.
+- Feedback prioriza a mudança na saúde da operação e três consequências principais; a análise completa fica recolhida em “Entender esta decisão”.
 - Textos de apoio mais objetivos no celular, mantendo os textos configuráveis completos no desktop.
 - Layout horizontal específico para celulares em 844×390, também sem rolagem.
 - Cabeçalho global ocultado somente durante uma rodada mobile; capa, resultado, configurações e desktop permanecem inalterados.
@@ -211,6 +212,21 @@ A experiência moderna não é substituída pela versão antiga: navegadores atu
 
 A versão 1.3.8 revisa a ligação entre as escolhas e os desafios posteriores. Referências ao serviço escolhido agora usam concordância própria, a etapa de pressão não atribui atraso ao catálogo e a reclamação seguinte considera a forma como o jogador lidou com o prazo.
 
-No celular, a abertura foi condensada em uma promessa, um resumo e uma ação principal. Durante a rodada incorporada, a classificação fica centralizada e o canto direito permanece livre para o botão de fechar da landing. A tela de consequência destaca primeiro o efeito dominante da decisão e mantém os detalhes adicionais recolhidos.
+No celular, a abertura foi condensada em uma promessa, um resumo e uma ação principal. Durante a rodada incorporada, a saúde da operação fica centralizada e o canto direito permanece livre para o botão de fechar da landing. A tela de consequência destaca primeiro o efeito dominante da decisão e mantém os detalhes adicionais recolhidos.
 
 As configurações personalizadas do criador não são sobrescritas: a migração altera somente os textos padrão de versões anteriores.
+
+
+## Refinamentos 1.3.9 — saúde da operação e aprendizagem técnica
+
+A versão 1.3.9 reforça o posicionamento do produto como ferramenta de aprendizagem profissional:
+
+- as estrelas passam a ser apresentadas como **saúde da operação**, uma síntese do equilíbrio entre caixa, reputação, qualidade, capacidade, risco e carga;
+- a régua ficou mais exigente no topo sem tornar 4,9 impossível;
+- uma pequena bonificação de equilíbrio só aparece quando nenhum indicador crítico fica para trás;
+- escolhas diferentes distribuem seus efeitos entre indicadores coerentes com o dilema, evitando que todas pareçam alterar sempre as mesmas variáveis;
+- consequências e orientações incorporam termos do universo detailer, como capital de giro, ponto de equilíbrio, tempo de ciclo, margem de contribuição, taxa de ocupação, inspeção de pintura, diluição, extração, checklist e análise de causa raiz;
+- a tela de consequência foi condensada: apresenta o efeito dominante, a variação da saúde, os três impactos mais relevantes e uma única leitura técnica, evitando repetir a mesma ideia em vários blocos;
+- migrações atualizam somente textos e parâmetros padrão antigos, preservando personalizações feitas pelo criador.
+
+O objetivo da calibração não é punir o aluno, mas impedir que decisões isoladamente boas escondam fragilidades importantes. A cadeia pedagógica permanece: **contexto → decisão → impacto → leitura técnica → aplicação prática**.

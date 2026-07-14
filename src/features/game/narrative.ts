@@ -164,21 +164,35 @@ export function describeChoiceImpact(
     }));
 }
 
-export function describeFeedback(delta: Partial<Record<MetricKey, number>>): Array<{ key: string; positive: boolean; title: string; description: string }> {
+export interface FeedbackItem {
+  key: MetricKey;
+  positive: boolean;
+  title: string;
+  description: string;
+  deltaLabel: string;
+  magnitude: number;
+}
+
+export function describeFeedback(
+  delta: Partial<Record<MetricKey, number>>,
+  currency = 'BRL',
+): FeedbackItem[] {
   return Object.entries(delta)
     .filter(([, value]) => value)
-    .map(([key, value]) => {
-      const positive = key === 'risk' ? (value ?? 0) < 0 : (value ?? 0) > 0;
-      const label = getMetricLabel(key);
+    .map(([rawKey, rawValue]) => {
+      const key = rawKey as MetricKey;
+      const value = rawValue ?? 0;
+      const positive = key === 'risk' || key === 'fatigue' ? value < 0 : value > 0;
       return {
         key,
         positive,
-        title: positive ? `${label} em alta` : `${label} pressionado`,
-        description: positive
-          ? positiveCopy(key)
-          : negativeCopy(key),
+        title: positive ? positiveCopy(key) : negativeCopy(key),
+        description: feedbackContext(key, positive),
+        deltaLabel: formatFeedbackDelta(key, value, currency),
+        magnitude: normalizedFeedbackMagnitude(key, value),
       };
-    });
+    })
+    .sort((left, right) => right.magnitude - left.magnitude);
 }
 
 export function explainResultCard(
@@ -264,30 +278,67 @@ function scoreEntry(
   }, 0);
 }
 
-function positiveCopy(metric: string): string {
-  const map: Record<string, string> = {
-    cash: 'Mais folga financeira.',
-    reputation: 'Mais confiança do cliente.',
-    quality: 'Entrega mais consistente.',
-    capacity: 'Mais fôlego operacional.',
-    risk: 'Menor chance de problema.',
-    customers: 'Mais clientes no radar.',
-    fatigue: 'Rotina mais leve.',
+function positiveCopy(metric: MetricKey): string {
+  const map: Record<MetricKey, string> = {
+    cash: 'Capital de giro ganhou fôlego',
+    reputation: 'Confiança do cliente reforçada',
+    quality: 'Padrão técnico mais consistente',
+    capacity: 'Capacidade operacional ampliada',
+    risk: 'Exposição operacional reduzida',
+    customers: 'Demanda gerada',
+    fatigue: 'Carga da rotina reduzida',
   };
-  return map[metric] ?? 'Este indicador melhorou.';
+  return map[metric];
 }
 
-function negativeCopy(metric: string): string {
-  const map: Record<string, string> = {
-    cash: 'Caixa mais pressionado.',
-    reputation: 'Menos confiança do cliente.',
-    quality: 'Queda no padrão da entrega.',
-    capacity: 'Operação mais travada.',
-    risk: 'Mais chance de problema.',
-    customers: 'Menos tração comercial.',
-    fatigue: 'Rotina mais pesada.',
+function negativeCopy(metric: MetricKey): string {
+  const map: Record<MetricKey, string> = {
+    cash: 'Capital de giro pressionado',
+    reputation: 'Confiança do cliente afetada',
+    quality: 'Padrão técnico exposto',
+    capacity: 'Capacidade operacional reduzida',
+    risk: 'Exposição operacional maior',
+    customers: 'Tração comercial reduzida',
+    fatigue: 'Carga da rotina aumentou',
   };
-  return map[metric] ?? 'Este indicador piorou.';
+  return map[metric];
+}
+
+function feedbackContext(metric: MetricKey, positive: boolean): string {
+  const positiveMap: Record<MetricKey, string> = {
+    cash: 'Mais margem para insumos, correções e imprevistos.',
+    reputation: 'A promessa ficou mais alinhada à experiência entregue.',
+    quality: 'O processo ficou mais próximo de um padrão repetível.',
+    capacity: 'Há mais fôlego para atender sem comprimir o tempo de ciclo.',
+    risk: 'Diminuiu a chance de atraso, retrabalho ou perda de margem.',
+    customers: 'A ação criou novas oportunidades de agenda.',
+    fatigue: 'A execução ficou menos dependente de esforço excessivo.',
+  };
+  const negativeMap: Record<MetricKey, string> = {
+    cash: 'Sobrou menos margem para corrigir desvios ou absorver sazonalidade.',
+    reputation: 'A percepção de segurança e profissionalismo ficou mais frágil.',
+    quality: 'A variação de acabamento e retrabalho ficou mais provável.',
+    capacity: 'A agenda pode crescer mais rápido que a entrega.',
+    risk: 'A decisão aumentou a chance de atraso, falha ou custo oculto.',
+    customers: 'A escolha gerou menos tração comercial no curto prazo.',
+    fatigue: 'A operação ficou mais dependente do esforço do próprio detailer.',
+  };
+  return positive ? positiveMap[metric] : negativeMap[metric];
+}
+
+function formatFeedbackDelta(metric: MetricKey, value: number, currency: string): string {
+  if (metric === 'cash') {
+    const prefix = value > 0 ? '+' : '−';
+    return `${prefix}${formatCurrency(Math.abs(value), currency)}`;
+  }
+  const rounded = Math.abs(value) % 1 === 0 ? Math.abs(value).toFixed(0) : Math.abs(value).toFixed(1);
+  return `${value > 0 ? '+' : '−'}${rounded}`;
+}
+
+function normalizedFeedbackMagnitude(metric: MetricKey, value: number): number {
+  if (metric === 'cash') return Math.abs(value) / 100;
+  if (metric === 'customers') return Math.abs(value) * 2.5;
+  return Math.abs(value);
 }
 
 

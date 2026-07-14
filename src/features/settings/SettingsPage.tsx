@@ -342,11 +342,11 @@ function ResultSettings({ config, updateConfig }: SharedProps) {
 
   return (
     <SettingsModule title="Faixas e conclusão final" description="Configure a conclusão que o aluno recebe e alinhe a orientação ao método individual do criador.">
-      <p className={styles.productionNote}>A calibração padrão usa dificuldade moderada: a operação só entra na faixa sustentável a partir de 70 pontos, e a base sólida começa em 85.</p>
-      <h3 className={styles.subheading}>Pesos da pontuação</h3>
+      <p className={styles.productionNote}>A calibração padrão é exigente: a operação só entra na faixa sustentável a partir de 75 no índice de saúde, e a base sólida começa em 90.</p>
+      <h3 className={styles.subheading}>Pesos da saúde da operação</h3>
       <div className={styles.metricEditor}>{(['cash','reputation','quality','capacity','risk','fatigue'] as const).map((metric) => <Field key={metric} label={metricName(metric)}><input type="number" min="0" max="1" step="0.01" value={config.scenario.scoreWeights[metric]} onChange={(e) => updateConfig((current) => ({ ...current, scenario: { ...current.scenario, scoreWeights: { ...current.scenario.scoreWeights, [metric]: Number(e.target.value) } } }))} /></Field>)}</div>
       <h3 className={styles.subheading}>Régua absoluta dos indicadores</h3>
-      <p className={styles.productionNote}>A nota compara cada indicador com estes patamares fixos. Alterar escolhas ou adicionar caminhos não muda retroativamente a nota de uma mesma operação.</p>
+      <p className={styles.productionNote}>O índice de saúde compara cada indicador com patamares fixos e considera o equilíbrio entre os pilares. Alterar caminhos não muda retroativamente o diagnóstico de uma mesma operação.</p>
       <div className={styles.stack}>
         {benchmarkRows.map((row) => {
           const benchmark = config.scenario.scoreBenchmarks[row.key];
@@ -365,10 +365,10 @@ function ResultSettings({ config, updateConfig }: SharedProps) {
       <div className={styles.stack}>
         {config.scenario.resultBands.map((band, index) => (
           <article className={styles.editorCardStatic} key={band.id}>
-            <div className={styles.rangeHeader}><strong>{band.title}</strong><span>{band.minScore}–{band.maxScore} pontos</span></div>
+            <div className={styles.rangeHeader}><strong>{band.title}</strong><span>{band.minScore}–{band.maxScore} no índice</span></div>
             <div className={styles.formGrid}>
-              <Field label="Pontuação mínima"><input type="number" min="0" max="100" value={band.minScore} onChange={(e) => patchBand(index, { ...band, minScore: Number(e.target.value) })} /></Field>
-              <Field label="Pontuação máxima"><input type="number" min="0" max="100" value={band.maxScore} onChange={(e) => patchBand(index, { ...band, maxScore: Number(e.target.value) })} /></Field>
+              <Field label="Índice mínimo"><input type="number" min="0" max="100" value={band.minScore} onChange={(e) => patchBand(index, { ...band, minScore: Number(e.target.value) })} /></Field>
+              <Field label="Índice máximo"><input type="number" min="0" max="100" value={band.maxScore} onChange={(e) => patchBand(index, { ...band, maxScore: Number(e.target.value) })} /></Field>
               <Field label="Título" wide><input value={band.title} onChange={(e) => patchBand(index, { ...band, title: e.target.value })} /></Field>
               <Field label="Resumo" wide><textarea rows={3} value={band.summary} onChange={(e) => patchBand(index, { ...band, summary: e.target.value })} /></Field>
               <Field label="Conclusão pelo método" wide><textarea rows={4} value={band.methodFeedback} onChange={(e) => patchBand(index, { ...band, methodFeedback: e.target.value })} /></Field>

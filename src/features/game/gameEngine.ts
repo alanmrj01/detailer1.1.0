@@ -203,7 +203,7 @@ export function applyChoice(
 }
 
 /**
- * Pontuação absoluta: cada indicador é comparado com benchmarks fixos do método.
+ * Índice absoluto de saúde da operação: cada indicador é comparado com benchmarks fixos do método.
  * A nota de uma mesma operação permanece igual mesmo que escolhas ou caminhos
  * sejam adicionados/removidos da configuração.
  */
@@ -221,7 +221,13 @@ export function calculateScoreFromMetrics(metrics: NumericMetrics, config: AppCo
     breakdown.risk * weights.risk +
     breakdown.fatigue * weights.fatigue;
 
-  return Math.round(clamp(weightedScore / totalWeight, 0, 100));
+  const baseHealth = weightedScore / totalWeight;
+  const weakestIndicator = Math.min(...Object.values(breakdown));
+  // Uma operação saudável não pode depender de um único indicador forte.
+  // O bônus é pequeno e só aparece quando nenhum pilar permanece crítico.
+  const balanceBonus = clamp((weakestIndicator - 72) / 8, 0, 1) * 5;
+
+  return Math.round(clamp(baseHealth + balanceBonus, 0, 100));
 }
 
 export function calculateScoreBreakdown(metrics: NumericMetrics, config: AppConfig): ScoreBreakdown {
@@ -238,7 +244,10 @@ export function calculateScoreBreakdown(metrics: NumericMetrics, config: AppConf
 }
 
 export function scoreToStars(score: number): number {
-  return Math.round(clamp((score / 100) * 5, 0, 5) * 10) / 10;
+  // A régua visual representa saúde da operação, não uma recompensa linear.
+  // Nos patamares altos, pequenos avanços exigem equilíbrio entre todos os pilares.
+  const normalized = clamp(score / 100, 0, 1);
+  return Math.round(5 * Math.pow(normalized, 1.7) * 10) / 10;
 }
 
 export function calculateStepStarChange(
@@ -276,7 +285,7 @@ export function calculateResult(run: GameRun, config: AppConfig): GameResult {
 
   if (stars >= 5) {
     attentions = [
-      'Você atingiu 5 estrelas: mantenha os padrões que criaram este equilíbrio e acompanhe-os para repetir o resultado.',
+      'A saúde da operação atingiu 5,0: mantenha os padrões que criaram este equilíbrio e acompanhe-os para repetir o resultado.',
     ];
     alertMetricKeys = [];
   } else if (!attentions.length) {
@@ -398,42 +407,42 @@ function buildDiagnostics(breakdown: ScoreBreakdown): DiagnosticItem[] {
       score: breakdown.cash,
       strength: 'O caixa preservado oferece margem para absorver ajustes e manter a operação estável.',
       warning: 'O caixa ficou pressionado; reveja decisões que consumiram reserva antes de validar a demanda.',
-      refinement: 'Para se aproximar de 5 estrelas, preserve ainda mais folga de caixa para os próximos ciclos.',
+      refinement: 'Para elevar a saúde da operação, preserve ainda mais folga de caixa para os próximos ciclos.',
     },
     {
       key: 'reputation',
       score: breakdown.reputation,
       strength: 'A reputação avançou de forma consistente, reforçando confiança e percepção de profissionalismo.',
       warning: 'A confiança do cliente ainda precisa de mais consistência entre promessa, prazo e entrega.',
-      refinement: 'Para se aproximar de 5 estrelas, transforme a boa percepção em rotina de indicação e recorrência.',
+      refinement: 'Para elevar a saúde da operação, transforme a boa percepção em rotina de indicação e recorrência.',
     },
     {
       key: 'quality',
       score: breakdown.quality,
       strength: 'O padrão de qualidade sustentou a percepção de valor e reduziu a chance de retrabalho.',
       warning: 'A qualidade oscilou em escolhas importantes; priorize padrão antes de acelerar o volume.',
-      refinement: 'Para se aproximar de 5 estrelas, documente o padrão de execução e torne-o repetível.',
+      refinement: 'Para elevar a saúde da operação, documente o padrão de execução e torne-o repetível.',
     },
     {
       key: 'capacity',
       score: breakdown.capacity,
       strength: 'A capacidade operacional ficou compatível com a demanda construída ao longo da fase.',
       warning: 'A capacidade não acompanhou o ritmo das decisões comerciais e pode gerar atrasos.',
-      refinement: 'Para se aproximar de 5 estrelas, aumente capacidade somente onde a demanda já estiver comprovada.',
+      refinement: 'Para elevar a saúde da operação, aumente capacidade somente onde a demanda já estiver comprovada.',
     },
     {
       key: 'risk',
       score: breakdown.risk,
       strength: 'Os riscos operacionais ficaram bem controlados, preservando caixa, prazo e confiança.',
       warning: 'O risco terminou elevado; observe onde pressa, desconto ou improviso criaram custo oculto.',
-      refinement: 'Para se aproximar de 5 estrelas, mantenha o risco baixo mesmo ao buscar mais crescimento.',
+      refinement: 'Para elevar a saúde da operação, mantenha o risco baixo mesmo ao buscar mais crescimento.',
     },
     {
       key: 'fatigue',
       score: breakdown.fatigue,
       strength: 'A carga de trabalho permaneceu sustentável e menos dependente de esforço excessivo.',
       warning: 'A rotina ficou pesada demais; busque processo, agenda e capacidade mais equilibrados.',
-      refinement: 'Para se aproximar de 5 estrelas, reduza a dependência do seu esforço pessoal com mais padronização.',
+      refinement: 'Para elevar a saúde da operação, reduza a dependência do seu esforço pessoal com mais padronização.',
     },
   ];
 }

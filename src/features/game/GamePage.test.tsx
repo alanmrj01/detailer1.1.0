@@ -71,7 +71,7 @@ describe('GamePage', () => {
 
   it('só revela a consequência completa depois que a decisão é confirmada', () => {
     const renderer = startGame();
-    const consequence = 'Você preserva caixa e reduz pressão';
+    const consequence = 'Você preserva capital de giro e reduz o ponto de equilíbrio';
 
     expect(renderedText(renderer.root)).not.toContain(consequence);
 

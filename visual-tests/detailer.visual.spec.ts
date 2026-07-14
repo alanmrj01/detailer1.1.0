@@ -126,11 +126,11 @@ test('proteção visual do modal de confirmação', async ({ page }) => {
   await expectPageScreenshot(page, '20-modal-confirmacao.png');
 });
 
-test('proteção visual do feedback com perda de classificação', async ({ page }) => {
+test('proteção visual do feedback com queda na saúde da operação', async ({ page }) => {
   await openWithState(page, runAt(6));
   await page.getByRole('button', { name: /Contestar a reclamação/ }).click();
   await page.getByRole('button', { name: 'Confirmar escolha' }).click();
-  await expect(page.getByText('Perda de classificação')).toBeVisible();
+  await expect(page.getByText('Saúde da operação caiu')).toBeVisible();
   await expectPageScreenshot(page, '21-feedback-perda-classificacao.png');
 });
 
@@ -166,7 +166,7 @@ test('jogo mobile — feedback objetivo com perda', async ({ page }) => {
   await openWithState(page, runAt(6));
   await page.getByRole('button', { name: /Contestar a reclamação/ }).click();
   await page.getByRole('button', { name: 'Confirmar escolha' }).click();
-  await expect(page.getByText('Classificação em queda', { exact: true })).toBeVisible();
+  await expect(page.getByText('Pressão operacional', { exact: true })).toBeVisible();
   await expectPageScreenshot(page, '25-mobile-feedback-perda.png');
 });
 
@@ -180,7 +180,7 @@ test('jogo mobile horizontal — decisão completa em uma tela', async ({ page }
 });
 
 
-test('jogo incorporado — classificação centralizada e canto direito livre', async ({ page }) => {
+test('jogo incorporado — saúde da operação centralizada e canto direito livre', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openWithState(page, runAt(0), 'dark', '/?embed=1');
   const rating = page.locator('[class*="mobileRating"]').first();

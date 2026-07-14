@@ -120,7 +120,7 @@ export function validateConfig(config: AppConfig): ValidationIssue[] {
 
   const orderedBands = [...config.scenario.resultBands].sort((a, b) => a.minScore - b.minScore);
   if (!orderedBands.length || orderedBands[0].minScore !== 0 || lastItem(orderedBands)?.maxScore !== 100) {
-    issues.push({ level: 'warning', message: 'As faixas de resultado devem cobrir a pontuação de 0 a 100.' });
+    issues.push({ level: 'warning', message: 'As faixas de resultado devem cobrir o índice de saúde de 0 a 100.' });
   }
   orderedBands.forEach((band, index) => {
     const next = orderedBands[index + 1];
@@ -152,10 +152,10 @@ export function validateConfig(config: AppConfig): ValidationIssue[] {
 
       if (balance.recommendedStars === null) {
         issues.push({ level: 'warning', message: 'O caminho recomendado está incompleto ou contém uma escolha indisponível.' });
-      } else if (balance.recommendedStars < 4.3 || balance.recommendedStars > 4.7) {
+      } else if (balance.recommendedStars < 4.2 || balance.recommendedStars > 4.6) {
         issues.push({
           level: 'warning',
-          message: `O caminho recomendado termina com ${balance.recommendedStars.toFixed(1)} estrelas; a referência pedagógica é aproximadamente 4,5.`,
+          message: `O caminho recomendado termina com saúde da operação de ${balance.recommendedStars.toFixed(1)}; a referência pedagógica esperada fica entre 4,2 e 4,6.`,
         });
       }
     } catch {

@@ -2515,7 +2515,7 @@
     display: none;
   }
 
-  /* O centro do HUD fica reservado para a classificação; o canto direito permanece livre
+  /* O centro do HUD fica reservado para a saúde da operação; o canto direito permanece livre
      para o controle de fechar exibido pela landing quando o jogo está incorporado. */
   .mobileHudTop {
     position: relative;

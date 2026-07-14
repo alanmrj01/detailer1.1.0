@@ -1,15 +1,16 @@
 import type { ScoreBenchmarks } from '../types/config';
 
 /**
- * Régua absoluta do método padrão.
+ * Régua absoluta da saúde da operação.
  * Cada indicador é convertido para 0–100 entre um ponto frágil e um patamar
- * excelente fixos. A nota não depende dos demais caminhos disponíveis.
+ * excelente fixos. A mesma operação mantém o mesmo diagnóstico mesmo que
+ * novos caminhos sejam adicionados ao jogo.
  */
 export const DEFAULT_SCORE_BENCHMARKS: ScoreBenchmarks = {
-  cashReserveRatio: { poor: 0.15, excellent: 0.9 },
-  reputation: { poor: 5, excellent: 50 },
-  quality: { poor: 15, excellent: 55 },
+  cashReserveRatio: { poor: 0.2, excellent: 0.82 },
+  reputation: { poor: 8, excellent: 46 },
+  quality: { poor: 18, excellent: 58 },
   capacity: { poor: 3, excellent: 13 },
-  risk: { poor: 70, excellent: 0 },
-  fatigue: { poor: 50, excellent: 8 },
+  risk: { poor: 65, excellent: 0 },
+  fatigue: { poor: 50, excellent: 16 },
 };

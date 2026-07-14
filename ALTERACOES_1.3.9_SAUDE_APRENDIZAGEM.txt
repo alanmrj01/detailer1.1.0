@@ -1,0 +1,69 @@
+DETAILER BUSINESS 1.3.9 — SAÚDE DA OPERAÇÃO E APRENDIZAGEM TÉCNICA
+
+Escopo desta atualização
+------------------------
+Revisão cirúrgica de linguagem, feedback, distribuição de impactos e dificuldade. A estrutura das oito decisões, o layout aprovado, o painel do criador, a persistência, a compatibilidade progressiva e os requisitos de equipamentos foram preservados.
+
+1. Estrelas como saúde da operação
+----------------------------------
+- As estrelas não são mais apresentadas como uma pontuação ou prêmio.
+- A interface usa o termo “saúde da operação”.
+- O valor resume o equilíbrio entre caixa, reputação, qualidade, capacidade, risco e carga de trabalho.
+- O diagnóstico máximo orienta a manter o padrão em vez de “buscar mais pontos”.
+
+2. Linguagem profissional e aprendizagem aplicada
+--------------------------------------------------
+Foram incorporados, somente onde ajudam a compreender o dilema, termos do cotidiano de uma operação detailer:
+- capital de giro e ponto de equilíbrio;
+- capacidade instalada, taxa de utilização e taxa de ocupação;
+- tempo de ciclo, ticket médio e margem de contribuição;
+- inspeção de pintura, acabamento e hologramas;
+- diluição, extração e tempo de secagem;
+- checklist de entrega, registro fotográfico e análise de causa raiz;
+- padronização, recorrência, sazonalidade e custo de aquisição.
+
+Os termos aparecem com contexto suficiente para ensinar sem transformar a experiência em um manual técnico.
+
+3. Consequências menos repetitivas
+----------------------------------
+- A tela de justificativa destaca primeiro o efeito dominante da escolha.
+- A variação da saúde da operação aparece em um único painel.
+- Apenas os três impactos mais relevantes ficam visíveis inicialmente.
+- Cada impacto mostra indicador, variação objetiva e uma frase curta.
+- Há somente uma “Leitura técnica”, eliminando blocos que repetiam consequência e orientação com palavras diferentes.
+
+4. Impactos mais variados e coerentes
+-------------------------------------
+- Os 27 caminhos de escolha foram revisados individualmente.
+- Nem toda escolha altera risco, caixa ou reputação por padrão.
+- Os efeitos agora seguem o tipo de decisão: estrutura, equipamento, serviço, preço, aquisição, execução, reclamação ou crescimento.
+- A varredura automática confirma participação dos sete indicadores ao longo da jornada.
+
+5. Dificuldade recalibrada
+--------------------------
+- Índice mínimo encontrado: 34.
+- Índice máximo encontrado: 99.
+- Caminho recomendado: 93 pontos / saúde 4,4.
+- Saúde 4,9 permanece possível em 2 dos 12.636 caminhos válidos.
+- Distribuição padrão:
+  * frágil: 3.288 caminhos (26,0%);
+  * instável: 6.655 caminhos (52,7%);
+  * sustentável: 2.621 caminhos (20,7%);
+  * base sólida: 72 caminhos (0,6%).
+
+A curva visual ficou mais exigente no topo e o motor concede uma pequena bonificação apenas quando a operação não mantém um indicador crítico muito abaixo dos demais.
+
+6. Migração segura
+------------------
+- Configuração padrão atualizada para a versão 7.
+- Textos, efeitos, benchmarks e faixas antigos são migrados somente quando ainda correspondem exatamente aos padrões anteriores.
+- Conteúdo personalizado pelo criador não é sobrescrito.
+- Rodadas em andamento continuam usando seu snapshot imutável.
+
+Validação
+---------
+- 32 testes unitários e integrados aprovados.
+- 12.636 caminhos válidos percorridos automaticamente.
+- Todas as quatro faixas de resultado permanecem alcançáveis.
+- 4,9 permanece alcançável e raro.
+- Build TypeScript + Vite aprovado, incluindo bundle moderno e legado.
