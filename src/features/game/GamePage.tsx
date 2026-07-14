@@ -243,7 +243,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
 
     return (
       <>
-      <main className={styles.page}>
+      <main className={`${styles.page} ${styles.resultPage}`}>
         <section className={styles.resultHero}>
           <SceneAnimation scene={getResultScene(result.stars)} />
           <div className={styles.resultContent}>

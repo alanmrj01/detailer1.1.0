@@ -1,0 +1,7 @@
+DETAILER BUSINESS 1.4.4 — ROLAGEM DA TELA DE RESULTADO
+
+Alteração cirúrgica:
+- A tela de resultado da fase 1 passou a ter rolagem vertical interna em celulares e em orientação horizontal compacta.
+- A rolagem horizontal permanece bloqueada.
+- Abertura, decisões, confirmação e feedback continuam sem rolagem, preservando o formato de jogo.
+- Nenhuma lógica, conteúdo, imagem, pontuação ou integração foi alterada.
