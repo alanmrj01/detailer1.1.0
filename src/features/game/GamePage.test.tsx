@@ -93,8 +93,8 @@ describe('GamePage', () => {
     expect(text).toContain('saúde da operação');
   });
 
-  it('bloqueia a terceira partida e apresenta o piloto de 14 dias', () => {
-    writeDemoRunCount(2);
+  it('bloqueia a segunda partida e apresenta o piloto de 14 dias', () => {
+    writeDemoRunCount(1);
 
     let renderer: ReturnType<typeof create>;
     act(() => {

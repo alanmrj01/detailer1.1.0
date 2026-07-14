@@ -1,0 +1,7 @@
+DETAILER BUSINESS 1.4.2 — LIMITE DE UMA PARTIDA
+
+Alteração cirúrgica:
+- a demonstração permite uma única partida por navegador/aparelho;
+- a segunda tentativa por “Iniciar desafio” ou “Jogar novamente” abre o convite ao piloto gratuito de 14 dias;
+- mensagem atualizada para informar “a partida disponível”;
+- nenhum outro comportamento, layout, cálculo ou integração foi alterado.

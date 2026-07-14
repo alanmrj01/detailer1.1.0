@@ -28,7 +28,7 @@ Aplicação web educacional configurável para demonstrar a um criador de conte�
   - todas as situações, escolhas, consequências e impactos;
   - faixas e mensagens do resultado final;
   - exportação e importação de toda a configuração em JSON.
-- Demonstração limitada a duas partidas por navegador; a terceira tentativa apresenta o convite para um piloto gratuito de 14 dias.
+- Demonstração limitada a uma partida por navegador; a segunda tentativa apresenta o convite para um piloto gratuito de 14 dias.
 - Build de produção incluído em `dist/`.
 - 35 testes unitários/integrados, incluindo persistência bloqueada, compatibilidade, limite da demonstração, saúde inicial visual em 0★, importação/exportação e varredura automática dos 12.636 caminhos válidos.
 
@@ -161,7 +161,7 @@ src/
 ## Limites intencionais do MVP
 
 - Dados persistidos localmente quando o navegador permite; se o armazenamento estiver bloqueado, a rodada continua em memória durante a sessão. Cada rodada guarda seu próprio snapshot de cenário.
-- O limite de duas partidas é local ao navegador/aparelho e serve como mecanismo de conversão, não como bloqueio antifraude. Limpeza de dados, aba anônima ou outro dispositivo reiniciam a contagem.
+- O limite de uma partida é local ao navegador/aparelho e serve como mecanismo de conversão, não como bloqueio antifraude. Limpeza de dados, aba anônima ou outro dispositivo reiniciam a contagem.
 - Não possui login de alunos, checkout, certificados ou painel remoto.
 - O PIN não é segurança real.
 - Valores de serviços são hipóteses educacionais configuráveis; não são apresentados como média nacional.

@@ -108,7 +108,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
     const persistedCount = normalizeDemoRunCount(readJson<unknown>(storageKeys.DEMO_RUN_COUNT_KEY));
     const currentCount = Math.max(demoRunCount, persistedCount);
 
-    if (currentCount >= 2) {
+    if (currentCount >= 1) {
       setDemoRunCount(currentCount);
       setTrialLimitOpen(true);
       return;
@@ -622,7 +622,7 @@ function TrialLimitModal({
         <div className={styles.trialLimitIcon} aria-hidden="true">14</div>
         <h2 id="trial-limit-title">Agora teste a ferramenta com o seu próprio método</h2>
         <p>
-          Você já utilizou as duas partidas disponíveis nesta demonstração. Envie uma proposta simples
+          Você já utilizou a partida disponível nesta demonstração. Envie uma proposta simples
           do seu método e receba um piloto gratuito de 14 dias, personalizado para testar com seus próprios
           seguidores na prática.
         </p>

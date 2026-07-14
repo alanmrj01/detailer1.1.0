@@ -13,8 +13,8 @@ Alterações solicitadas:
    - após a primeira escolha, o feedback apresenta o primeiro patamar calculado, evitando contradição narrativa.
 
 3. Limite da demonstração:
-   - duas partidas podem ser iniciadas por navegador;
-   - a terceira tentativa, seja por “Iniciar desafio” ou “Jogar novamente”, abre o convite ao piloto;
+   - uma partida pode ser iniciada por navegador;
+   - a segunda tentativa, seja por “Iniciar desafio” ou “Jogar novamente”, abre o convite ao piloto;
    - convite comunica piloto gratuito de 14 dias com método e seguidores do criador;
    - compromisso somente após validação prática;
    - o app envia o evento postMessage “detailer-business:trial-request” para futura integração com a landing;
