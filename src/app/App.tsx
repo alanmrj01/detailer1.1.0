@@ -8,7 +8,7 @@ import { preloadVisualAssets } from '../utils/preloadVisualAssets';
 import styles from './App.module.css';
 
 export function App() {
-  const { config, theme, setTheme } = useAppConfig();
+  const { config } = useAppConfig();
   const [view, setView] = useState<'game' | 'settings'>('game');
   const [gameplayActive, setGameplayActive] = useState(false);
 
@@ -17,9 +17,8 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
     document.documentElement.style.setProperty('--accent', config.brand.accentColor);
-  }, [theme, config.brand.accentColor]);
+  }, [config.brand.accentColor]);
 
   return (
     <div className={styles.app}>
@@ -29,8 +28,6 @@ export function App() {
         activeView={view}
         gameplayActive={view === 'game' && gameplayActive}
         onNavigate={setView}
-        theme={theme}
-        onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       />
       <div key={view} className={styles.viewTransition}>
         {view === 'game' ? (

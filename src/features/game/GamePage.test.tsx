@@ -6,8 +6,6 @@ import { removeJson, storageKeys } from '../../utils/storage';
 vi.mock('../../context/AppConfigContext', () => ({
   useAppConfig: () => ({
     config: defaultConfig,
-    theme: 'dark',
-    setTheme: vi.fn(),
   }),
 }));
 
@@ -29,6 +27,7 @@ beforeEach(() => {
     configurable: true,
   });
   removeJson(storageKeys.RUN_KEY);
+  removeJson(storageKeys.DEMO_RUN_COUNT_KEY);
 });
 
 describe('GamePage', () => {
@@ -86,6 +85,32 @@ describe('GamePage', () => {
     expect(gauges.every((gauge) => String(gauge.props['aria-label']).includes('impacto'))).toBe(true);
   });
 
+  it('começa visualmente com saúde da operação em 0 estrelas', () => {
+    const renderer = startGame();
+    const text = renderedText(renderer.root);
+    expect(text).toContain('0,0');
+    expect(text).toContain('0.0');
+    expect(text).toContain('saúde da operação');
+  });
+
+  it('bloqueia a terceira partida e apresenta o piloto de 14 dias', () => {
+    writeDemoRunCount(2);
+
+    let renderer: ReturnType<typeof create>;
+    act(() => {
+      renderer = create(<GamePage />);
+    });
+
+    const startButton = renderer!.root.findAllByType('button').find((button) =>
+      renderedText(button).includes('Iniciar desafio'),
+    );
+    act(() => startButton!.props.onClick());
+
+    expect(renderedText(renderer!.root)).toContain('Agora teste a ferramenta com o seu próprio método');
+    expect(renderedText(renderer!.root)).toContain('piloto gratuito de 14 dias');
+    expect(renderer!.root.findAllByType('h1')[0].children.join('')).toContain('Primeiros 90 dias');
+  });
+
   it('só revela a consequência completa depois que a decisão é confirmada', () => {
     const renderer = startGame();
     const consequence = 'Você preserva capital de giro e reduz o ponto de equilíbrio';
@@ -109,6 +134,10 @@ describe('GamePage', () => {
     expect(renderedText(renderer.root)).toContain(consequence);
   });
 });
+
+function writeDemoRunCount(count: number) {
+  localStorage.setItem(storageKeys.DEMO_RUN_COUNT_KEY, JSON.stringify(count));
+}
 
 function startGame() {
   let renderer: ReturnType<typeof create>;

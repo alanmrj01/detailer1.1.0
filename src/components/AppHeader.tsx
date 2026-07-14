@@ -1,4 +1,3 @@
-import type { ThemeMode } from '../types/config';
 import styles from './AppHeader.module.css';
 
 interface AppHeaderProps {
@@ -7,8 +6,6 @@ interface AppHeaderProps {
   activeView: 'game' | 'settings';
   gameplayActive: boolean;
   onNavigate: (view: 'game' | 'settings') => void;
-  theme: ThemeMode;
-  onToggleTheme: () => void;
 }
 
 export function AppHeader({
@@ -17,8 +14,6 @@ export function AppHeader({
   activeView,
   gameplayActive,
   onNavigate,
-  theme,
-  onToggleTheme,
 }: AppHeaderProps) {
   return (
     <header className={styles.header} data-gameplay-active={gameplayActive ? 'true' : 'false'}>
@@ -45,9 +40,6 @@ export function AppHeader({
           onClick={() => onNavigate('settings')}
         >
           Configurações
-        </button>
-        <button className={styles.themeButton} type="button" onClick={onToggleTheme} aria-label="Alternar tema">
-          {theme === 'dark' ? '☀' : '◐'}
         </button>
       </nav>
     </header>

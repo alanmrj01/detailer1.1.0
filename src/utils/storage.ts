@@ -1,8 +1,8 @@
 const CONFIG_KEY = 'detailer-lab-config-v2';
 const RUN_KEY = 'detailer-lab-run-v2';
-const THEME_KEY = 'detailer-lab-theme-v2';
+const DEMO_RUN_COUNT_KEY = 'detailer-demo-run-count-v1';
 
-export const storageKeys = { CONFIG_KEY, RUN_KEY, THEME_KEY };
+export const storageKeys = { CONFIG_KEY, RUN_KEY, DEMO_RUN_COUNT_KEY };
 
 const memoryStorage: Record<string, string> = {};
 const memoryOnlyKeys: Record<string, boolean> = {};

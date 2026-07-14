@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import { defaultConfig } from '../data/defaultConfig';
-import type { AppConfig, ThemeMode } from '../types/config';
+import type { AppConfig } from '../types/config';
 import { readJson, storageKeys, writeJson } from '../utils/storage';
 import { migrateConfig } from '../utils/configTransfer';
 import { cloneValue } from '../utils/compat';
@@ -10,8 +10,6 @@ interface AppConfigContextValue {
   setConfig: (next: AppConfig) => void;
   updateConfig: (updater: (current: AppConfig) => AppConfig) => void;
   resetConfig: () => void;
-  theme: ThemeMode;
-  setTheme: (theme: ThemeMode) => void;
 }
 
 const AppConfigContext = createContext<AppConfigContextValue | null>(null);
@@ -21,7 +19,6 @@ export function AppConfigProvider({ children }: { children: ReactNode }) {
     const stored = readJson<AppConfig>(storageKeys.CONFIG_KEY);
     return stored ? migrateConfig(stored) : cloneValue(defaultConfig);
   });
-  const [theme, setThemeState] = useState<ThemeMode>(() => readJson<ThemeMode>(storageKeys.THEME_KEY) ?? 'dark');
 
   const setConfig = (next: AppConfig) => {
     setConfigState(next);
@@ -36,14 +33,9 @@ export function AppConfigProvider({ children }: { children: ReactNode }) {
     setConfig(cloneValue(defaultConfig));
   };
 
-  const setTheme = (nextTheme: ThemeMode) => {
-    setThemeState(nextTheme);
-    writeJson(storageKeys.THEME_KEY, nextTheme);
-  };
-
   const value = useMemo(
-    () => ({ config, setConfig, updateConfig, resetConfig, theme, setTheme }),
-    [config, theme],
+    () => ({ config, setConfig, updateConfig, resetConfig }),
+    [config],
   );
 
   return <AppConfigContext.Provider value={value}>{children}</AppConfigContext.Provider>;

@@ -5,7 +5,7 @@ Aplicação web educacional configurável para demonstrar a um criador de conte�
 ## O que está pronto
 
 - React + Vite + TypeScript + CSS Modules.
-- Tema claro e escuro.
+- Tema escuro definitivo, sem alternância visual que possa gerar inconsistências.
 - Interface responsiva para celular e desktop.
 - Oito decisões encadeadas em uma simulação com duração configurável — 90 dias na configuração padrão.
 - Motor determinístico com:
@@ -28,8 +28,9 @@ Aplicação web educacional configurável para demonstrar a um criador de conte�
   - todas as situações, escolhas, consequências e impactos;
   - faixas e mensagens do resultado final;
   - exportação e importação de toda a configuração em JSON.
+- Demonstração limitada a duas partidas por navegador; a terceira tentativa apresenta o convite para um piloto gratuito de 14 dias.
 - Build de produção incluído em `dist/`.
-- 32 testes unitários/integrados, incluindo persistência bloqueada e compatibilidade, importação/exportação, varredura automática dos 12.636 caminhos válidos e regressão visual com 27 screenshots de referência.
+- 35 testes unitários/integrados, incluindo persistência bloqueada, compatibilidade, limite da demonstração, saúde inicial visual em 0★, importação/exportação e varredura automática dos 12.636 caminhos válidos.
 
 ## Acesso do criador
 
@@ -113,6 +114,17 @@ Depois de publicar a pasta `dist` em Vercel, Netlify ou Cloudflare Pages:
 
 A hospedagem precisa permitir incorporação. Não configure `X-Frame-Options: DENY` nem uma CSP `frame-ancestors` que bloqueie o domínio da landing page.
 
+Quando o visitante tenta iniciar uma terceira partida, o app envia ao contêiner:
+
+```js
+{
+  type: 'detailer-business:trial-request',
+  source: 'demo-limit'
+}
+```
+
+A landing page pode ouvir esse evento com `window.addEventListener('message', ...)`, fechar o iframe em tela cheia e levar o visitante ao formulário do piloto de 14 dias.
+
 ## Pesquisa de mercado embutida
 
 Os quatro equipamentos possuem seis fontes de preço cada, com varejista, preço, data de consulta e URL, acessíveis em **Configurações → Mercado e veículos**. O preço usado pelo jogo é a média aritmética das fontes e pode ser recalculado no painel.
@@ -149,6 +161,7 @@ src/
 ## Limites intencionais do MVP
 
 - Dados persistidos localmente quando o navegador permite; se o armazenamento estiver bloqueado, a rodada continua em memória durante a sessão. Cada rodada guarda seu próprio snapshot de cenário.
+- O limite de duas partidas é local ao navegador/aparelho e serve como mecanismo de conversão, não como bloqueio antifraude. Limpeza de dados, aba anônima ou outro dispositivo reiniciam a contagem.
 - Não possui login de alunos, checkout, certificados ou painel remoto.
 - O PIN não é segurança real.
 - Valores de serviços são hipóteses educacionais configuráveis; não são apresentados como média nacional.

@@ -44,7 +44,7 @@ interface GamePageProps {
 }
 
 export function GamePage({ onGameplayStateChange }: GamePageProps) {
-  const { config, theme, setTheme } = useAppConfig();
+  const { config } = useAppConfig();
   const [run, setRun] = useState<GameRun | null>(() => {
     const stored = readJson<unknown>(storageKeys.RUN_KEY);
     if (!stored) return null;
@@ -62,6 +62,10 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
   const [timelineExpanded, setTimelineExpanded] = useState(false);
   const [showPhaseTwoTeaser, setShowPhaseTwoTeaser] = useState(false);
   const [mobileMetricsOpen, setMobileMetricsOpen] = useState(false);
+  const [trialLimitOpen, setTrialLimitOpen] = useState(false);
+  const [demoRunCount, setDemoRunCount] = useState(() => normalizeDemoRunCount(
+    readJson<unknown>(storageKeys.DEMO_RUN_COUNT_KEY),
+  ));
   const activeConfig = run ? resolveRunConfig(run, config) : config;
   const gameplayActive = Boolean(run && run.currentDecisionIndex < activeConfig.scenario.decisions.length);
 
@@ -69,6 +73,12 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
     if (run) writeJson(storageKeys.RUN_KEY, run);
     else removeJson(storageKeys.RUN_KEY);
   }, [run]);
+
+  useEffect(() => {
+    if (!run || demoRunCount > 0) return;
+    setDemoRunCount(1);
+    writeJson(storageKeys.DEMO_RUN_COUNT_KEY, 1);
+  }, [run, demoRunCount]);
 
   useEffect(() => {
     onGameplayStateChange?.(gameplayActive);
@@ -84,7 +94,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
     };
   }, [gameplayActive, onGameplayStateChange]);
 
-  const restartRun = () => {
+  const resetTransientState = () => {
     setSelectedChoice(null);
     setFeedback(null);
     setOpenInsight(null);
@@ -92,11 +102,53 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
     setTimelineExpanded(false);
     setShowPhaseTwoTeaser(false);
     setMobileMetricsOpen(false);
+  };
+
+  const requestStartRun = () => {
+    const persistedCount = normalizeDemoRunCount(readJson<unknown>(storageKeys.DEMO_RUN_COUNT_KEY));
+    const currentCount = Math.max(demoRunCount, persistedCount);
+
+    if (currentCount >= 2) {
+      setDemoRunCount(currentCount);
+      setTrialLimitOpen(true);
+      return;
+    }
+
+    const nextCount = currentCount + 1;
+    setDemoRunCount(nextCount);
+    writeJson(storageKeys.DEMO_RUN_COUNT_KEY, nextCount);
+    resetTransientState();
     setRun(createRun(config));
+  };
+
+  const closeTrialLimit = () => {
+    setTrialLimitOpen(false);
+  };
+
+  const requestTrial = () => {
+    const message = { type: 'detailer-business:trial-request', source: 'demo-limit' };
+
+    if (typeof window !== 'undefined' && window.parent !== window) {
+      let targetOrigin = '*';
+      try {
+        if (typeof document !== 'undefined' && document.referrer) {
+          targetOrigin = new URL(document.referrer).origin;
+        }
+      } catch {
+        targetOrigin = '*';
+      }
+      window.parent.postMessage(message, targetOrigin);
+      return;
+    }
+
+    if (typeof window !== 'undefined') {
+      window.location.assign('https://detailer-business.netlify.app/#contato');
+    }
   };
 
   if (!run) {
     return (
+      <>
       <main className={styles.introPage}>
         <section className={styles.introHero}>
           <SceneAnimation scene="garage" />
@@ -128,10 +180,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
             </div>
 
             <div className={styles.introActions}>
-              <button className="primaryButton" type="button" onClick={() => { setShowPhaseTwoTeaser(false); setRun(createRun(config)); }}>Iniciar desafio</button>
-              <button className={`secondaryButton ${styles.introThemeButton}`} type="button" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-                Tema {theme === 'dark' ? 'claro' : 'escuro'}
-              </button>
+              <button className="primaryButton" type="button" onClick={requestStartRun}>Iniciar desafio</button>
             </div>
             <small className={styles.introSupportText}>{personalizeScenarioCopy(config.brand.supportText, config)}</small>
             <details className={styles.mobileIntroDetails}>
@@ -141,6 +190,10 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
           </div>
         </section>
       </main>
+      {trialLimitOpen ? (
+        <TrialLimitModal onClose={closeTrialLimit} onRequestTrial={requestTrial} />
+      ) : null}
+      </>
     );
   }
 
@@ -149,6 +202,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
 
   if (completed && showPhaseTwoTeaser) {
     return (
+      <>
       <main className={styles.page}>
         <section className={styles.phaseBreakHero}>
           <SceneAnimation scene="growth" />
@@ -165,11 +219,15 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
             </div>
             <div className={styles.resultActions}>
               <button className="primaryButton" type="button" onClick={() => setShowPhaseTwoTeaser(false)}>Voltar ao resultado da fase 1</button>
-              <button className="secondaryButton" type="button" onClick={restartRun}>Jogar novamente</button>
+              <button className="secondaryButton" type="button" onClick={requestStartRun}>Jogar novamente</button>
             </div>
           </div>
         </section>
       </main>
+      {trialLimitOpen ? (
+        <TrialLimitModal onClose={closeTrialLimit} onRequestTrial={requestTrial} />
+      ) : null}
+      </>
     );
   }
 
@@ -186,6 +244,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
       expandedResultCard === card || openInsight === card;
 
     return (
+      <>
       <main className={styles.page}>
         <section className={styles.resultHero}>
           <SceneAnimation scene={getResultScene(result.stars)} />
@@ -201,7 +260,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
               </div>
             </div>
             <div className={styles.resultActions}>
-              <button className="primaryButton" type="button" onClick={restartRun}>Jogar novamente</button>
+              <button className="primaryButton" type="button" onClick={requestStartRun}>Jogar novamente</button>
               <button className="secondaryButton" type="button" onClick={() => setShowPhaseTwoTeaser(true)}>Ver prévia da fase 2</button>
               <button className="secondaryButton" type="button" onClick={() => { setShowPhaseTwoTeaser(false); setRun(null); }}>Voltar para capa</button>
             </div>
@@ -314,6 +373,10 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
           )}
         </section>
       </main>
+      {trialLimitOpen ? (
+        <TrialLimitModal onClose={closeTrialLimit} onRequestTrial={requestTrial} />
+      ) : null}
+      </>
     );
   }
 
@@ -323,6 +386,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
   const progress = ((run.currentDecisionIndex + 1) / activeConfig.scenario.decisions.length) * 100;
   const currentPhase = `Fase 1 • ${currentDecision.module}`;
   const currentStars = scoreToStars(calculateScoreFromMetrics(run.metrics, activeConfig));
+  const displayedCurrentStars = run.ledger.length === 0 ? 0 : currentStars;
 
   const confirmChoice = () => {
     if (!selectedChoice) return;
@@ -352,7 +416,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
             <span>{currentDecision.module}</span>
           </div>
           <div className={styles.mobileRating}>
-            <strong>{currentStars.toFixed(1).replace('.', ',')}★</strong>
+            <strong>{displayedCurrentStars.toFixed(1).replace('.', ',')}★</strong>
             <span>saúde da operação</span>
           </div>
         </div>
@@ -390,7 +454,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
         <div className={styles.minorStats}>
           <span>Clientes <strong>{Math.round(run.metrics.customers)}</strong></span>
           <span>Carga <strong>{Math.round(run.metrics.fatigue)}</strong></span>
-          <span>Saúde da operação <strong>{currentStars.toFixed(1)}★</strong></span>
+          <span>Saúde da operação <strong>{displayedCurrentStars.toFixed(1)}★</strong></span>
         </div>
       </section>
 
@@ -526,9 +590,54 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
           config={activeConfig}
           onClose={() => setFeedback(null)}
           completed={run.currentDecisionIndex >= activeConfig.scenario.decisions.length}
+          initialAssessment={run.ledger.length === 1}
         />
       )}
     </main>
+  );
+}
+
+function normalizeDemoRunCount(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return 0;
+  return Math.min(Math.max(Math.floor(value), 0), 2);
+}
+
+function TrialLimitModal({
+  onClose,
+  onRequestTrial,
+}: {
+  onClose: () => void;
+  onRequestTrial: () => void;
+}) {
+  return (
+    <div className={styles.modalBackdrop} role="presentation" onMouseDown={onClose}>
+      <section
+        className={`${styles.modal} ${styles.trialLimitModal}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="trial-limit-title"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <span className={styles.trialLimitBadge}>Demonstração concluída</span>
+        <div className={styles.trialLimitIcon} aria-hidden="true">14</div>
+        <h2 id="trial-limit-title">Agora teste a ferramenta com o seu próprio método</h2>
+        <p>
+          Você já utilizou as duas partidas disponíveis nesta demonstração. Envie uma proposta simples
+          do seu método e receba um piloto gratuito de 14 dias, personalizado para testar com seus próprios
+          seguidores na prática.
+        </p>
+        <div className={styles.trialLimitPromise}>
+          <strong>Valide primeiro. Decida depois.</strong>
+          <span>Você só firma um compromisso depois de comprovar o valor da experiência com o seu público.</span>
+        </div>
+        <div className={styles.modalActions}>
+          <button className="secondaryButton" type="button" onClick={onClose}>Fechar</button>
+          <button className="primaryButton" type="button" onClick={onRequestTrial}>
+            Testar meu método por 14 dias
+          </button>
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -658,22 +767,26 @@ function FeedbackModal({
   config,
   onClose,
   completed,
+  initialAssessment,
 }: {
   feedback: { entry: LedgerEntry; mentorTip: string };
   config: ReturnType<typeof useAppConfig>['config'];
   onClose: () => void;
   completed: boolean;
+  initialAssessment: boolean;
 }) {
   const stageStarChange = calculateStepStarChange(feedback.entry.before, feedback.entry.after, config);
-  const lostClassification = stageStarChange < 0;
-  const gainedClassification = stageStarChange > 0;
+  const lostClassification = !initialAssessment && stageStarChange < 0;
+  const gainedClassification = initialAssessment || stageStarChange > 0;
   const projectedStars = scoreToStars(calculateScoreFromMetrics(feedback.entry.after, config));
   const feedbackItems = describeFeedback(feedback.entry.delta, config.scenario.currency).slice(0, 3);
-  const mobileStatusTitle = lostClassification
-    ? 'Pressão operacional'
-    : gainedClassification
-      ? 'Ganho operacional'
-      : 'Trade-off equilibrado';
+  const mobileStatusTitle = initialAssessment
+    ? 'Primeiro diagnóstico'
+    : lostClassification
+      ? 'Pressão operacional'
+      : gainedClassification
+        ? 'Ganho operacional'
+        : 'Trade-off equilibrado';
   const mobileConsequenceTitle = buildMobileConsequenceTitle(feedback.entry, config, lostClassification, gainedClassification);
 
   return (
@@ -693,9 +806,9 @@ function FeedbackModal({
         <p className={`${styles.feedbackConsequence} ${styles.desktopFeedbackConsequence}`}>{summarizeConsequence(feedback.entry.consequence)}</p>
         <div className={`${styles.rewardPanel} ${lostClassification ? styles.rewardLoss : gainedClassification ? styles.rewardGain : styles.rewardNeutral}`}>
           <div className={styles.rewardCopy}>
-            <small>{lostClassification ? 'Saúde da operação caiu' : gainedClassification ? 'Saúde da operação melhorou' : 'Saúde da operação estável'}</small>
-            <strong>{formatStarChange(stageStarChange)}</strong>
-            <span>{lostClassification ? 'Novo patamar:' : gainedClassification ? 'Novo patamar:' : 'Patamar mantido:'} {projectedStars.toFixed(1)} / 5.0</span>
+            <small>{initialAssessment ? 'Saúde inicial da operação' : lostClassification ? 'Saúde da operação caiu' : gainedClassification ? 'Saúde da operação melhorou' : 'Saúde da operação estável'}</small>
+            <strong>{initialAssessment ? `${projectedStars.toFixed(1)}★` : formatStarChange(stageStarChange)}</strong>
+            <span>{initialAssessment ? 'Primeiro patamar calculado:' : lostClassification ? 'Novo patamar:' : gainedClassification ? 'Novo patamar:' : 'Patamar mantido:'} {projectedStars.toFixed(1)} / 5.0</span>
           </div>
           <StarRating value={projectedStars} size="md" animated showValue={false} />
         </div>

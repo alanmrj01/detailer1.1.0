@@ -1,7 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
 const RUN_KEY = 'detailer-lab-run-v2';
-const THEME_KEY = 'detailer-lab-theme-v2';
 
 const decisions = [
   { choice: 'garage', decision: 'operation-model', grants: ['setup_garage'] },
@@ -40,12 +39,11 @@ function baseMetrics() {
   };
 }
 
-async function openWithState(page: Page, run: ReturnType<typeof runAt> | null, theme: 'dark' | 'light' = 'dark', path = '/') {
-  await page.addInitScript(({ runState, selectedTheme, runKey, themeKey }) => {
+async function openWithState(page: Page, run: ReturnType<typeof runAt> | null, _theme: 'dark' | 'light' = 'dark', path = '/') {
+  await page.addInitScript(({ runState, runKey }) => {
     localStorage.clear();
-    localStorage.setItem(themeKey, JSON.stringify(selectedTheme));
     if (runState) localStorage.setItem(runKey, JSON.stringify(runState));
-  }, { runState: run, selectedTheme: theme, runKey: RUN_KEY, themeKey: THEME_KEY });
+  }, { runState: run, runKey: RUN_KEY });
   await page.goto(path, { waitUntil: 'domcontentloaded' });
   await page.locator('main').first().waitFor();
   await page.waitForFunction(() => Array.from(document.images).every((image) => image.complete));
@@ -55,18 +53,15 @@ async function expectPageScreenshot(page: Page, name: string) {
   await expect(page).toHaveScreenshot(name, { fullPage: true });
 }
 
-test('capa nos temas escuro e claro', async ({ page }) => {
+test('capa no tema escuro definitivo', async ({ page }) => {
   await openWithState(page, null, 'dark');
+  await expect(page.getByRole('button', { name: 'Alternar tema' })).toHaveCount(0);
   await expectPageScreenshot(page, '01-capa-dark.png');
-
-  await page.getByRole('button', { name: 'Alternar tema' }).click();
-  await expectPageScreenshot(page, '02-capa-light.png');
 });
 
 for (let index = 0; index < decisions.length; index += 1) {
   test(`fase 1 — tela ${index + 1}/8`, async ({ page }) => {
-    const theme = index === 0 ? 'light' : 'dark';
-    await openWithState(page, runAt(index), theme);
+    await openWithState(page, runAt(index), 'dark');
     await expect(page.locator(`[data-scene]`)).toHaveCount(1);
     const choiceVisuals = page.locator('[data-choice-visual]');
     const expectedChoices = index === 1 || index === 2 || index === 7 ? 4 : 3;

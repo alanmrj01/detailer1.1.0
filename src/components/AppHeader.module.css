@@ -81,12 +81,6 @@
   background: rgba(102, 208, 255, 0.12);
 }
 
-.themeButton {
-  width: 40px;
-  padding: 0 !important;
-  font-size: 1.05rem;
-}
-
 @media (max-width: 680px) {
   .header {
     min-height: 64px;
@@ -96,7 +90,7 @@
     font-size: 0.92rem;
   }
 
-  .actions button:not(.themeButton) {
+  .actions button {
     font-size: 0;
     width: 42px;
     padding: 0;
