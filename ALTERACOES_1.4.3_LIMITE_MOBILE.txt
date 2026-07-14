@@ -1,0 +1,26 @@
+DETAILER BUSINESS 1.4.3 — LIMITE CONSISTENTE EM DISPOSITIVOS MÓVEIS
+
+Escopo cirúrgico desta versão
+- Nenhuma tela, texto, ilustração, regra de jogo, pontuação ou balanceamento foi alterado.
+- A única mudança funcional é a persistência do limite de uma partida da demonstração.
+
+Correção aplicada
+- O limite deixou de depender exclusivamente do localStorage.
+- O uso da demonstração agora é registrado de forma redundante em:
+  1. localStorage;
+  2. sessionStorage;
+  3. cookie de primeira parte;
+  4. cookie compatível com incorporação HTTPS, quando permitido pelo navegador;
+  5. window.name durante a sessão do contexto de navegação;
+  6. memória, como último fallback.
+- O maior valor encontrado entre as camadas prevalece.
+- Se uma API estiver bloqueada por Safari, Chrome mobile, iframe, WebView ou modo privado, as demais continuam sendo usadas.
+- Ao tentar iniciar uma segunda partida, a tela do piloto gratuito de 14 dias é exibida normalmente.
+- O evento detailer-business:trial-request para levar o visitante ao formulário da landing foi preservado sem alterações.
+
+Validação
+- 36 testes automatizados aprovados.
+- Teste específico com localStorage bloqueado e remontagem do app aprovado.
+- 12.636 caminhos válidos do jogo preservados.
+- TypeScript e build moderno/legado aprovados.
+- 0 vulnerabilidades nas dependências de produção.

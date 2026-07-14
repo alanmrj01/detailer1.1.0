@@ -2,6 +2,7 @@ import { act, create } from 'react-test-renderer';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defaultConfig } from '../../data/defaultConfig';
 import { removeJson, storageKeys } from '../../utils/storage';
+import { resetDemoLimitMemoryForTests } from '../../utils/demoLimit';
 
 vi.mock('../../context/AppConfigContext', () => ({
   useAppConfig: () => ({
@@ -26,6 +27,11 @@ beforeEach(() => {
     value: new MemoryStorage(),
     configurable: true,
   });
+  Object.defineProperty(globalThis, 'sessionStorage', {
+    value: new MemoryStorage(),
+    configurable: true,
+  });
+  resetDemoLimitMemoryForTests();
   removeJson(storageKeys.RUN_KEY);
   removeJson(storageKeys.DEMO_RUN_COUNT_KEY);
 });
@@ -66,6 +72,39 @@ describe('GamePage', () => {
     act(() => continueButton!.props.onClick());
 
     expect(renderer.root.findAllByType('h1')[0].children.join('')).toContain('Qual conjunto de equipamentos comprar?');
+  });
+
+
+  it('mantém o limite entre remontagens quando o localStorage é bloqueado no mobile', () => {
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem() { throw new Error('blocked'); },
+        setItem() { throw new Error('blocked'); },
+        removeItem() { throw new Error('blocked'); },
+        clear() { throw new Error('blocked'); },
+        key() { return null; },
+        length: 0,
+      },
+    });
+
+    const firstRenderer = startGame();
+    act(() => firstRenderer.unmount());
+    removeJson(storageKeys.RUN_KEY);
+    resetDemoLimitMemoryForTests();
+
+    let secondRenderer: ReturnType<typeof create>;
+    act(() => {
+      secondRenderer = create(<GamePage />);
+    });
+
+    const startButton = secondRenderer!.root.findAllByType('button').find((button) =>
+      renderedText(button).includes('Iniciar desafio'),
+    );
+    act(() => startButton!.props.onClick());
+
+    expect(renderedText(secondRenderer!.root)).toContain('Agora teste a ferramenta com o seu próprio método');
+    expect(renderedText(secondRenderer!.root)).toContain('piloto gratuito de 14 dias');
   });
 
   it('substitui os deltas numéricos por medidores visuais na consequência', () => {

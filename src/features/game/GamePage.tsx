@@ -9,6 +9,7 @@ import type { GameResult, GameRun, LedgerEntry } from '../../types/game';
 import { formatCurrency } from '../../utils/format';
 import { firstSentence, lastItem } from '../../utils/compat';
 import { readJson, removeJson, storageKeys, writeJson } from '../../utils/storage';
+import { getDemoRunLimit, readDemoRunCount, writeDemoRunCount } from '../../utils/demoLimit';
 import {
   applyChoice,
   calculateResult,
@@ -63,9 +64,7 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
   const [showPhaseTwoTeaser, setShowPhaseTwoTeaser] = useState(false);
   const [mobileMetricsOpen, setMobileMetricsOpen] = useState(false);
   const [trialLimitOpen, setTrialLimitOpen] = useState(false);
-  const [demoRunCount, setDemoRunCount] = useState(() => normalizeDemoRunCount(
-    readJson<unknown>(storageKeys.DEMO_RUN_COUNT_KEY),
-  ));
+  const [demoRunCount, setDemoRunCount] = useState(() => readDemoRunCount());
   const activeConfig = run ? resolveRunConfig(run, config) : config;
   const gameplayActive = Boolean(run && run.currentDecisionIndex < activeConfig.scenario.decisions.length);
 
@@ -75,9 +74,9 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
   }, [run]);
 
   useEffect(() => {
-    if (!run || demoRunCount > 0) return;
-    setDemoRunCount(1);
-    writeJson(storageKeys.DEMO_RUN_COUNT_KEY, 1);
+    if (!run || demoRunCount >= getDemoRunLimit()) return;
+    const persistedCount = writeDemoRunCount(getDemoRunLimit());
+    setDemoRunCount(persistedCount);
   }, [run, demoRunCount]);
 
   useEffect(() => {
@@ -105,18 +104,17 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
   };
 
   const requestStartRun = () => {
-    const persistedCount = normalizeDemoRunCount(readJson<unknown>(storageKeys.DEMO_RUN_COUNT_KEY));
+    const persistedCount = readDemoRunCount();
     const currentCount = Math.max(demoRunCount, persistedCount);
 
-    if (currentCount >= 1) {
+    if (currentCount >= getDemoRunLimit()) {
       setDemoRunCount(currentCount);
       setTrialLimitOpen(true);
       return;
     }
 
-    const nextCount = currentCount + 1;
+    const nextCount = writeDemoRunCount(currentCount + 1);
     setDemoRunCount(nextCount);
-    writeJson(storageKeys.DEMO_RUN_COUNT_KEY, nextCount);
     resetTransientState();
     setRun(createRun(config));
   };
@@ -595,11 +593,6 @@ export function GamePage({ onGameplayStateChange }: GamePageProps) {
       )}
     </main>
   );
-}
-
-function normalizeDemoRunCount(value: unknown): number {
-  if (typeof value !== 'number' || !Number.isFinite(value)) return 0;
-  return Math.min(Math.max(Math.floor(value), 0), 2);
 }
 
 function TrialLimitModal({
