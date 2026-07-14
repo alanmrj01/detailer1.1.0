@@ -1,0 +1,25 @@
+DETAILER BUSINESS — REFINAMENTO VISUAL 1.3.10
+
+Alteração solicitada
+- Remoção dos números de variação nos três cartões de efeitos da tela de consequência.
+- Inclusão de mini medidores semicirculares no mesmo local.
+
+Comportamento
+- Efeito favorável: ponteiro direcionado para a faixa verde.
+- Efeito desfavorável: ponteiro direcionado para a faixa vermelha/laranja.
+- A intensidade relativa do efeito controla a posição do ponteiro.
+- Reduções de risco e carga são corretamente tratadas como favoráveis.
+
+Preservado sem alterações
+- Cálculos e valores internos.
+- Ordenação dos três principais efeitos.
+- Saúde da operação e estrelas.
+- Textos, consequências e leitura técnica.
+- Layout geral, desktop, mobile e modo incorporado.
+- Oito decisões, balanceamento e painel do criador.
+- Compatibilidade progressiva e persistência.
+
+Validação
+- 33 testes unitários e integrados aprovados.
+- 12.636 caminhos válidos preservados.
+- Build moderno e legado aprovado.

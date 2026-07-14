@@ -131,6 +131,7 @@ test('proteção visual do feedback com queda na saúde da operação', async ({
   await page.getByRole('button', { name: /Contestar a reclamação/ }).click();
   await page.getByRole('button', { name: 'Confirmar escolha' }).click();
   await expect(page.getByText('Saúde da operação caiu')).toBeVisible();
+  await expect(page.getByTestId('impact-gauge')).toHaveCount(3);
   await expectPageScreenshot(page, '21-feedback-perda-classificacao.png');
 });
 
@@ -167,6 +168,7 @@ test('jogo mobile — feedback objetivo com perda', async ({ page }) => {
   await page.getByRole('button', { name: /Contestar a reclamação/ }).click();
   await page.getByRole('button', { name: 'Confirmar escolha' }).click();
   await expect(page.getByText('Pressão operacional', { exact: true })).toBeVisible();
+  await expect(page.getByTestId('impact-gauge')).toHaveCount(3);
   await expectPageScreenshot(page, '25-mobile-feedback-perda.png');
 });
 

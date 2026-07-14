@@ -230,3 +230,9 @@ A versão 1.3.9 reforça o posicionamento do produto como ferramenta de aprendiz
 - migrações atualizam somente textos e parâmetros padrão antigos, preservando personalizações feitas pelo criador.
 
 O objetivo da calibração não é punir o aluno, mas impedir que decisões isoladamente boas escondam fragilidades importantes. A cadeia pedagógica permanece: **contexto → decisão → impacto → leitura técnica → aplicação prática**.
+
+## Refinamento visual 1.3.10 — medidores de impacto
+
+A tela de consequência substitui os deltas numéricos dos três efeitos principais por medidores semicirculares compactos. A posição do ponteiro comunica se o efeito foi favorável ou desfavorável e sua intensidade relativa, sem expor números que poderiam ser interpretados como pontuação isolada.
+
+A alteração é exclusivamente visual: cálculos, ordenação dos impactos, saúde da operação, textos e balanceamento permanecem inalterados.

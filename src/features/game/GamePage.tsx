@@ -703,7 +703,11 @@ function FeedbackModal({
           {feedbackItems.map((item) => (
             <article key={item.key} className={`${styles.feedbackStat} ${item.positive ? styles.goodFeedback : styles.badFeedback}`}>
               <small>{getMetricLabel(item.key)}</small>
-              <strong>{item.deltaLabel}</strong>
+              <MiniImpactGauge
+                positive={item.positive}
+                magnitude={item.magnitude}
+                metricLabel={getMetricLabel(item.key)}
+              />
               <span>{item.title}</span>
             </article>
           ))}
@@ -719,6 +723,46 @@ function FeedbackModal({
         </div>
       </section>
     </div>
+  );
+}
+
+function MiniImpactGauge({
+  positive,
+  magnitude,
+  metricLabel,
+}: {
+  positive: boolean;
+  magnitude: number;
+  metricLabel: string;
+}) {
+  const intensity = Math.min(Math.max(magnitude / 8, 0.08), 1);
+  const normalizedPosition = positive
+    ? 0.58 + intensity * 0.36
+    : 0.42 - intensity * 0.36;
+  const needleAngle = -78 + normalizedPosition * 156;
+  const intensityLabel = intensity >= 0.75 ? 'forte' : intensity >= 0.4 ? 'moderado' : 'leve';
+  const impactLabel = `${metricLabel}: impacto ${positive ? 'favorável' : 'desfavorável'} ${intensityLabel}`;
+
+  return (
+    <span className={styles.miniImpactGauge} role="img" aria-label={impactLabel} data-testid="impact-gauge">
+      <svg viewBox="0 0 64 36" aria-hidden="true" focusable="false">
+        <path className={styles.gaugeSegmentRed} d="M 9 30 A 23 23 0 0 1 12.49 17.81" />
+        <path className={styles.gaugeSegmentOrange} d="M 13.39 16.48 A 23 23 0 0 1 23.38 8.67" />
+        <path className={styles.gaugeSegmentYellow} d="M 24.89 8.13 A 23 23 0 0 1 37.56 7.68" />
+        <path className={styles.gaugeSegmentLime} d="M 39.11 8.13 A 23 23 0 0 1 49.62 15.22" />
+        <path className={styles.gaugeSegmentGreen} d="M 50.61 16.48 A 23 23 0 0 1 54.94 28.4" />
+        <line
+          className={styles.gaugeNeedle}
+          x1="32"
+          y1="29"
+          x2="32"
+          y2="11"
+          transform={`rotate(${needleAngle} 32 29)`}
+        />
+        <circle className={styles.gaugeHubOuter} cx="32" cy="29" r="4.2" />
+        <circle className={styles.gaugeHubInner} cx="32" cy="29" r="2.2" />
+      </svg>
+    </span>
   );
 }
 

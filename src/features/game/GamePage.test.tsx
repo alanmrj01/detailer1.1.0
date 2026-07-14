@@ -69,6 +69,23 @@ describe('GamePage', () => {
     expect(renderer.root.findAllByType('h1')[0].children.join('')).toContain('Qual conjunto de equipamentos comprar?');
   });
 
+  it('substitui os deltas numéricos por medidores visuais na consequência', () => {
+    const renderer = startGame();
+    const choiceButton = renderer.root.findAllByType('button').find((button) =>
+      renderedText(button).includes('Adaptar a garagem'),
+    );
+    act(() => choiceButton!.props.onClick());
+
+    const confirmButton = renderer.root.findAllByType('button').find((button) =>
+      renderedText(button).includes('Confirmar escolha'),
+    );
+    act(() => confirmButton!.props.onClick());
+
+    const gauges = renderer.root.findAll((node) => node.props['data-testid'] === 'impact-gauge');
+    expect(gauges).toHaveLength(3);
+    expect(gauges.every((gauge) => String(gauge.props['aria-label']).includes('impacto'))).toBe(true);
+  });
+
   it('só revela a consequência completa depois que a decisão é confirmada', () => {
     const renderer = startGame();
     const consequence = 'Você preserva capital de giro e reduz o ponto de equilíbrio';

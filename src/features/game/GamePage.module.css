@@ -2657,3 +2657,66 @@
     font-size: 1.18rem;
   }
 }
+
+/* Indicador visual compacto para os efeitos da decisão. Substitui os deltas numéricos
+   sem alterar o cálculo, a ordenação ou a interpretação pedagógica dos impactos. */
+.miniImpactGauge {
+  display: inline-flex;
+  align-items: center;
+  width: 64px;
+  height: 34px;
+  margin: 0.02rem 0 0.04rem;
+}
+
+.miniImpactGauge svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.22));
+}
+
+.gaugeSegmentRed,
+.gaugeSegmentOrange,
+.gaugeSegmentYellow,
+.gaugeSegmentLime,
+.gaugeSegmentGreen {
+  fill: none;
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+.gaugeSegmentRed { stroke: #ef2d3b; }
+.gaugeSegmentOrange { stroke: #f47f2c; }
+.gaugeSegmentYellow { stroke: #f7c928; }
+.gaugeSegmentLime { stroke: #80c828; }
+.gaugeSegmentGreen { stroke: #12b83f; }
+
+.gaugeNeedle {
+  stroke: #f8fafc;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7));
+}
+
+.gaugeHubOuter {
+  fill: #d7dee7;
+  stroke: rgba(255, 255, 255, 0.72);
+  stroke-width: 0.8;
+}
+
+.gaugeHubInner {
+  fill: #8b96a5;
+}
+
+@media (max-width: 760px), (max-width: 1000px) and (max-height: 500px) and (orientation: landscape) {
+  .miniImpactGauge {
+    width: 50px;
+    height: 27px;
+    margin: -0.02rem 0 0;
+  }
+
+  .feedbackStat {
+    grid-template-rows: auto 27px minmax(0, 1fr);
+  }
+}
