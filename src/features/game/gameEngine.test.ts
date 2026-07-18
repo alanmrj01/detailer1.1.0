@@ -100,16 +100,16 @@ describe('gameEngine', () => {
     const balance = analyzeGameBalance(defaultConfig);
 
     expect(balance.minScore).toBe(34);
-    expect(balance.maxScore).toBe(99);
+    expect(balance.maxScore).toBe(98);
     defaultConfig.scenario.resultBands.forEach((band) => {
       expect(balance.reachableBandIds).toContain(band.id);
       expect(balance.bandCounts[band.id]).toBeGreaterThan(0);
     });
     expect(balance.bandCounts).toEqual({
-      fragile: 3288,
-      promising: 6655,
-      sustainable: 2621,
-      excellent: 72,
+      fragile: 3136,
+      promising: 6615,
+      sustainable: 2819,
+      excellent: 66,
     });
     expect(balance.bandCounts.sustainable / balance.totalPaths).toBeLessThan(0.5);
   });
@@ -149,7 +149,7 @@ describe('gameEngine', () => {
 
     expect(balance.recommendedChoiceIds).toHaveLength(defaultConfig.scenario.decisions.length);
     expect(balance.recommendedStars).not.toBeNull();
-    expect(balance.recommendedStars).toBe(4.4);
+    expect(balance.recommendedStars).toBe(4.3);
   });
 
   it('mantém o diagnóstico do caminho recomendado coerente com a saúde da operação', () => {
@@ -160,7 +160,7 @@ describe('gameEngine', () => {
     });
 
     const result = calculateResult(run, defaultConfig);
-    expect(result.stars).toBe(4.4);
+    expect(result.stars).toBe(4.3);
     expect(result.strengths.length).toBeGreaterThanOrEqual(3);
     expect(result.alerts.length).toBeGreaterThanOrEqual(1);
     result.alerts.forEach((message) => {
@@ -308,12 +308,12 @@ describe('gameEngine', () => {
     expect(failures).toEqual([]);
   });
 
-  it('mantém 4,9 como patamar alcançável, mas raro', () => {
+  it('mantém os patamares máximos raros após a economia realista', () => {
     const paths = enumerateValidGamePaths(defaultConfig);
-    const topPaths = paths.filter((path) => path.stars === 4.9);
+    const topPaths = paths.filter((path) => path.stars >= 4.7);
     const pathsAtOrAbove43 = paths.filter((path) => path.stars >= 4.3);
 
-    expect(topPaths).toHaveLength(2);
+    expect(topPaths).toHaveLength(9);
     expect(pathsAtOrAbove43.length / paths.length).toBeLessThan(0.01);
   });
 
@@ -343,7 +343,7 @@ describe('gameEngine', () => {
     custom.title = 'Título personalizado pelo criador';
 
     const migrated = migrateConfig(oldConfig);
-    expect(migrated.version).toBe(7);
+    expect(migrated.version).toBe(8);
     expect(migrated.scenario.decisions.find((item) => item.id === 'execution-pressure')!.title)
       .toBe('O serviço se estendeu e o próximo cliente já chegou');
     expect(migrated.scenario.decisions.find((item) => item.id === 'slow-week')!.title)

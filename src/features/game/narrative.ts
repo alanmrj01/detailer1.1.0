@@ -3,6 +3,7 @@ import type { GameResult, GameRun, LedgerEntry } from '../../types/game';
 import { formatCurrency } from '../../utils/format';
 import { firstClause, lastItem, replaceAllText } from '../../utils/compat';
 import { calculateScoreBreakdown } from './gameEngine';
+import { resolveChoiceDisplayedMoney } from './economics';
 
 const metricLabels: Record<MetricKey, string> = {
   cash: 'Caixa',
@@ -133,7 +134,7 @@ export function personalizeDecision(decision: DecisionConfig, run: GameRun, conf
     title: personalizeText(decision.title, run, config, decision.vehicleId),
     situation: personalizeText(decision.situation, run, config, decision.vehicleId),
     mentorTip: personalizeText(decision.mentorTip, run, config, decision.vehicleId),
-    choices: decision.choices.map((choice) => personalizeChoice(choice, run, config, decision.vehicleId)),
+    choices: decision.choices.map((choice) => personalizeChoice(choice, run, config, decision.id, decision.vehicleId)),
   };
 }
 
@@ -141,13 +142,20 @@ export function personalizeChoice(
   choice: DecisionChoice,
   run: GameRun,
   config: AppConfig,
+  decisionId?: string,
   vehicleId?: string,
 ): DecisionChoice {
+  const displayedMoney = decisionId
+    ? resolveChoiceDisplayedMoney(decisionId, choice.id, run, config)
+    : null;
+  const replaceEconomicMoney = (text: string) => displayedMoney === null
+    ? text
+    : replaceAllText(text, '{{economic:cash}}', formatCurrency(displayedMoney, config.scenario.currency));
   return {
     ...choice,
-    label: personalizeText(choice.label, run, config, vehicleId),
-    description: personalizeText(choice.description, run, config, vehicleId),
-    consequence: personalizeText(choice.consequence, run, config, vehicleId),
+    label: personalizeText(replaceEconomicMoney(choice.label), run, config, vehicleId),
+    description: personalizeText(replaceEconomicMoney(choice.description), run, config, vehicleId),
+    consequence: personalizeText(replaceEconomicMoney(choice.consequence), run, config, vehicleId),
   };
 }
 

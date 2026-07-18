@@ -3,7 +3,7 @@ import { DEFAULT_SCORE_BENCHMARKS } from './scoringDefaults';
 import { cloneValue } from '../utils/compat';
 
 export const defaultConfig: AppConfig = {
-  version: 7,
+  version: 8,
   brand: {
     appName: 'Detailer Business',
     creatorName: 'Método de especialista',
@@ -14,7 +14,7 @@ export const defaultConfig: AppConfig = {
     logoDataUrl: '',
     accentColor: '#66d0ff',
     supportText:
-      'Custos operacionais e preços do jogo são configuráveis pelo criador. Os equipamentos já vêm preenchidos com médias de varejo pesquisadas no mercado brasileiro.',
+      'Preços de serviços, custos de reação e investimentos são calculados conforme serviço, veículo, estrutura e escolhas anteriores, usando referências atuais do mercado brasileiro.',
   },
   security: {
     creatorPin: '2468',
@@ -161,9 +161,9 @@ export const defaultConfig: AppConfig = {
         mentorTip: 'O preço precisa cobrir insumos, tempo de ciclo e margem de contribuição. Cobrar mais ou menos muda demanda, expectativa e exposição ao retrabalho.',
         animation: 'pricing',
         choices: [
-          { id: 'low', label: 'Cobrar preço de entrada', description: 'Cobrar {{money:260}} para aumentar a chance de fechamento.', consequence: 'A conversão aumenta, mas a margem e a folga para retrabalho ficam perigosamente pequenas.', effects: { cash: 290, customers: 4, reputation: 1, fatigue: 6, risk: 8 } },
-          { id: 'balanced-price', label: 'Preço sustentável', description: 'Cobrar {{money:520}} com escopo e prazo claros.', consequence: 'Você preserva margem de contribuição e alinha escopo, prazo e capacidade de entrega.', effects: { cash: 520, customers: 2, reputation: 4, fatigue: 2, risk: -1 }, recommended: true },
-          { id: 'premium-price', label: 'Cobrar preço premium', description: 'Cobrar {{money:760}} com inspeção e entrega detalhada.', consequence: 'A margem cresce, mas o cliente espera inspeção, acabamento e comunicação compatíveis com um posicionamento premium.', effects: { cash: 720, customers: 1, reputation: 3, quality: 4, risk: 4 } },
+          { id: 'low', label: 'Cobrar preço de entrada', description: 'Cobrar {{economic:cash}} para aumentar a chance de fechamento.', consequence: 'A conversão aumenta, mas a margem e a folga para retrabalho ficam perigosamente pequenas.', effects: { cash: 290, customers: 4, reputation: 1, fatigue: 6, risk: 8 } },
+          { id: 'balanced-price', label: 'Preço sustentável', description: 'Cobrar {{economic:cash}} com escopo e prazo claros.', consequence: 'Você preserva margem de contribuição e alinha escopo, prazo e capacidade de entrega.', effects: { cash: 520, customers: 2, reputation: 4, fatigue: 2, risk: -1 }, recommended: true },
+          { id: 'premium-price', label: 'Cobrar preço premium', description: 'Cobrar {{economic:cash}} com inspeção e entrega detalhada.', consequence: 'A margem cresce, mas o cliente espera inspeção, acabamento e comunicação compatíveis com um posicionamento premium.', effects: { cash: 720, customers: 1, reputation: 3, quality: 4, risk: 4 } },
         ],
       },
       {
@@ -175,9 +175,9 @@ export const defaultConfig: AppConfig = {
         mentorTip: 'Quando a agenda esfria, compare custo de aquisição, margem e recorrência antes de reagir apenas com desconto.',
         animation: 'pricing',
         choices: [
-          { id: 'discount-blast', label: 'Soltar promoção com desconto forte', description: 'Atrair volume rapidamente pela oferta.', consequence: 'Você gera movimento imediato, mas acostuma parte do público a negociar sempre pelo menor preço.', effects: { cash: 180, customers: 3, reputation: -2, risk: 5 } },
-          { id: 'local-partnership', label: 'Fazer parceria com negócios locais', description: 'Buscar indicação com oficina, loja de som ou estacionamento.', consequence: 'A aquisição é mais gradual, porém chega com confiança transferida e maior chance de recorrência.', effects: { cash: -90, customers: 2, reputation: 5, fatigue: 1 } },
-          { id: 'content-routine', label: 'Criar conteúdo e prova social', description: 'Usar antes e depois, bastidores e rotina para chamar clientes.', consequence: 'A prova social reduz objeções e fortalece posicionamento, mesmo sem gerar um pico imediato de agenda.', effects: { cash: -60, customers: 2, reputation: 4, fatigue: 2 }, recommended: true },
+          { id: 'discount-blast', label: 'Soltar promoção com desconto forte', description: 'Gerar dois serviços promocionais com contribuição estimada de {{economic:cash}}.', consequence: 'Você gera movimento imediato, mas acostuma parte do público a negociar sempre pelo menor preço.', effects: { cash: 180, customers: 3, reputation: -2, risk: 5 } },
+          { id: 'local-partnership', label: 'Fazer parceria com negócios locais', description: 'Investir {{economic:cash}} em materiais e ativação com oficina, loja de som ou estacionamento.', consequence: 'A aquisição é mais gradual, porém chega com confiança transferida e maior chance de recorrência.', effects: { cash: -90, customers: 2, reputation: 5, fatigue: 1 } },
+          { id: 'content-routine', label: 'Criar conteúdo e prova social', description: 'Investir {{economic:cash}} em produção e impulsionamento leve de prova social.', consequence: 'A prova social reduz objeções e fortalece posicionamento, mesmo sem gerar um pico imediato de agenda.', effects: { cash: -60, customers: 2, reputation: 4, fatigue: 2 }, recommended: true },
         ],
       },
       {
@@ -189,9 +189,9 @@ export const defaultConfig: AppConfig = {
         mentorTip: 'Capacidade real depende de tempo de ciclo, taxa de ocupação e padrão. Agenda cheia sem processo pode transformar faturamento aparente em atraso e retrabalho.',
         animation: 'polishing',
         choices: [
-          { id: 'preserve-quality', label: 'Preservar a qualidade e absorver o atraso', description: 'Finalizar corretamente e oferecer apoio ao próximo cliente.', consequence: 'Você protege o padrão de acabamento, mas absorve custo operacional e aumenta a carga da agenda.', effects: { cash: -80, reputation: 5, quality: 6, fatigue: 5, risk: -4 }, recommended: true },
+          { id: 'preserve-quality', label: 'Preservar a qualidade e absorver o atraso', description: 'Absorver aproximadamente {{economic:cash}} em tempo adicional e apoio ao próximo cliente.', consequence: 'Você protege o padrão de acabamento, mas absorve custo operacional e aumenta a carga da agenda.', effects: { cash: -80, reputation: 5, quality: 6, fatigue: 5, risk: -4 }, recommended: true },
           { id: 'rush', label: 'Acelerar para cumprir os dois horários', description: 'Reduzir etapas menos visíveis.', consequence: 'O tempo de ciclo cai artificialmente, porém a chance de falha de acabamento, retrabalho e reclamação aumenta muito.', effects: { reputation: -5, quality: -8, capacity: 3, fatigue: 7, risk: 10 } },
-          { id: 'renegotiate', label: 'Renegociar prazo com transparência', description: 'Explicar a situação e combinar uma nova entrega.', consequence: 'A gestão de expectativa preserva confiança e reorganiza a agenda, embora nem todo cliente aceite a mudança de prazo.', effects: { cash: -40, reputation: 4, fatigue: -2, risk: -2 } },
+          { id: 'renegotiate', label: 'Renegociar prazo com transparência', description: 'Absorver aproximadamente {{economic:cash}} em comunicação, reorganização e suporte.', consequence: 'A gestão de expectativa preserva confiança e reorganiza a agenda, embora nem todo cliente aceite a mudança de prazo.', effects: { cash: -40, reputation: 4, fatigue: -2, risk: -2 } },
         ],
       },
       {
@@ -204,8 +204,8 @@ export const defaultConfig: AppConfig = {
         mentorTip: 'Use inspeção de entrega, registro fotográfico e análise de causa raiz. O objetivo é corrigir o processo, não apenas encerrar a reclamação.',
         animation: 'complaint',
         choices: [
-          { id: 'redo', label: 'Refazer sem custo após inspeção', description: 'Agendar correção e explicar o que será feito.', consequence: 'O retrabalho reduz margem no curto prazo, mas a inspeção e a correção recuperam confiança e alimentam a causa raiz.', effects: { cash: -180, reputation: 7, quality: 6, fatigue: 4, risk: -6 }, recommended: true },
-          { id: 'partial-refund', label: 'Oferecer abatimento parcial', description: 'Compensar financeiramente sem refazer todo o serviço.', consequence: 'Você reduz o conflito financeiro, mas pode encerrar o caso sem tratar a causa técnica do desvio.', effects: { cash: -120, reputation: 1, risk: -1 } },
+          { id: 'redo', label: 'Refazer sem custo após inspeção', description: 'Refazer após inspeção, com custo operacional estimado de {{economic:cash}}.', consequence: 'O retrabalho reduz margem no curto prazo, mas a inspeção e a correção recuperam confiança e alimentam a causa raiz.', effects: { cash: -180, reputation: 7, quality: 6, fatigue: 4, risk: -6 }, recommended: true },
+          { id: 'partial-refund', label: 'Oferecer abatimento parcial', description: 'Oferecer abatimento estimado de {{economic:cash}} sem refazer todo o serviço.', consequence: 'Você reduz o conflito financeiro, mas pode encerrar o caso sem tratar a causa técnica do desvio.', effects: { cash: -120, reputation: 1, risk: -1 } },
           { id: 'contest', label: 'Contestar a reclamação', description: 'Defender que o serviço foi entregue como contratado.', consequence: 'Você preserva caixa agora, porém aumenta muito o risco reputacional.', effects: { reputation: -10, risk: 12, fatigue: 2 } },
         ],
       },
@@ -218,10 +218,10 @@ export const defaultConfig: AppConfig = {
         mentorTip: 'Crescimento sustentável exige alinhamento entre demanda, capacidade instalada, capital de giro e padrão de entrega.',
         animation: 'growth',
         choices: [
-          { id: 'marketing', label: 'Campanha local e conteúdo', description: 'Investir {{money:450}} em presença digital e oferta de entrada.', consequence: 'A demanda cresce, mas a taxa de ocupação pode ultrapassar a capacidade se o processo ainda não estiver padronizado.', effects: { cash: -450, customers: 5, reputation: 3, capacity: -2, fatigue: 3 } },
+          { id: 'marketing', label: 'Campanha local e conteúdo', description: 'Investir {{economic:cash}} em presença digital e oferta de entrada.', consequence: 'A demanda cresce, mas a taxa de ocupação pode ultrapassar a capacidade se o processo ainda não estiver padronizado.', effects: { cash: -450, customers: 5, reputation: 3, capacity: -2, fatigue: 3 } },
           { id: 'reserve', label: 'Proteger capital de giro', description: 'Manter caixa e melhorar rotina sem grande compra.', consequence: 'O crescimento fica mais gradual, porém o capital de giro protege a operação contra sazonalidade e imprevistos.', effects: { risk: -7, fatigue: -2 }, recommended: true },
-          { id: 'training', label: 'Treinamento e padronização', description: 'Investir {{money:600}} em processo, técnica e checklist.', consequence: 'Checklists e padronização reduzem variação e retrabalho, mas adiam parte da expansão comercial.', effects: { cash: -600, quality: 8, capacity: 3, risk: -5 }, requirements: { minCashAfter: 300 } },
-          { id: 'helper', label: 'Contratar um ajudante', description: 'Reservar {{money:900}} para integração e primeiro ciclo.', consequence: 'A capacidade instalada cresce, mas integração, supervisão e controle de padrão viram novas responsabilidades.', effects: { cash: -900, capacity: 6, fatigue: -7, risk: 4 }, requirements: { minCashAfter: 300 } },
+          { id: 'training', label: 'Treinamento e padronização', description: 'Investir {{economic:cash}} em processo, técnica e checklist.', consequence: 'Checklists e padronização reduzem variação e retrabalho, mas adiam parte da expansão comercial.', effects: { cash: -600, quality: 8, capacity: 3, risk: -5 }, requirements: { minCashAfter: 300 } },
+          { id: 'helper', label: 'Contratar um ajudante', description: 'Reservar {{economic:cash}} para apoio freelancer, integração e primeiro ciclo.', consequence: 'A capacidade instalada cresce, mas integração, supervisão e controle de padrão viram novas responsabilidades.', effects: { cash: -900, capacity: 6, fatigue: -7, risk: 4 }, requirements: { minCashAfter: 300 } },
         ],
       },
     ],

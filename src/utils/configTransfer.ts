@@ -62,7 +62,7 @@ export function migrateConfig(config: AppConfig): AppConfig {
     migrateEducationalCalibration(migrated);
   }
 
-  migrated.version = 7;
+  migrated.version = 8;
   return migrated;
 }
 

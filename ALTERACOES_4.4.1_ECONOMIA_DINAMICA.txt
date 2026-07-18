@@ -1,0 +1,16 @@
+DETAILER BUSINESS 4.4.1 — ECONOMIA DINÂMICA
+
+Alterações cirúrgicas:
+- motor econômico único para preços e impactos financeiros;
+- preço do primeiro orçamento varia por serviço, porte do veículo, estrutura e posicionamento;
+- o mesmo valor alimenta texto, confirmação e caixa;
+- promoção, atraso, renegociação, retrabalho e abatimento usam o ticket calculado;
+- campanha, treinamento e apoio operacional variam conforme estrutura, serviço e equipamentos;
+- referências de mercado documentadas em docs/PESQUISA_DE_MERCADO.md;
+- nenhuma alteração de CSS, layout, imagens, animações ou estrutura das oito etapas.
+
+Validação:
+- 40 testes unitários aprovados;
+- todos os 12.636 caminhos válidos simulados;
+- build de produção concluído;
+- testes visuais não executados neste ambiente por ausência do binário Chromium do Playwright.

@@ -9,6 +9,7 @@ import type { GameResult, GameRun, LedgerEntry } from '../../types/game';
 import { clamp, formatCurrency } from '../../utils/format';
 import { cloneValue, createUniqueId } from '../../utils/compat';
 import { migrateNarrativeConsistency } from '../../utils/configTransfer';
+import { resolveChoiceCashImpact } from './economics';
 
 const boundedMetrics: MetricKey[] = ['reputation', 'quality', 'risk', 'fatigue'];
 const metricKeys: MetricKey[] = ['cash', 'reputation', 'quality', 'capacity', 'risk', 'customers', 'fatigue'];
@@ -112,12 +113,12 @@ export function equipmentCost(choice: DecisionChoice, config: AppConfig): number
 
 export function choiceAvailability(
   choice: DecisionChoice,
-  run: Pick<GameRun, 'metrics' | 'flags'>,
+  run: Pick<GameRun, 'metrics' | 'flags' | 'choices'>,
   config: AppConfig,
   decisionId?: string,
 ): { available: boolean; reason?: string; effectiveCashDelta: number } {
   const resolvedDecisionId = decisionId ?? findDecisionIdForChoice(choice, config);
-  const adjustedEffects = getAdjustedChoiceEffects(resolvedDecisionId, choice, config);
+  const adjustedEffects = getAdjustedChoiceEffects(resolvedDecisionId, choice, config, run);
   const directCash = adjustedEffects.cash ?? 0;
   const cost = equipmentCost(choice, config);
   const effectiveCashDelta = directCash - cost;
@@ -172,7 +173,7 @@ export function applyChoice(
   if (!availability.available) return run;
 
   const before = { ...run.metrics };
-  const adjustedEffects = getAdjustedChoiceEffects(decisionId, choice, config);
+  const adjustedEffects = getAdjustedChoiceEffects(decisionId, choice, config, run);
   const after = applyEffects(run.metrics, adjustedEffects, availability.effectiveCashDelta);
   const delta = calculateDelta(before, after);
 
@@ -518,7 +519,7 @@ function simulateChoice(
   config: AppConfig,
   effectiveCashDelta: number,
 ): SimulationState {
-  const adjustedEffects = getAdjustedChoiceEffects(decisionId, choice, config);
+  const adjustedEffects = getAdjustedChoiceEffects(decisionId, choice, config, state);
   return {
     metrics: applyEffects(state.metrics, adjustedEffects, effectiveCashDelta),
     flags: Array.from(new Set([...state.flags, ...(choice.grants ?? [])])),
@@ -563,8 +564,10 @@ function getAdjustedChoiceEffects(
   decisionId: string | undefined,
   choice: DecisionChoice,
   config: AppConfig,
+  run: Pick<GameRun, 'metrics' | 'flags' | 'choices'> | SimulationState,
 ): ChoiceEffects {
   const effects = { ...choice.effects };
+  effects.cash = resolveChoiceCashImpact(decisionId, choice, run, config);
   if (!decisionId || !['first-quote', 'customer-complaint'].includes(decisionId)) {
     return effects;
   }

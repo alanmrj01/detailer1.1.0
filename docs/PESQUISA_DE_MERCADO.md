@@ -37,3 +37,24 @@ Fontes de referência:
 ## Fontes completas dos equipamentos
 
 As 24 URLs e seus respectivos preços estão disponíveis no painel **Configurações → Mercado e veículos** e em `src/data/defaultConfig.ts`. Isso permite auditar e substituir qualquer oferta sem alterar o motor do jogo.
+
+## Atualização econômica dinâmica — julho de 2026
+
+A versão 4.4 deixa de tratar o preço dos desafios como números isolados. O motor utiliza uma base nacional conservadora e aplica fatores de porte do veículo, estrutura escolhida e posicionamento de preço.
+
+Bases pedagógicas centrais usadas no motor:
+
+- lavagem detalhada: R$ 160 para veículo pequeno antes dos fatores;
+- polimento comercial: R$ 520;
+- higienização interna: R$ 420;
+- pacote combinado de lavagem e cuidados internos: R$ 540.
+
+Essas bases foram mantidas dentro das faixas observadas em operações brasileiras com preços públicos. Exemplos consultados em julho de 2026:
+
+- Beck Estética Automotiva: lavagem detalhada a partir de R$ 80, higienização a partir de R$ 400 e polimento comercial a partir de R$ 500 — https://www.beckauto.com.br/
+- Start Clean: higienização de R$ 400 a R$ 550 e polimento comercial de R$ 450 a R$ 750 conforme o porte — https://www.lojastartclean.com.br/
+- PantherBlack: lavagem detalhada por R$ 150 e polimento a partir de R$ 450 — https://esteticapantherblack.com.br/
+- Nitro Estética: lavagem detalhada por R$ 99,90 e higienização completa por R$ 449,90 — https://www.nitroestetica.com.br/
+- GestLav, referência Brasil 2026: lavagem técnica de R$ 120 a R$ 250, higienização de R$ 250 a R$ 700 e polimento comercial de R$ 400 a R$ 1.200 — https://gestlav.com.br/artigo?id=6
+
+O preço final não copia uma única empresa. Ele combina essas faixas com o contexto da partida. Desconto, retrabalho, atraso, campanha, treinamento e apoio operacional passam a reutilizar o ticket realmente calculado ou o perfil da operação, evitando contradições entre texto e caixa.
